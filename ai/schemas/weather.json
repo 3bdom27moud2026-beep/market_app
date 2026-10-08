@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://antigravity.ai/schemas/weather.json",
+  "title": "WeatherForecast",
+  "description": "Weather conditions and forecast data for a given location.",
+  "type": "object",
+  "properties": {
+    "location": { "$ref": "location.json" },
+    "fetched_at": { "type": "string", "format": "date-time" },
+    "current": {
+      "type": "object",
+      "properties": {
+        "temperature_c": { "type": "number" },
+        "feels_like_c": { "type": "number" },
+        "humidity_pct": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "condition": { "type": "string", "examples": ["Sunny", "Partly Cloudy", "Rainy"] },
+        "wind_kph": { "type": "number" },
+        "uv_index": { "type": "integer" }
+      },
+      "required": ["temperature_c", "condition"]
+    },
+    "forecast_days": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date": { "type": "string", "format": "date" },
+          "max_temp_c": { "type": "number" },
+          "min_temp_c": { "type": "number" },
+          "condition": { "type": "string" },
+          "rain_chance_pct": { "type": "integer", "minimum": 0, "maximum": 100 }
+        },
+        "required": ["date", "max_temp_c", "min_temp_c", "condition"]
+      }
+    }
+  },
+  "required": ["location", "fetched_at", "current"],
+  "examples": [
+    {
+      "location": { "lat": -8.409518, "lng": 115.188919, "city": "Bali" },
+      "fetched_at": "2026-08-04T06:00:00Z",
+      "current": { "temperature_c": 30, "feels_like_c": 34, "humidity_pct": 78, "condition": "Partly Cloudy", "wind_kph": 12, "uv_index": 9 },
+      "forecast_days": [
+        { "date": "2026-08-05", "max_temp_c": 32, "min_temp_c": 25, "condition": "Sunny", "rain_chance_pct": 10 }
+      ]
+    }
+  ]
+}

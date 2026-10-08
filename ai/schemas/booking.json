@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://antigravity.ai/schemas/booking.json",
+  "title": "Booking",
+  "description": "A confirmed reservation for a travel experience, hotel, tour, or event.",
+  "type": "object",
+  "properties": {
+    "booking_id": { "type": "string", "examples": ["bkg_77312"] },
+    "user_id": { "type": "string" },
+    "experience_id": { "type": "string" },
+    "booking_type": { "type": "string", "enum": ["hotel", "experience", "event", "flight", "tour"] },
+    "status": { "type": "string", "enum": ["pending", "confirmed", "cancelled", "refunded"] },
+    "total_price": { "type": "number", "minimum": 0 },
+    "currency": { "type": "string", "examples": ["USD"] },
+    "guests": { "type": "integer", "minimum": 1 },
+    "check_in": { "type": "string", "format": "date" },
+    "check_out": { "type": "string", "format": "date" },
+    "payment_status": { "type": "string", "enum": ["unpaid", "paid", "refunded"] },
+    "created_at": { "type": "string", "format": "date-time" },
+    "cancellation_policy": { "type": "string" }
+  },
+  "required": ["booking_id", "user_id", "booking_type", "status", "total_price", "currency", "guests", "created_at"],
+  "examples": [
+    {
+      "booking_id": "bkg_77312",
+      "user_id": "user_49102",
+      "experience_id": "exp_33210",
+      "booking_type": "experience",
+      "status": "confirmed",
+      "total_price": 120.00,
+      "currency": "USD",
+      "guests": 2,
+      "check_in": "2026-08-10",
+      "check_out": "2026-08-10",
+      "payment_status": "paid",
+      "created_at": "2026-08-04T12:00:00Z",
+      "cancellation_policy": "Free cancellation up to 24 hours before."
+    }
+  ]
+}

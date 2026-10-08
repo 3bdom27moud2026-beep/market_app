@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://antigravity.ai/schemas/draft_suggestion.json",
+  "title": "DraftSuggestion",
+  "description": "An AI-generated response draft proposal pushed to the Flutter mobile app for human support agent review.",
+  "type": "object",
+  "properties": {
+    "draft_id": { "type": "string", "examples": ["draft_9901"] },
+    "chat_id": { "type": "integer" },
+    "ai_session_id": { "type": "string" },
+    "suggested_text": { "type": "string", "description": "Proposed response Markdown text." },
+    "confidence": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+    "intent": { "type": "string", "examples": ["order_inquiry"] },
+    "source_knowledge": { "type": "array", "items": { "type": "string" } },
+    "created_at": { "type": "string", "format": "date-time" }
+  },
+  "required": ["draft_id", "chat_id", "suggested_text", "confidence", "intent", "created_at"],
+  "examples": [
+    {
+      "draft_id": "draft_9901",
+      "chat_id": 4821,
+      "ai_session_id": "sess_883921",
+      "suggested_text": "Hello Ahmed! Your order #58210 is currently out for delivery and expected today by 5 PM.",
+      "confidence": 0.82,
+      "intent": "order_inquiry",
+      "source_knowledge": ["crm_order_api"],
+      "created_at": "2026-08-04T12:00:05Z"
+    }
+  ]
+}

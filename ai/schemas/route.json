@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://antigravity.ai/schemas/route.json",
+  "title": "Route",
+  "description": "A travel route between two geographic points with mode of transport and duration.",
+  "type": "object",
+  "properties": {
+    "route_id": { "type": "string" },
+    "origin": { "$ref": "location.json" },
+    "destination": { "$ref": "location.json" },
+    "mode": { "type": "string", "enum": ["driving", "walking", "transit", "cycling", "flight"] },
+    "distance_km": { "type": "number", "minimum": 0 },
+    "duration_minutes": { "type": "number", "minimum": 0 },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "instruction": { "type": "string" },
+          "distance_m": { "type": "number" },
+          "duration_s": { "type": "number" }
+        }
+      }
+    },
+    "polyline": { "type": "string", "description": "Encoded Google Maps polyline." }
+  },
+  "required": ["route_id", "origin", "destination", "mode", "distance_km", "duration_minutes"],
+  "examples": [
+    {
+      "route_id": "rte_44812",
+      "origin": { "lat": -8.6705, "lng": 115.2126, "city": "Denpasar" },
+      "destination": { "lat": -8.409518, "lng": 115.188919, "city": "Ubud" },
+      "mode": "driving",
+      "distance_km": 38.2,
+      "duration_minutes": 68
+    }
+  ]
+}

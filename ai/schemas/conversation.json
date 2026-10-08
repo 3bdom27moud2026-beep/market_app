@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://antigravity.ai/schemas/conversation.json",
+  "title": "Conversation",
+  "description": "A complete conversation session containing ordered chat messages.",
+  "type": "object",
+  "properties": {
+    "conversation_id": { "type": "string", "examples": ["conv_99821"] },
+    "user_id": { "type": "string" },
+    "session_id": { "type": "string" },
+    "status": {
+      "type": "string",
+      "enum": ["active", "completed", "abandoned"],
+      "description": "Lifecycle status of the conversation."
+    },
+    "messages": {
+      "type": "array",
+      "items": { "$ref": "chat_message.json" },
+      "description": "Ordered list of messages in the conversation."
+    },
+    "created_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "token_count": { "type": "integer", "description": "Total tokens consumed in this conversation." }
+  },
+  "required": ["conversation_id", "user_id", "session_id", "status", "messages", "created_at"],
+  "examples": [
+    {
+      "conversation_id": "conv_99821",
+      "user_id": "user_49102",
+      "session_id": "sess_883921",
+      "status": "active",
+      "messages": [],
+      "created_at": "2026-08-04T12:00:00Z",
+      "updated_at": "2026-08-04T12:01:00Z",
+      "token_count": 312
+    }
+  ]
+}

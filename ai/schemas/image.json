@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://antigravity.ai/schemas/image.json",
+  "title": "Image",
+  "description": "An image asset with dimensions, source metadata, and optional alt text.",
+  "type": "object",
+  "properties": {
+    "image_id": { "type": "string" },
+    "url": { "type": "string", "format": "uri" },
+    "alt_text": { "type": "string" },
+    "width_px": { "type": "integer" },
+    "height_px": { "type": "integer" },
+    "mime_type": { "type": "string", "examples": ["image/jpeg", "image/webp"] },
+    "source": { "type": "string", "description": "Attribution or source service name.", "examples": ["Unsplash", "Wikipedia", "Google Maps"] },
+    "license": { "type": "string", "examples": ["CC BY 4.0", "Unsplash License"] }
+  },
+  "required": ["image_id", "url"],
+  "examples": [
+    {
+      "image_id": "img_88821",
+      "url": "https://images.unsplash.com/photo-bali-temple",
+      "alt_text": "Balinese Hindu temple at sunset",
+      "width_px": 1920,
+      "height_px": 1080,
+      "mime_type": "image/jpeg",
+      "source": "Unsplash",
+      "license": "Unsplash License"
+    }
+  ]
+}

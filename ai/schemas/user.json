@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://antigravity.ai/schemas/user.json",
+  "title": "User",
+  "description": "A registered user of the Travel Assistant platform.",
+  "type": "object",
+  "properties": {
+    "user_id": { "type": "string", "examples": ["user_49102"] },
+    "display_name": { "type": "string" },
+    "email": { "type": "string", "format": "email" },
+    "locale": { "type": "string", "examples": ["en_US"] },
+    "preferred_currency": { "type": "string", "examples": ["USD"] },
+    "travel_profile": {
+      "type": "object",
+      "properties": {
+        "preferred_seat": { "type": "string", "enum": ["window", "aisle", "middle"] },
+        "dietary_restrictions": { "type": "array", "items": { "type": "string" } },
+        "budget_tier": { "type": "string", "enum": ["budget", "mid_range", "luxury"] },
+        "loyalty_programs": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "created_at": { "type": "string", "format": "date-time" }
+  },
+  "required": ["user_id", "display_name", "email", "created_at"],
+  "examples": [
+    {
+      "user_id": "user_49102",
+      "display_name": "Ahmed Al-Rashid",
+      "email": "ahmed@example.com",
+      "locale": "en_US",
+      "preferred_currency": "USD",
+      "travel_profile": {
+        "preferred_seat": "window",
+        "dietary_restrictions": ["vegetarian"],
+        "budget_tier": "luxury"
+      },
+      "created_at": "2025-01-01T00:00:00Z"
+    }
+  ]
+}

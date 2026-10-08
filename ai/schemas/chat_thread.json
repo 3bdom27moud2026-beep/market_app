@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://antigravity.ai/schemas/chat_thread.json",
+  "title": "ChatThread",
+  "description": "A customer support conversation thread payload matching Flutter AllChatsEntite shape.",
+  "type": "object",
+  "properties": {
+    "chat_id": { "type": "integer" },
+    "customer_id": { "type": "integer" },
+    "ai_session_id": { "type": ["string", "null"], "description": "AI conversation memory session ID." },
+    "channel_id": { "type": "integer" },
+    "last_message_at": { "type": ["string", "null"], "format": "date-time" },
+    "latest_message": { "$ref": "chat_message.json" },
+    "customer": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "name": { "type": "string" },
+        "phone_number": { "type": "string" }
+      }
+    },
+    "channel": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "platform": { "type": "string", "examples": ["WhatsApp", "Messenger"] }
+      }
+    },
+    "received_messages_count": { "type": "integer" }
+  },
+  "required": ["chat_id", "customer_id", "channel_id"],
+  "examples": [
+    {
+      "chat_id": 4821,
+      "customer_id": 1009,
+      "ai_session_id": "sess_883921",
+      "channel_id": 21,
+      "last_message_at": "2026-08-04T12:00:00Z",
+      "received_messages_count": 3
+    }
+  ]
+}

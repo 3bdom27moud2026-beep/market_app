@@ -1,0 +1,29 @@
+import 'package:market/features/discount_card/domain/entities/card_request_result_entity.dart';
+import 'package:market/features/profile/data/models/profile_model.dart'
+    show UserCardModel;
+
+/// Response model for POST /v1/card/request.
+class CardRequestResponseModel extends CardRequestResultEntity {
+  const CardRequestResponseModel({
+    required super.status,
+    required super.message,
+    super.card,
+  });
+
+  factory CardRequestResponseModel.fromJson(Map<String, dynamic> json) {
+    final dynamic rawCard = json['card'];
+    final cardJson = rawCard is Map<String, dynamic> ? rawCard : null;
+
+    return CardRequestResponseModel(
+      status: json['status'] == true,
+      message: json['message']?.toString() ?? '',
+      card: cardJson != null ? UserCardModel.fromJson(cardJson) : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'status': status,
+    'message': message,
+    if (card != null) 'card': (card as UserCardModel).toJson(),
+  };
+}

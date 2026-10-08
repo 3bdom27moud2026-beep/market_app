@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://antigravity.ai/schemas/tool_result.json",
+  "title": "ToolResult",
+  "description": "The structured result returned by a tool after successful or failed execution.",
+  "type": "object",
+  "properties": {
+    "call_id": { "type": "string", "description": "Matches the originating tool_call.call_id." },
+    "tool_name": { "type": "string" },
+    "status": { "type": "string", "enum": ["success", "error", "timeout", "rate_limited"] },
+    "data": { "type": "object", "description": "Tool-specific response payload.", "additionalProperties": true },
+    "error": { "$ref": "api_error.json", "description": "Present only when status is not success." },
+    "duration_ms": { "type": "integer", "description": "Execution time in milliseconds." },
+    "completed_at": { "type": "string", "format": "date-time" }
+  },
+  "required": ["call_id", "tool_name", "status", "duration_ms", "completed_at"],
+  "examples": [
+    {
+      "call_id": "call_abc123",
+      "tool_name": "weather_api",
+      "status": "success",
+      "data": { "temperature_c": 30, "condition": "Sunny", "humidity_pct": 72 },
+      "duration_ms": 142,
+      "completed_at": "2026-08-04T12:00:05.142Z"
+    }
+  ]
+}

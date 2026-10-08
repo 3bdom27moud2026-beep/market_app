@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://antigravity.ai/schemas/escalation_event.json",
+  "title": "EscalationEvent",
+  "description": "Event payload emitted when a customer support thread requires human agent takeover.",
+  "type": "object",
+  "properties": {
+    "escalation_id": { "type": "string" },
+    "chat_id": { "type": "integer" },
+    "ai_session_id": { "type": "string" },
+    "reason": { "type": "string", "enum": ["LOW_CONFIDENCE", "FRUSTRATED_CUSTOMER", "HIGH_RISK_INTENT", "SYSTEM_FALLBACK"] },
+    "sentiment_score": { "type": "number" },
+    "confidence": { "type": "number" },
+    "summary": { "$ref": "thread_summary.json" },
+    "escalated_at": { "type": "string", "format": "date-time" }
+  },
+  "required": ["escalation_id", "chat_id", "ai_session_id", "reason", "escalated_at"],
+  "examples": [
+    {
+      "escalation_id": "esc_1102",
+      "chat_id": 4821,
+      "ai_session_id": "sess_883921",
+      "reason": "FRUSTRATED_CUSTOMER",
+      "sentiment_score": -0.7,
+      "confidence": 0.55,
+      "escalated_at": "2026-08-04T12:00:10Z"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://antigravity.ai/schemas/thread_summary.json",
+  "title": "ThreadSummary",
+  "description": "Structured executive summary payload for a support conversation thread.",
+  "type": "object",
+  "properties": {
+    "summary_id": { "type": "string" },
+    "chat_id": { "type": "integer" },
+    "customer_name": { "type": ["string", "null"] },
+    "topic": { "type": "string" },
+    "sentiment": { "type": "string", "enum": ["positive", "neutral", "frustrated", "critical"] },
+    "key_points": { "type": "array", "items": { "type": "string" } },
+    "recommended_action": { "type": "string" }
+  },
+  "required": ["summary_id", "chat_id", "topic", "sentiment", "key_points", "recommended_action"],
+  "examples": [
+    {
+      "summary_id": "sum_9012",
+      "chat_id": 4821,
+      "customer_name": "Ahmed Al-Rashid",
+      "topic": "Order Delay #58210",
+      "sentiment": "frustrated",
+      "key_points": [
+        "Customer inquired about order #58210.",
+        "Package delayed at distribution center.",
+        "Customer requested expedited delivery."
+      ],
+      "recommended_action": "Contact courier partner and send tracking update."
+    }
+  ]
+}

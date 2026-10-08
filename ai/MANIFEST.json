@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "2.0.0",
+  "name": "Customer Support AI Runtime Platform",
+  "architecture": "Enterprise Customer Support & Inbox Management AI Runtime",
+  "created": "2026-08-04",
+  "domain": "customer_support",
+  "sdk_version": "2.0.0",
+  "json_schema_draft": "2020-12",
+  "adrs": [
+    "ADR-001_session_memory",
+    "ADR-002_hybrid_ai_model",
+    "ADR-003_laravel_proxy",
+    "ADR-004_multi_provider_routing",
+    "ADR-005_decoupled_flutter_client"
+  ],
+  "agents": [
+    "coordinator",
+    "planner",
+    "executor",
+    "verifier",
+    "summarizer",
+    "critic"
+  ],
+  "brain_modules": [
+    "system_brain",
+    "personality",
+    "reasoning",
+    "reasoning_pipeline",
+    "routing",
+    "memory",
+    "conversation_flow",
+    "response_rules",
+    "decision_engine",
+    "confidence",
+    "recovery",
+    "safety"
+  ],
+  "rag_modules": [
+    "chunking",
+    "embeddings",
+    "indexing",
+    "vector_store",
+    "retrieval",
+    "ranking"
+  ],
+  "memory_tiers": [
+    "working_memory",
+    "conversation_summary",
+    "customer_profile",
+    "tool_cache"
+  ],
+  "skills": {
+    "support": [
+      "draft_reply",
+      "autonomous_reply",
+      "summarize_thread",
+      "classify_intent",
+      "detect_escalation"
+    ],
+    "general": [
+      "faq",
+      "small_talk"
+    ]
+  },
+  "tools": {
+    "registry": "tools/registry.md",
+    "actions": [
+      "assign_agent",
+      "close_chat",
+      "change_status",
+      "add_tag",
+      "create_ticket",
+      "send_template",
+      "search_customer",
+      "update_customer",
+      "create_note"
+    ],
+    "apis": [
+      "laravel_proxy_api",
+      "chat_messages_api",
+      "send_message_api",
+      "crm_customer_api"
+    ]
+  },
+  "schemas": [
+    "chat_message",
+    "chat_thread",
+    "draft_suggestion",
+    "intent_classification",
+    "thread_summary",
+    "escalation_event",
+    "api_error"
+  ],
+  "domains": [
+    "chats",
+    "messages",
+    "channels",
+    "customers",
+    "escalations"
+  ],
+  "knowledge": [
+    "products",
+    "pricing",
+    "refund_policy",
+    "shipping",
+    "company",
+    "faq"
+  ],
+  "prompts": {
+    "templates": [
+      "system",
+      "draft_prompt",
+      "summarize_prompt",
+      "classify_prompt",
+      "escalation_prompt"
+    ],
+    "reply_templates": [
+      "refund",
+      "shipping",
+      "order_delay",
+      "technical_issue",
+      "welcome",
+      "closing"
+    ]
+  },
+  "config": [
+    "providers",
+    "models",
+    "temperature",
+    "token_limits",
+    "cost_control"
+  ],
+  "sdk": [
+    "ai_runtime_api"
+  ],
+  "observability": [
+    "metrics"
+  ],
+  "layer_order": [
+    "shared",
+    "schemas",
+    "knowledge",
+    "rag",
+    "tools",
+    "skills",
+    "memory",
+    "execution",
+    "sdk",
+    "config",
+    "brain",
+    "agents",
+    "prompts",
+    "domains",
+    "observability",
+    "ADRs"
+  ]
+}

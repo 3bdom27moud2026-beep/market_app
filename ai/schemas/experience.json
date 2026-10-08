@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://antigravity.ai/schemas/experience.json",
+  "title": "Experience",
+  "description": "A bookable travel experience such as a cooking class, diving tour, or city walk.",
+  "type": "object",
+  "properties": {
+    "experience_id": { "type": "string", "examples": ["exp_33210"] },
+    "title": { "type": "string" },
+    "category": { "type": "string", "examples": ["adventure", "cultural", "culinary", "wellness"] },
+    "location": { "$ref": "location.json" },
+    "duration_hours": { "type": "number", "minimum": 0 },
+    "price_per_person_usd": { "type": "number", "minimum": 0 },
+    "currency": { "type": "string" },
+    "rating": { "type": "number", "minimum": 0, "maximum": 5 },
+    "review_count": { "type": "integer" },
+    "languages": { "type": "array", "items": { "type": "string" } },
+    "max_group_size": { "type": "integer" },
+    "description": { "type": "string" },
+    "images": { "type": "array", "items": { "type": "string", "format": "uri" } },
+    "available_dates": { "type": "array", "items": { "type": "string", "format": "date" } }
+  },
+  "required": ["experience_id", "title", "category", "location", "price_per_person_usd", "currency"],
+  "examples": [
+    {
+      "experience_id": "exp_33210",
+      "title": "Balinese Cooking Class & Market Tour",
+      "category": "culinary",
+      "location": { "lat": -8.506, "lng": 115.263, "city": "Ubud", "country_code": "ID" },
+      "duration_hours": 4,
+      "price_per_person_usd": 60.00,
+      "currency": "USD",
+      "rating": 4.9,
+      "review_count": 1241,
+      "languages": ["English", "Indonesian"],
+      "max_group_size": 8
+    }
+  ]
+}

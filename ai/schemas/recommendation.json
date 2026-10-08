@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://antigravity.ai/schemas/recommendation.json",
+  "title": "Recommendation",
+  "description": "A personalized recommendation card containing an experience, event, or route suggestion.",
+  "type": "object",
+  "properties": {
+    "recommendation_id": { "type": "string" },
+    "type": { "type": "string", "enum": ["experience", "event", "hotel", "route"] },
+    "item_id": { "type": "string", "description": "Reference ID to event.json, experience.json, or route.json." },
+    "title": { "type": "string" },
+    "reason": { "type": "string", "description": "Human-readable personalization reason." },
+    "confidence_score": { "type": "number", "minimum": 0, "maximum": 1 },
+    "image_url": { "type": "string", "format": "uri" },
+    "price_usd": { "type": "number" },
+    "rating": { "type": "number", "minimum": 0, "maximum": 5 }
+  },
+  "required": ["recommendation_id", "type", "item_id", "title", "reason", "confidence_score"],
+  "examples": [
+    {
+      "recommendation_id": "rec_11293",
+      "type": "experience",
+      "item_id": "exp_33210",
+      "title": "Balinese Cooking Class",
+      "reason": "Based on your preference for culinary experiences and Bali destination.",
+      "confidence_score": 0.96,
+      "price_usd": 60.00,
+      "rating": 4.9
+    }
+  ]
+}

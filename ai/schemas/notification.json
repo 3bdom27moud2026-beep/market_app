@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://antigravity.ai/schemas/notification.json",
+  "title": "Notification",
+  "description": "A push notification or in-app alert dispatched to a user device via Firebase Cloud Messaging.",
+  "type": "object",
+  "properties": {
+    "notification_id": { "type": "string" },
+    "user_id": { "type": "string" },
+    "type": { "type": "string", "enum": ["booking_confirmed", "booking_cancelled", "reminder", "recommendation", "system"] },
+    "title": { "type": "string", "maxLength": 60 },
+    "body": { "type": "string", "maxLength": 160 },
+    "data": { "type": "object", "description": "Deep-link payload.", "additionalProperties": true },
+    "channel_id": { "type": "string", "description": "Android notification channel." },
+    "sent_at": { "type": "string", "format": "date-time" },
+    "read": { "type": "boolean", "default": false }
+  },
+  "required": ["notification_id", "user_id", "type", "title", "body", "sent_at"],
+  "examples": [
+    {
+      "notification_id": "notif_5521",
+      "user_id": "user_49102",
+      "type": "booking_confirmed",
+      "title": "Booking Confirmed 🎉",
+      "body": "Your Balinese Cooking Class on Aug 10 is confirmed.",
+      "data": { "booking_id": "bkg_77312", "screen": "booking_details" },
+      "sent_at": "2026-08-04T12:05:00Z",
+      "read": false
+    }
+  ]
+}

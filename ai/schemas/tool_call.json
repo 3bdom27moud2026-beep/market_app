@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://antigravity.ai/schemas/tool_call.json",
+  "title": "ToolCall",
+  "description": "A structured tool invocation request from an agent to an external API or MCP server.",
+  "type": "object",
+  "properties": {
+    "call_id": { "type": "string", "description": "Unique identifier for this tool call.", "examples": ["call_abc123"] },
+    "tool_name": { "type": "string", "description": "Registered tool name from MANIFEST.json.", "examples": ["weather_api"] },
+    "tool_version": { "type": "string", "examples": ["v1"] },
+    "step_id": { "type": "integer", "description": "Execution step that triggered this call." },
+    "parameters": {
+      "type": "object",
+      "description": "Validated input parameters for the tool.",
+      "additionalProperties": true
+    },
+    "invoked_at": { "type": "string", "format": "date-time" }
+  },
+  "required": ["call_id", "tool_name", "step_id", "parameters", "invoked_at"],
+  "examples": [
+    {
+      "call_id": "call_abc123",
+      "tool_name": "weather_api",
+      "tool_version": "v1",
+      "step_id": 2,
+      "parameters": { "location": "Bali", "days": 3 },
+      "invoked_at": "2026-08-04T12:00:05Z"
+    }
+  ]
+}

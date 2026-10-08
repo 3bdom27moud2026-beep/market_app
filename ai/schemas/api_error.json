@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://antigravity.ai/schemas/api_error.json",
+  "title": "ApiError",
+  "description": "Standardized error payload following RFC 7807 Problem Details for HTTP APIs.",
+  "type": "object",
+  "properties": {
+    "error_code": { "type": "string", "description": "Machine-readable code from shared/error_codes.md.", "examples": ["API_TIMEOUT_EXCEEDED"] },
+    "category": { "type": "string", "enum": ["AUTH_ERR", "VALIDATION_ERR", "RATE_LIMIT_ERR", "TOOL_ERR", "REASONING_ERR", "SYSTEM_ERR"] },
+    "http_status": { "type": "integer", "examples": [504] },
+    "message": { "type": "string", "description": "Human-readable error description." },
+    "retryable": { "type": "boolean", "description": "Whether the caller should attempt a retry." },
+    "retry_after_ms": { "type": ["integer", "null"] },
+    "trace_id": { "type": ["string", "null"] },
+    "occurred_at": { "type": "string", "format": "date-time" }
+  },
+  "required": ["error_code", "category", "http_status", "message", "retryable", "occurred_at"],
+  "examples": [
+    {
+      "error_code": "API_TIMEOUT_EXCEEDED",
+      "category": "TOOL_ERR",
+      "http_status": 504,
+      "message": "The backend API timed out after 5000ms.",
+      "retryable": true,
+      "retry_after_ms": 1000,
+      "trace_id": "4bf92f3577b34da6",
+      "occurred_at": "2026-08-04T12:00:10Z"
+    }
+  ]
+}

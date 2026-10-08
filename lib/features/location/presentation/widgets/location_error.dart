@@ -1,0 +1,64 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:market/core/extensions/context_extensions.dart';
+import 'package:market/core/constants/app_spacing.dart';
+import 'package:market/core/constants/app_text_styles.dart';
+
+/// Error widget for location selection with retry button.
+class LocationError extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+
+  const LocationError({
+    super.key,
+    required this.message,
+    required this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(AppSpacing.xxxl.r),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 48.r,
+              color: context.colors.textTertiary,
+            ),
+            SizedBox(height: AppSpacing.lg.h),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: context.colors.textTertiary,
+                fontSize: 13.sp,
+              ),
+            ),
+            SizedBox(height: AppSpacing.xl.h),
+            ElevatedButton(
+              onPressed: onRetry,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: context.colors.primary,
+                foregroundColor: context.colors.textOnPrimary,
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppSpacing.xxxl.w,
+                  vertical: AppSpacing.md.h,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+              ),
+              child: Text(
+                'إعادة المحاولة',
+                style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

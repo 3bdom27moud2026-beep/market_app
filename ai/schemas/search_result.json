@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://antigravity.ai/schemas/search_result.json",
+  "title": "SearchResult",
+  "description": "A paginated container of search results returned by web, Wikipedia, or event search APIs.",
+  "type": "object",
+  "properties": {
+    "query": { "type": "string", "description": "The original search query." },
+    "source": { "type": "string", "examples": ["wikipedia", "web", "events_api"] },
+    "total_results": { "type": "integer" },
+    "page": { "type": "integer", "minimum": 1 },
+    "page_size": { "type": "integer" },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "snippet": { "type": "string" },
+          "url": { "type": "string", "format": "uri" },
+          "image": { "$ref": "image.json" },
+          "score": { "type": "number", "minimum": 0, "maximum": 1 }
+        },
+        "required": ["title", "snippet"]
+      }
+    }
+  },
+  "required": ["query", "source", "total_results", "results"],
+  "examples": [
+    {
+      "query": "Bali temples",
+      "source": "wikipedia",
+      "total_results": 42,
+      "page": 1,
+      "page_size": 10,
+      "results": [
+        { "title": "Tanah Lot Temple", "snippet": "A rock formation off the Indonesian island of Bali.", "url": "https://en.wikipedia.org/wiki/Tanah_Lot", "score": 0.97 }
+      ]
+    }
+  ]
+}

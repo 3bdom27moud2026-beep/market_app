@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://antigravity.ai/schemas/location.json",
+  "title": "Location",
+  "description": "A geographic location with coordinates and optional address metadata.",
+  "type": "object",
+  "properties": {
+    "lat": { "type": "number", "minimum": -90, "maximum": 90 },
+    "lng": { "type": "number", "minimum": -180, "maximum": 180 },
+    "address": { "type": "string", "examples": ["Ubud, Bali, Indonesia"] },
+    "city": { "type": "string" },
+    "country_code": { "type": "string", "pattern": "^[A-Z]{2}$", "examples": ["ID"] },
+    "timezone": { "type": "string", "examples": ["Asia/Makassar"] },
+    "place_id": { "type": "string", "description": "Google Maps Place ID." }
+  },
+  "required": ["lat", "lng"],
+  "examples": [
+    {
+      "lat": -8.409518,
+      "lng": 115.188919,
+      "address": "Ubud, Bali, Indonesia",
+      "city": "Ubud",
+      "country_code": "ID",
+      "timezone": "Asia/Makassar"
+    }
+  ]
+}

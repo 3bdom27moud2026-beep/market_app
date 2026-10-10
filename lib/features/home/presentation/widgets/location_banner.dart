@@ -16,10 +16,7 @@ class LocationBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg.w,
-        vertical: AppSpacing.lg.h,
-      ),
+      padding: EdgeInsets.symmetric(vertical: AppSpacing.lg.h),
       child: InkWell(
         onTap: () {
           if (onTap != null) {
@@ -50,7 +47,7 @@ class LocationBanner extends StatelessWidget {
                     Text(
                       'التوصيل إلى',
                       style: AppTextStyles.locationTitle.copyWith(
-                        fontSize: 10.sp,
+                        fontSize: 12.sp,
                       ),
                     ),
                     Text(
@@ -63,7 +60,7 @@ class LocationBanner extends StatelessWidget {
                 ),
               ),
               Icon(
-                Icons.chevron_left,
+                Icons.arrow_forward_ios,
                 color: context.colors.textTertiary,
                 size: 20.r,
               ),

@@ -79,7 +79,7 @@ class _TimeBox extends StatelessWidget {
                 value,
                 style: TextStyle(
                   fontFamily: AppTextStyles.fontFamily,
-                  fontSize: 10.5.sp,
+                  fontSize: 15.sp,
                   fontWeight: FontWeight.w900,
                   color: Colors.white,
                   height: 1.0,
@@ -90,7 +90,7 @@ class _TimeBox extends StatelessWidget {
                 label,
                 style: TextStyle(
                   fontFamily: AppTextStyles.fontFamily,
-                  fontSize: 8.5.sp,
+                  fontSize: 9.sp,
                   fontWeight: FontWeight.bold,
                   color: const Color(0xFFA5C1E5),
                   height: 1.0,

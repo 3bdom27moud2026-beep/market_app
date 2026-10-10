@@ -55,7 +55,9 @@ class CustomBottomNavBar extends StatelessWidget {
         final currentBranchRoute = currentBranchIndex < _branchRoutes.length
             ? _branchRoutes[currentBranchIndex]
             : '';
-        final index = tabs.indexWhere((item) => item.route == currentBranchRoute);
+        final index = tabs.indexWhere(
+          (item) => item.route == currentBranchRoute,
+        );
         if (index != -1) {
           activeIndex = index;
         }
@@ -111,12 +113,14 @@ class CustomBottomNavBar extends StatelessWidget {
             unselectedFontSize: 11.sp,
             selectedLabelStyle: TextStyle(
               fontFamily: AppTextStyles.fontFamily,
+              fontFamilyFallback: AppTextStyles.fontFamilyFallback,
               fontWeight: FontWeight.w700,
               fontSize: 11.sp,
               height: 1.4,
             ),
             unselectedLabelStyle: TextStyle(
               fontFamily: AppTextStyles.fontFamily,
+              fontFamilyFallback: AppTextStyles.fontFamilyFallback,
               fontWeight: FontWeight.w500,
               fontSize: 11.sp,
               height: 1.4,

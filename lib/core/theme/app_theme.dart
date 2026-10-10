@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../constants/app_colors.dart';
 
@@ -12,6 +12,7 @@ abstract final class AppTheme {
     return ThemeData(
       useMaterial3: true,
       fontFamily: 'Alexandria',
+      fontFamilyFallback: const ['sans-serif'],
       brightness: Brightness.light,
       scaffoldBackgroundColor: colors.background,
       colorScheme: ColorScheme.fromSeed(
@@ -46,7 +47,12 @@ abstract final class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: colors.primary, width: 1.5),
         ),
-        hintStyle: TextStyle(color: colors.textQuaternary, fontSize: 12.sp),
+        hintStyle: TextStyle(
+          fontFamily: 'Alexandria',
+          fontFamilyFallback: const ['sans-serif'],
+          color: colors.textQuaternary,
+          fontSize: 12.sp,
+        ),
       ),
       dialogTheme: DialogThemeData(
         backgroundColor: colors.surface,
@@ -64,6 +70,7 @@ abstract final class AppTheme {
           foregroundColor: colors.textOnPrimary,
           textStyle: TextStyle(
             fontFamily: 'Alexandria',
+            fontFamilyFallback: const ['sans-serif'],
             fontSize: 13.sp,
             fontWeight: FontWeight.bold,
           ),
@@ -77,6 +84,7 @@ abstract final class AppTheme {
           foregroundColor: colors.primary,
           textStyle: TextStyle(
             fontFamily: 'Alexandria',
+            fontFamilyFallback: const ['sans-serif'],
             fontSize: 12.sp,
             fontWeight: FontWeight.bold,
           ),
@@ -101,6 +109,7 @@ abstract final class AppTheme {
         selectedColor: colors.chipSelectedBackground,
         labelStyle: TextStyle(
           fontFamily: 'Alexandria',
+          fontFamilyFallback: const ['sans-serif'],
           fontSize: 12.sp,
           fontWeight: FontWeight.w500,
         ),
@@ -116,6 +125,7 @@ abstract final class AppTheme {
     return ThemeData(
       useMaterial3: true,
       fontFamily: 'Alexandria',
+      fontFamilyFallback: const ['sans-serif'],
       brightness: Brightness.dark,
       scaffoldBackgroundColor: colors.background,
       colorScheme: ColorScheme.fromSeed(
@@ -150,7 +160,12 @@ abstract final class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: colors.primaryLight, width: 1.5),
         ),
-        hintStyle: TextStyle(color: colors.textQuaternary, fontSize: 12.sp),
+        hintStyle: TextStyle(
+          fontFamily: 'Alexandria',
+          fontFamilyFallback: const ['sans-serif'],
+          color: colors.textQuaternary,
+          fontSize: 12.sp,
+        ),
       ),
       dialogTheme: DialogThemeData(
         backgroundColor: colors.surface,
@@ -168,6 +183,7 @@ abstract final class AppTheme {
           foregroundColor: colors.textOnPrimary,
           textStyle: TextStyle(
             fontFamily: 'Alexandria',
+            fontFamilyFallback: const ['sans-serif'],
             fontSize: 13.sp,
             fontWeight: FontWeight.bold,
           ),
@@ -181,6 +197,7 @@ abstract final class AppTheme {
           foregroundColor: colors.primaryLightest,
           textStyle: TextStyle(
             fontFamily: 'Alexandria',
+            fontFamilyFallback: const ['sans-serif'],
             fontSize: 12.sp,
             fontWeight: FontWeight.bold,
           ),
@@ -205,6 +222,7 @@ abstract final class AppTheme {
         selectedColor: colors.chipSelectedBackground,
         labelStyle: TextStyle(
           fontFamily: 'Alexandria',
+          fontFamilyFallback: const ['sans-serif'],
           fontSize: 12.sp,
           fontWeight: FontWeight.w500,
         ),

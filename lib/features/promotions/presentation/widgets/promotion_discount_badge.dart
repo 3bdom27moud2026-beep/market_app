@@ -20,7 +20,7 @@ class PromotionDiscountBadge extends StatelessWidget {
         '-$discount%',
         style: TextStyle(
           color: context.colors.textOnPrimary,
-          fontSize: 15.5.sp,
+          fontSize: 14.sp,
           fontWeight: FontWeight.w900,
           letterSpacing: -0.2,
         ),

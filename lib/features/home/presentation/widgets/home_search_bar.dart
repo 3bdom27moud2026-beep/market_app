@@ -21,12 +21,12 @@ class HomeSearchBar extends StatelessWidget {
       ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(AppSpacing.xxl.r),
+        borderRadius: BorderRadius.circular(AppSpacing.sm.r),
         child: Container(
           height: 48.h,
           decoration: BoxDecoration(
             color: context.colors.backgroundSecondary,
-            borderRadius: BorderRadius.circular(AppSpacing.xxl.r),
+            borderRadius: BorderRadius.circular(AppSpacing.sm.r),
           ),
           padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg.w),
           child: Row(

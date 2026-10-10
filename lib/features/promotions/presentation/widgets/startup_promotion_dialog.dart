@@ -140,7 +140,7 @@ class StartupPromotionDialog extends StatelessWidget {
                                           style: TextStyle(
                                             color: context.colors.textOnPrimary,
                                             fontWeight: FontWeight.w800,
-                                            fontSize: 9.sp,
+                                            fontSize: 11.sp,
                                           ),
                                         ),
                                       ),
@@ -170,10 +170,10 @@ class StartupPromotionDialog extends StatelessWidget {
                                         promotion.stockMessage,
                                         textAlign: TextAlign.start,
                                         style: TextStyle(
-                                          color: context.colors.textOnPrimary
+                                          color: context.colors.heartGrey
                                               .withValues(alpha: 0.95),
                                           fontWeight: FontWeight.w700,
-                                          fontSize: 9.sp,
+                                          fontSize: 12.sp,
                                         ),
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
@@ -216,7 +216,7 @@ class StartupPromotionDialog extends StatelessWidget {
                                           'لاحقاً',
                                           style: TextStyle(
                                             color: const Color(0xFF8FA7C6),
-                                            fontSize: 9.5.sp,
+                                            fontSize: 13.sp,
                                             fontWeight: FontWeight.w600,
                                           ),
                                         ),
@@ -233,7 +233,8 @@ class StartupPromotionDialog extends StatelessWidget {
                               left: AppSpacing.md.w,
                               right: AppSpacing.md.w,
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   // Discount Badge ("-51%")
@@ -321,7 +322,7 @@ class _SpecialOfferBadge extends StatelessWidget {
         style: TextStyle(
           color: context.colors.textOnPrimary,
           fontWeight: FontWeight.w800,
-          fontSize: 11.5.sp,
+          fontSize: 10.sp,
         ),
       ),
     );

@@ -107,7 +107,7 @@ class CustomBottomNavBar extends StatelessWidget {
             type: BottomNavigationBarType.fixed,
             backgroundColor: Colors.transparent,
             elevation: 0,
-            selectedItemColor: colors.primary,
+            selectedItemColor: colors.accentOrange,
             unselectedItemColor: colors.textTertiary,
             selectedFontSize: 11.sp,
             unselectedFontSize: 11.sp,

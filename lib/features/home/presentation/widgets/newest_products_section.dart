@@ -124,8 +124,16 @@ class NewestProductsSection extends StatelessWidget {
         break;
       case NewestFilter.highestDiscount:
         sorted.sort((a, b) {
-          final aDiscount = _parseDiscount(a.discount);
-          final bDiscount = _parseDiscount(b.discount);
+          final aDiscount = _parseDiscount(
+            a.discount,
+            price: a.price,
+            oldPrice: a.oldPrice,
+          );
+          final bDiscount = _parseDiscount(
+            b.discount,
+            price: b.price,
+            oldPrice: b.oldPrice,
+          );
           return bDiscount.compareTo(aDiscount);
         });
         break;
@@ -139,9 +147,18 @@ class NewestProductsSection extends StatelessWidget {
     return sorted;
   }
 
-  static double _parseDiscount(String discount) {
-    final numeric = discount.replaceAll(RegExp(r'[^0-9]'), '');
-    return double.tryParse(numeric) ?? 0;
+  static double _parseDiscount(
+    String discount, {
+    double price = 0,
+    double oldPrice = 0,
+  }) {
+    final numeric = discount.replaceAll(RegExp(r'[^0-9.]'), '');
+    final parsed = double.tryParse(numeric) ?? 0;
+    if (parsed > 0) return parsed;
+    if (oldPrice > price && oldPrice > 0) {
+      return ((oldPrice - price) / oldPrice) * 100;
+    }
+    return 0;
   }
 }
 
@@ -150,15 +167,18 @@ class CustomProductFilter extends StatelessWidget {
     super.key,
     required this.selectedFilter,
     required this.onFilterChanged,
+    this.padding,
   });
 
   final NewestFilter selectedFilter;
   final Function(NewestFilter) onFilterChanged;
+  final EdgeInsetsGeometry? padding;
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
+      padding: padding,
       child: Row(
         children: [
           FilterChipWidget(

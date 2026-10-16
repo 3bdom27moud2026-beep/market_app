@@ -40,7 +40,10 @@ class HomeSearchBar extends StatelessWidget {
               Expanded(
                 child: Text(
                   'ابحث عن المنتجات، الخدمات، أو المتاجر...',
-                  style: AppTextStyles.searchHint.copyWith(fontSize: 12.sp),
+                  style: AppTextStyles.searchHint.copyWith(
+                    fontSize: 12.sp,
+                    color: context.colors.textQuaternary,
+                  ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),

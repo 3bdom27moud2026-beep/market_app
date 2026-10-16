@@ -84,7 +84,7 @@ abstract final class AppTextStyles {
   static TextStyle get whiteSmall => _style(
     fontSize: 13.sp,
     fontWeight: FontWeight.normal,
-    color: const Color(0x99FFFFFF),
+    color: const Color(0xFFFFFFFF),
   );
 
   // -- Price --
@@ -145,8 +145,11 @@ abstract final class AppTextStyles {
       _style(fontSize: 13.sp, fontWeight: FontWeight.w500);
 
   // -- Location Banner --
-  static TextStyle get locationTitle =>
-      _style(fontSize: 12.sp, fontWeight: FontWeight.w500);
+  static TextStyle get locationTitle => _style(
+    fontSize: 12.sp,
+    fontWeight: FontWeight.w400,
+    color: Color(0xff9da4b0),
+  );
   static TextStyle get locationText =>
       _style(fontSize: 14.sp, fontWeight: FontWeight.bold);
 

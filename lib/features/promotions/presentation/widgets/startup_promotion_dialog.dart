@@ -84,8 +84,20 @@ class StartupPromotionDialog extends StatelessWidget {
                         width: dialogWidth,
                         constraints: BoxConstraints(maxHeight: maxDialogHeight),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF102238),
                           borderRadius: BorderRadius.circular(24.r),
+                          gradient: const LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Color(0xFF1C426C),
+                              Color(0xFF193A60),
+                              Color(0xFF163252),
+                              Color(0xFF132842),
+                              Color(0xFF101F33),
+                              Color(0xFF0C1624),
+                            ],
+                            stops: [0.0, 0.20, 0.40, 0.65, 0.85, 1.0],
+                          ),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withValues(alpha: 0.50),

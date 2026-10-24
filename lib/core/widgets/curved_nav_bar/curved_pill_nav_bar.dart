@@ -281,6 +281,7 @@ class _NavBarTabButton extends StatelessWidget {
               curve: Curves.easeInOut,
               style: TextStyle(
                 fontFamily: 'Alexandria',
+                fontFamilyFallback: const ['sans-serif'],
                 fontSize: 10.0.sp,
                 fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
                 color: isActive ? activeColor : inactiveColor,

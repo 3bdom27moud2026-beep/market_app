@@ -33,7 +33,7 @@ class PromotionDetails extends StatelessWidget {
           textAlign: TextAlign.start,
           style: TextStyle(
             color: context.colors.textOnPrimary,
-            fontSize: 16.sp,
+            fontSize: 20.sp,
             fontWeight: FontWeight.w900,
             height: 1.25,
           ),
@@ -49,7 +49,7 @@ class PromotionDetails extends StatelessWidget {
             textAlign: TextAlign.start,
             style: TextStyle(
               color: context.colors.textOnPrimary.withValues(alpha: 0.95),
-              fontSize: 10.sp,
+              fontSize: 12.sp,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -72,7 +72,7 @@ class PromotionDetails extends StatelessWidget {
                 'من $effectiveMerchant',
                 style: TextStyle(
                   color: context.colors.textOnPrimary.withValues(alpha: 0.85),
-                  fontSize: 8.5.sp,
+                  fontSize: 11.sp,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -94,7 +94,7 @@ class PromotionDetails extends StatelessWidget {
                 'من $effectiveBrand',
                 style: TextStyle(
                   color: context.colors.textOnPrimary.withValues(alpha: 0.85),
-                  fontSize: 8.5.sp,
+                  fontSize: 11.sp,
                   fontWeight: FontWeight.w500,
                 ),
               ),

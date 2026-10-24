@@ -23,9 +23,10 @@ class PromotionActionButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFFEF8226),
           foregroundColor: context.colors.textOnPrimary,
-          elevation: 0,
+          shadowColor: const Color(0xFFEF8226).withValues(alpha: 0.8),
+          elevation: 12,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24.r),
+            borderRadius: BorderRadius.circular(14.r),
           ),
           padding: EdgeInsets.symmetric(horizontal: 16.w),
         ),
@@ -36,7 +37,7 @@ class PromotionActionButton extends StatelessWidget {
             Text(
               buttonText.isNotEmpty ? buttonText : 'تسوق الآن',
               style: TextStyle(
-                fontSize: 12.sp,
+                fontSize: 14.sp,
                 fontWeight: FontWeight.w800,
                 color: context.colors.textOnPrimary,
               ),

@@ -34,7 +34,7 @@ class PromotionPrice extends StatelessWidget {
               '${price.toStringAsFixed(0)} ج.م',
               style: TextStyle(
                 color: const Color(0xFFEF8226),
-                fontSize: 24.sp,
+                fontSize: 26.sp,
                 fontWeight: FontWeight.w900,
                 letterSpacing: -0.5,
               ),
@@ -46,7 +46,7 @@ class PromotionPrice extends StatelessWidget {
               Text(
                 '${oldPrice.toStringAsFixed(0)} ج.م',
                 style: TextStyle(
-                  fontSize: 10.sp,
+                  fontSize: 14.sp,
                   fontWeight: FontWeight.w600,
                   color: context.colors.textOnPrimary.withValues(alpha: 0.65),
                   decoration: TextDecoration.lineThrough,
@@ -69,14 +69,14 @@ class PromotionPrice extends StatelessWidget {
             Icon(
               Icons.star_rounded,
               color: const Color(0xFFFFC107),
-              size: 16.r,
+              size: 12.r,
             ),
             SizedBox(width: 2.w),
             Text(
               rating.toStringAsFixed(1),
               style: TextStyle(
                 color: const Color(0xFFFFC107),
-                fontSize: 9.5.sp,
+                fontSize: 12.sp,
                 fontWeight: FontWeight.w900,
               ),
             ),
@@ -85,7 +85,7 @@ class PromotionPrice extends StatelessWidget {
               '($reviews)',
               style: TextStyle(
                 color: context.colors.textOnPrimary.withValues(alpha: 0.75),
-                fontSize: 8.sp,
+                fontSize: 12.sp,
                 fontWeight: FontWeight.normal,
               ),
             ),

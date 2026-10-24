@@ -74,7 +74,7 @@ class _OfferSliderState extends State<OfferSlider> {
     if (widget.offers.isEmpty) return const SizedBox.shrink();
 
     return SizedBox(
-      height: 200.h,
+      height: 230.h,
       child: Column(
         children: [
           Expanded(
@@ -117,6 +117,21 @@ class _OfferBannerCard extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(AppSpacing.lg.r),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF1A3E65),
+              Color(0xFF1B3F67),
+              Color(0xFF182B40),
+              Color(0xFF1D2430),
+              Color(0xFF45271E),
+              Color(0xFF7A3617),
+              Color(0xFFB04615),
+              Color(0xFFEA6D1A),
+            ],
+            stops: [0.0, 0.18, 0.38, 0.55, 0.70, 0.82, 0.92, 1.0],
+          ),
         ),
         margin: EdgeInsets.symmetric(horizontal: 20.w),
         child: Stack(
@@ -130,17 +145,25 @@ class _OfferBannerCard extends StatelessWidget {
               errorWidget: (context, url, error) => const _BannerPlaceholder(),
             ),
 
-            // ── Gradient overlay ───────────────────────────────────────
+            // ── Gradient overlay matching banner design ────────────────
             const DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Colors.transparent, Colors.black54],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xE61A3E65),
+                    Color(0xB3182B40),
+                    Color(0x661D2430),
+                    Color(0x447A3617),
+                    Color(0x88EA6D1A),
+                  ],
+                  stops: [0.20, 0.40, 0.60, 0.80, 1.0],
                 ),
               ),
             ),
 
+<<<<<<< HEAD
             // ── Text & button content ──────────────────────────────────
             //   Padding(
             //     padding: EdgeInsets.all(AppSpacing.md.r),
@@ -207,6 +230,103 @@ class _OfferBannerCard extends StatelessWidget {
             //       ),
             //     ),
             //   ),
+=======
+            // ── Text & button content positioned on the left ──────────
+            Positioned(
+              left: 18.w,
+              top: 30.h,
+              bottom: 14.h,
+              width: 300.w,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (offer.discount.isNotEmpty)
+                    Container(
+                      margin: EdgeInsets.only(bottom: 4.h),
+                      padding: EdgeInsets.symmetric(
+                        // horizontal: AppSpacing.sm.w,
+                        vertical: 2.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: context.colors.discountRed,
+                        borderRadius: BorderRadius.circular(AppSpacing.xs.r),
+                      ),
+                      child: Text(
+                        offer.discount,
+                        style: AppTextStyles.discountBadge,
+                      ),
+                    ),
+                  SizedBox(height: 12.h),
+                  Text(
+                    offer.title,
+                    style: AppTextStyles.whiteHeading.copyWith(
+                      fontSize: 22.sp,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      height: 1.3,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: 6.h),
+                  Text(
+                    offer.subtitle,
+                    style: AppTextStyles.whiteSmall.copyWith(
+                      color: Colors.white,
+                      fontSize: 13.sp,
+                      height: 1.5,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const Spacer(),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: ElevatedButton(
+                      onPressed: onTap,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: context.colors.accentOrange,
+                        foregroundColor: context.colors.textOnPrimary,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AppSpacing.sm.r),
+                        ),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: AppSpacing.md.w,
+                          vertical: 20.h,
+                        ),
+                        visualDensity: VisualDensity.compact,
+                      ),
+                      child: Directionality(
+                        textDirection: TextDirection.ltr,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.chevron_left,
+                              color: Colors.white,
+                              size: 16.r,
+                            ),
+                            SizedBox(width: 4.w),
+                            Text(
+                              offer.buttonText.isNotEmpty
+                                  ? offer.buttonText
+                                  : 'تسوق الآن',
+                              style: AppTextStyles.buttonSmall.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20.h),
+                ],
+              ),
+            ),
+>>>>>>> b6fa6321f2dd520aaf5d36db3c607f68bb5947b1
           ],
         ),
       ),
@@ -258,19 +378,54 @@ class _BannerPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(AppSpacing.xl),
-        child: Image.asset(AppAssets.placeholderImage, fit: BoxFit.cover),
-      ),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            context.colors.primaryDark.withValues(alpha: 0.8),
-            context.colors.primary.withValues(alpha: 0.6),
-          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF1A3E65),
+            Color(0xFF1B3F67),
+            Color(0xFF182B40),
+            Color(0xFF1D2430),
+            Color(0xFF45271E),
+            Color(0xFF7A3617),
+            Color(0xFFB04615),
+            Color(0xFFEA6D1A),
+          ],
+          stops: [0.0, 0.18, 0.38, 0.55, 0.70, 0.82, 0.92, 1.0],
         ),
+      ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // ── Ambient radial orange glow on the right ────────────────
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: RadialGradient(
+                center: Alignment(0.85, 0.45),
+                radius: 0.85,
+                colors: [
+                  Color(0x66EA6D1A),
+                  Color(0x22B04615),
+                  Colors.transparent,
+                ],
+                stops: [0.0, 0.5, 1.0],
+              ),
+            ),
+          ),
+
+          // ── Card and % graphics floating on the right side ─────────
+          Align(
+            alignment: Alignment.centerRight,
+            child: FractionallySizedBox(
+              widthFactor: 0.48,
+              child: Image.asset(
+                AppAssets.placeholderImage,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

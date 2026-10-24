@@ -14,123 +14,148 @@ abstract final class AppTextStyles {
   /// Default font family for the application.
   static const String fontFamily = 'Alexandria';
 
+  /// Fallback font family stack.
+  static const List<String> fontFamilyFallback = ['sans-serif'];
+
+  /// Helper builder ensuring every text style includes Alexandria and sans-serif fallback.
+  static TextStyle _style({
+    required double fontSize,
+    FontWeight? fontWeight,
+    Color? color,
+    TextDecoration? decoration,
+    double? letterSpacing,
+    double? height,
+  }) => TextStyle(
+    fontFamily: fontFamily,
+    fontFamilyFallback: fontFamilyFallback,
+    fontSize: fontSize,
+    fontWeight: fontWeight,
+    color: color,
+    decoration: decoration,
+    letterSpacing: letterSpacing,
+    height: height,
+  );
+
   // -- Splash Screen (always on brand gradient — keep white) --
-  static TextStyle get splashTitle => TextStyle(
+  static TextStyle get splashTitle => _style(
     fontSize: 36.sp,
     fontWeight: FontWeight.bold,
-    color: Color(0xFFFFFFFF),
+    color: const Color(0xFFFFFFFF),
   );
-  static TextStyle get splashSubtitle => TextStyle(
+  static TextStyle get splashSubtitle => _style(
     fontSize: 18.sp,
     fontWeight: FontWeight.w500,
-    color: Color(0xCCFFFFFF),
+    color: const Color(0xCCFFFFFF),
   );
 
   // -- Headings (no hardcoded color — use context.colors) --
   static TextStyle get headingLarge =>
-      TextStyle(fontSize: 22.sp, fontWeight: FontWeight.bold);
+      _style(fontSize: 22.sp, fontWeight: FontWeight.bold);
   static TextStyle get headingMedium =>
-      TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold);
+      _style(fontSize: 18.sp, fontWeight: FontWeight.bold);
   static TextStyle get headingSmall =>
-      TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600);
+      _style(fontSize: 16.sp, fontWeight: FontWeight.w600);
 
   // -- Section Headers --
   static TextStyle get sectionTitle =>
-      TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold);
+      _style(fontSize: 18.sp, fontWeight: FontWeight.bold);
   static TextStyle get sectionViewAll =>
-      TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500);
+      _style(fontSize: 14.sp, fontWeight: FontWeight.w500);
 
   // -- Body --
   static TextStyle get bodyLarge =>
-      TextStyle(fontSize: 16.sp, fontWeight: FontWeight.normal);
+      _style(fontSize: 16.sp, fontWeight: FontWeight.normal);
   static TextStyle get bodyMedium =>
-      TextStyle(fontSize: 14.sp, fontWeight: FontWeight.normal);
+      _style(fontSize: 14.sp, fontWeight: FontWeight.normal);
   static TextStyle get bodySmall =>
-      TextStyle(fontSize: 12.sp, fontWeight: FontWeight.normal);
+      _style(fontSize: 12.sp, fontWeight: FontWeight.normal);
 
   // -- White text variants (always on dark/brand backgrounds) --
-  static TextStyle get whiteHeading => TextStyle(
-    fontSize: 18.sp,
+  static TextStyle get whiteHeading => _style(
+    fontSize: 22.sp,
     fontWeight: FontWeight.bold,
-    color: Color(0xFFFFFFFF),
+    color: const Color(0xFFFFFFFF),
   );
-  static TextStyle get whiteBody => TextStyle(
+  static TextStyle get whiteBody => _style(
     fontSize: 14.sp,
     fontWeight: FontWeight.normal,
-    color: Color(0xCCFFFFFF),
+    color: const Color(0xCCFFFFFF),
   );
-  static TextStyle get whiteSmall => TextStyle(
-    fontSize: 12.sp,
+  static TextStyle get whiteSmall => _style(
+    fontSize: 13.sp,
     fontWeight: FontWeight.normal,
-    color: Color(0x99FFFFFF),
+    color: const Color(0xFFFFFFFF),
   );
 
   // -- Price --
   static TextStyle get price =>
-      TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold);
-  static TextStyle get oldPrice => TextStyle(
+      _style(fontSize: 18.sp, fontWeight: FontWeight.bold);
+  static TextStyle get oldPrice => _style(
     fontSize: 14.sp,
     fontWeight: FontWeight.w400,
     decoration: TextDecoration.lineThrough,
   );
-  static TextStyle get discountBadge => TextStyle(
+  static TextStyle get discountBadge => _style(
     fontSize: 11.sp,
     fontWeight: FontWeight.bold,
-    color: Color(0xFFFFFFFF),
+    color: const Color(0xFFFFFFFF),
   );
 
   // -- Timer (always on dark banner) --
-  static TextStyle get timerNumber => TextStyle(
+  static TextStyle get timerNumber => _style(
     fontSize: 20.sp,
     fontWeight: FontWeight.bold,
-    color: Color(0xFFFFFFFF),
+    color: const Color(0xFFFFFFFF),
   );
-  static TextStyle get timerLabel => TextStyle(
+  static TextStyle get timerLabel => _style(
     fontSize: 10.sp,
     fontWeight: FontWeight.w500,
-    color: Color(0x99FFFFFF),
+    color: const Color(0x99FFFFFF),
   );
 
   // -- App Bar --
   static TextStyle get appBarTitle =>
-      TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold);
+      _style(fontSize: 20.sp, fontWeight: FontWeight.bold);
 
   // -- Buttons (always on primary/orange backgrounds) --
-  static TextStyle get buttonOrange => TextStyle(
+  static TextStyle get buttonOrange => _style(
     fontSize: 14.sp,
     fontWeight: FontWeight.bold,
-    color: Color(0xFFFFFFFF),
+    color: const Color(0xFFFFFFFF),
   );
-  static TextStyle get buttonSmall => TextStyle(
+  static TextStyle get buttonSmall => _style(
     fontSize: 12.sp,
     fontWeight: FontWeight.w600,
-    color: Color(0xFFFFFFFF),
+    color: const Color(0xFFFFFFFF),
   );
 
   // -- Search --
   static TextStyle get searchHint =>
-      TextStyle(fontSize: 14.sp, fontWeight: FontWeight.normal);
+      _style(fontSize: 14.sp, fontWeight: FontWeight.normal);
   static TextStyle get searchText =>
-      TextStyle(fontSize: 14.sp, fontWeight: FontWeight.normal);
+      _style(fontSize: 14.sp, fontWeight: FontWeight.normal);
 
   // -- Filter Chip (selected always on dark chip background) --
-  static TextStyle get chipSelected => TextStyle(
+  static TextStyle get chipSelected => _style(
     fontSize: 13.sp,
     fontWeight: FontWeight.w600,
-    color: Color(0xFFFFFFFF),
+    color: const Color(0xFFFFFFFF),
   );
   static TextStyle get chipUnselected =>
-      TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w500);
+      _style(fontSize: 13.sp, fontWeight: FontWeight.w500);
 
   // -- Location Banner --
-  static TextStyle get locationTitle =>
-      TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500);
+  static TextStyle get locationTitle => _style(
+    fontSize: 12.sp,
+    fontWeight: FontWeight.w400,
+    color: Color(0xff9da4b0),
+  );
   static TextStyle get locationText =>
-      TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold);
+      _style(fontSize: 14.sp, fontWeight: FontWeight.bold);
 
   // -- Partner / Store --
   static TextStyle get storeName =>
-      TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600);
+      _style(fontSize: 12.sp, fontWeight: FontWeight.w600);
   static TextStyle get ratingSmall =>
-      TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w500);
+      _style(fontSize: 11.sp, fontWeight: FontWeight.w500);
 }

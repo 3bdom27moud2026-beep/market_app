@@ -156,10 +156,17 @@ class _HomeContent extends StatelessWidget {
     context.push('/product-details/$productId');
   }
 
-
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<HomeCubit>();
+    final sortedFlashSale = FlashSaleSection.sortProducts(
+      state.flashSale,
+      state.selectedFilter,
+    );
+    final sortedBestSellers = BestSellerSection.sortProducts(
+      state.bestSellers,
+      state.selectedFilter,
+    );
     final sortedNewest = NewestProductsSection.sortProducts(
       state.newestProducts,
       state.selectedFilter,
@@ -193,16 +200,17 @@ class _HomeContent extends StatelessWidget {
             onOfferTap: (offer) => context.go(AppRoutes.categories),
           ),
 
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12.0),
-            child: CustomProductFilter(
-              onFilterChanged: (filter) => cubit.changeNewestFilter(filter),
-              selectedFilter: state.selectedFilter,
+          CustomProductFilter(
+            padding: EdgeInsets.symmetric(
+              horizontal: AppSpacing.lg.w,
+              vertical: AppSpacing.sm.h,
             ),
+            onFilterChanged: (filter) => cubit.changeNewestFilter(filter),
+            selectedFilter: state.selectedFilter,
           ),
           // Flash Sale
           FlashSaleSection(
-            products: state.flashSale,
+            products: sortedFlashSale,
             timerDuration: state.flashSaleTimer,
             onProductTap: (id) => _navigateToProductDetails(context, id),
             onAddToCart: (id, title) => _navigateToProductDetails(context, id),
@@ -225,8 +233,7 @@ class _HomeContent extends StatelessWidget {
 
           // Best Sellers
           BestSellerSection(
-            
-            products: state.bestSellers,
+            products: sortedBestSellers,
             onProductTap: (id) => _navigateToProductDetails(context, id),
             onAddToCart: (id, title) => _navigateToProductDetails(context, id),
             onViewAllTap: () =>

@@ -18,6 +18,9 @@ abstract final class AppStyles {
   /// Main application font family.
   static const String fontFamily = 'Alexandria';
 
+  /// Fallback font family stack.
+  static const List<String> fontFamilyFallback = ['sans-serif'];
+
   // ── Font Weights ─────────────────────────────────────────────────────────
   static const FontWeight light = FontWeight.w300;
   static const FontWeight regular = FontWeight.w400;

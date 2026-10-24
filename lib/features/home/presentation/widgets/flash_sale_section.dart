@@ -4,6 +4,7 @@ import 'package:market/core/constants/app_spacing.dart';
 import 'package:market/core/constants/app_text_styles.dart';
 import 'package:market/core/widgets/orange_custom_icon.dart';
 import 'package:market/features/home/domain/entities/flash_sale_product_entity.dart';
+import 'package:market/features/home/presentation/cubit/home_state.dart';
 import 'flash_sale_timer.dart';
 import 'flash_sale_product_card.dart';
 
@@ -24,6 +25,54 @@ class FlashSaleSection extends StatelessWidget {
     this.onAddToCart,
     this.onViewAllTap,
   });
+
+  /// Sort flash sale products based on the selected filter.
+  static List<FlashSaleProductEntity> sortProducts(
+    List<FlashSaleProductEntity> products,
+    NewestFilter filter,
+  ) {
+    final sorted = List<FlashSaleProductEntity>.from(products);
+    switch (filter) {
+      case NewestFilter.newest:
+        break;
+      case NewestFilter.highestDiscount:
+        sorted.sort((a, b) {
+          final aDiscount = _parseDiscount(
+            a.discount,
+            price: a.price,
+            oldPrice: a.oldPrice,
+          );
+          final bDiscount = _parseDiscount(
+            b.discount,
+            price: b.price,
+            oldPrice: b.oldPrice,
+          );
+          return bDiscount.compareTo(aDiscount);
+        });
+        break;
+      case NewestFilter.lowestPrice:
+        sorted.sort((a, b) => a.price.compareTo(b.price));
+        break;
+      case NewestFilter.highestRating:
+        sorted.sort((a, b) => b.rating.compareTo(a.rating));
+        break;
+    }
+    return sorted;
+  }
+
+  static double _parseDiscount(
+    String discount, {
+    double price = 0,
+    double oldPrice = 0,
+  }) {
+    final numeric = discount.replaceAll(RegExp(r'[^0-9.]'), '');
+    final parsed = double.tryParse(numeric) ?? 0;
+    if (parsed > 0) return parsed;
+    if (oldPrice > price && oldPrice > 0) {
+      return ((oldPrice - price) / oldPrice) * 100;
+    }
+    return 0;
+  }
 
   @override
   Widget build(BuildContext context) {

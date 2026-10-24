@@ -5,6 +5,7 @@ import 'package:market/core/constants/app_spacing.dart';
 import 'package:market/core/constants/app_text_styles.dart';
 import 'package:market/core/widgets/orange_custom_icon.dart';
 import 'package:market/features/home/domain/entities/best_seller_entity.dart';
+import 'package:market/features/home/presentation/cubit/home_state.dart';
 import 'best_seller_card.dart';
 
 /// Best Seller section with dark blue background, header, and horizontal cards.
@@ -24,6 +25,53 @@ class BestSellerSection extends StatelessWidget {
     this.onProductTap,
     this.onAddToCart,
   });
+
+  /// Sort best seller products based on the selected filter.
+  static List<BestSellerEntity> sortProducts(
+    List<BestSellerEntity> products,
+    NewestFilter filter,
+  ) {
+    final sorted = List<BestSellerEntity>.from(products);
+    switch (filter) {
+      case NewestFilter.newest:
+        break;
+      case NewestFilter.highestDiscount:
+        sorted.sort((a, b) {
+          final aDiscount = _parseDiscount(a);
+          final bDiscount = _parseDiscount(b);
+          return bDiscount.compareTo(aDiscount);
+        });
+        break;
+      case NewestFilter.lowestPrice:
+        sorted.sort((a, b) {
+          final aPrice = a.displayPrice > 0 ? a.displayPrice : a.price;
+          final bPrice = b.displayPrice > 0 ? b.displayPrice : b.price;
+          return aPrice.compareTo(bPrice);
+        });
+        break;
+      case NewestFilter.highestRating:
+        sorted.sort((a, b) => b.rating.compareTo(a.rating));
+        break;
+    }
+    return sorted;
+  }
+
+  static double _parseDiscount(BestSellerEntity entity) {
+    final numeric = entity.discount.replaceAll(RegExp(r'[^0-9.]'), '');
+    final parsed = double.tryParse(numeric) ?? 0;
+    if (parsed > 0) return parsed;
+    if (entity.savingsAmount > 0) return entity.savingsAmount;
+    final effectivePrice = entity.displayPrice > 0
+        ? entity.displayPrice
+        : entity.price;
+    final effectiveOld = entity.originalPrice > 0
+        ? entity.originalPrice
+        : entity.oldPrice;
+    if (effectiveOld > effectivePrice && effectiveOld > 0) {
+      return ((effectiveOld - effectivePrice) / effectiveOld) * 100;
+    }
+    return 0;
+  }
 
   @override
   Widget build(BuildContext context) {

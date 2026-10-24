@@ -16,10 +16,7 @@ class LocationBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg.w,
-        vertical: AppSpacing.lg.h,
-      ),
+      padding: EdgeInsets.symmetric(vertical: AppSpacing.lg.h),
       child: InkWell(
         onTap: () {
           if (onTap != null) {
@@ -36,36 +33,38 @@ class LocationBanner extends StatelessWidget {
             borderRadius: BorderRadius.circular(AppSpacing.md.r),
           ),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(
-                Icons.location_on_outlined,
-                color: context.colors.accentOrange,
-                size: 22.r,
-              ),
-              SizedBox(width: AppSpacing.sm.w),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'التوصيل إلى',
-                      style: AppTextStyles.locationTitle.copyWith(
-                        fontSize: 10.sp,
-                      ),
+              Row(
+                children: [
+                  Icon(
+                    Icons.location_on_outlined,
+                    color: context.colors.accentOrange,
+                    size: 22.r,
+                  ),
+                  SizedBox(width: AppSpacing.sm.w),
+
+                  Text(
+                    'التوصيل إلى:',
+                    style: AppTextStyles.locationTitle.copyWith(
+                      fontSize: 12.sp,
                     ),
-                    Text(
-                      selectedLocation ?? 'حدد موقعك لتصفية العروض',
-                      style: AppTextStyles.locationText.copyWith(
-                        fontSize: 12.sp,
-                      ),
+                  ),
+                  SizedBox(width: AppSpacing.md.w),
+                  Text(
+                    selectedLocation ?? 'حدد موقعك لتصفية العروض...',
+                    style: AppTextStyles.locationText.copyWith(
+                      fontSize: 12.sp,
+                      color: context.colors.primary,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
+
               Icon(
-                Icons.chevron_left,
+                Icons.arrow_forward_ios,
                 color: context.colors.textTertiary,
-                size: 20.r,
+                size: 12.r,
               ),
             ],
           ),

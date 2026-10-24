@@ -96,7 +96,6 @@ class _HomeScreenState extends State<HomeScreen> {
               backgroundColor: context.colors.background,
               appBar: HomeAppBar(
                 cartItemCount: cartState.totalItemsCount,
-                notificationCount: 0,
                 onCartTap: () {
                   AuthHelper.ensureAuthenticated(
                     context,
@@ -244,9 +243,9 @@ class _HomeContent extends StatelessWidget {
 
           // ShopGuide Card (Request Discount Card section)
           // - Shown if user is unauthenticated (not logged in / guest).
-          // - Hidden if profile.card != null (user already has a card).
-          // - Hidden while profile is loading for logged-in users to prevent flicker.
-          // - Shown if user is logged in but has no discount card (card == null).
+          // - Hidden ONLY if user has an ACTIVE card (card != null && card.isActive).
+          // - Shown if user has no card or card is not yet active (pending/inactive) so they can request or check it.
+          // - Divider is included inside the Column so hiding the card never produces duplicate adjacent dividers.
           BlocSelector<
             ProfileCubit,
             ProfileState,
@@ -269,43 +268,45 @@ class _HomeContent extends StatelessWidget {
               final hasProfileData = data.$2;
               final isUnauthenticated = data.$3;
 
-              // CASE 1: User is NOT logged in -> Always show the get card section
-              if (isUnauthenticated) {
-                return ShopGuideCard(
-                  onGetItTap: () async {
-                    final bool? result = await showAuthBottomSheet(
-                      context,
-                      initialTab: AuthBottomSheetTab.register,
-                    );
-                    if (result == true && context.mounted) {
-                      context.read<ProfileCubit>().refresh();
-                    }
-                  },
-                );
-              }
+              final bool isCardActive = card != null && card.isActive;
 
-              // CASE 2: User is logged in and HAS a card -> Hide section completely
-              if (card != null) {
+              // CASE 1: User is logged in and HAS an ACTIVE card -> Hide section completely
+              if (!isUnauthenticated && isCardActive) {
                 return const SizedBox.shrink();
               }
 
-              // CASE 3: User is logged in, but profile is still loading and no card info yet -> Hide to prevent flicker
-              if (!hasProfileData) {
+              // CASE 2: User is logged in, but profile is still loading -> Hide to prevent flicker
+              if (!isUnauthenticated && !hasProfileData) {
                 return const SizedBox.shrink();
               }
 
-              // CASE 4: User is logged in and DOES NOT HAVE a card -> Show request card section
-              return ShopGuideCard(
-                onGetItTap: () async {
-                  await showRequestCardBottomSheet(context);
-                  if (context.mounted) {
-                    context.read<ProfileCubit>().refresh();
-                  }
-                },
+              // CASE 3: User is unauthenticated OR card is not yet active -> Show request card section
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ShopGuideCard(
+                    onGetItTap: () async {
+                      if (isUnauthenticated) {
+                        final bool? result = await showAuthBottomSheet(
+                          context,
+                          initialTab: AuthBottomSheetTab.register,
+                        );
+                        if (result == true && context.mounted) {
+                          context.read<ProfileCubit>().refresh();
+                        }
+                      } else {
+                        await showRequestCardBottomSheet(context);
+                        if (context.mounted) {
+                          context.read<ProfileCubit>().refresh();
+                        }
+                      }
+                    },
+                  ),
+                  const ScreenDivider(),
+                ],
               );
             },
           ),
-          const ScreenDivider(),
 
           // Newest Products
           NewestProductsSection(

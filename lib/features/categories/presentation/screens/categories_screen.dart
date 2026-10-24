@@ -115,7 +115,10 @@ class _CategoriesContent extends StatelessWidget {
 
         // Search Field
         SliverToBoxAdapter(
-          child: CategorySearchField(onSearch: cubit.searchCategories),
+          child: CategorySearchField(
+            onSearch: cubit.searchCategories,
+            initialValue: state.searchQuery,
+          ),
         ),
 
         SliverToBoxAdapter(child: SizedBox(height: 16.h)),

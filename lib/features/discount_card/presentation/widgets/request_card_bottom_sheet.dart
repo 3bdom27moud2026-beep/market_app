@@ -41,7 +41,7 @@ class _RequestCardBottomSheetContentState
   final _formKey = GlobalKey<FormState>();
   final _addressController = TextEditingController();
   final _phoneController = TextEditingController();
-  final String _paymentMethod = 'cash';
+  String _paymentMethod = 'cash';
   bool _isSubmitting = false;
 
   @override
@@ -361,7 +361,7 @@ class _RequestCardBottomSheetContentState
                   ),
                   SizedBox(height: AppSpacing.md.h),
 
-                  // Payment Method Info (Cash on delivery)
+                  // Payment Method Selection (Cash & InstaPay)
                   Text(
                     'طريقة الدفع',
                     style: AppTextStyles.bodyMedium.copyWith(
@@ -370,57 +370,25 @@ class _RequestCardBottomSheetContentState
                     ),
                   ),
                   SizedBox(height: AppSpacing.xs.h),
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: AppSpacing.md.w,
-                      vertical: AppSpacing.md.h,
-                    ),
-                    decoration: BoxDecoration(
-                      color: context.colors.primary.withValues(alpha: 0.06),
-                      borderRadius: BorderRadius.circular(AppRadius.medium.r),
-                      border: Border.all(
-                        color: context.colors.primary,
-                        width: 1.5.w,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.payments_outlined,
-                          color: context.colors.primary,
-                          size: 24.r,
-                        ),
-                        SizedBox(width: AppSpacing.md.w),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'الدفع عند الاستلام (كاش)',
-                                style: AppTextStyles.bodyMedium.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: context.colors.primaryDark,
-                                ),
-                              ),
-                              SizedBox(height: 2.h),
-                              Text(
-                                'ادفع قيمة الكارت لمندوب التوصيل فور الاستلام',
-                                style: AppTextStyles.bodySmall.copyWith(
-                                  color: context.colors.textTertiary,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Icon(
-                          Icons.check_circle_rounded,
-                          color: context.colors.primary,
-                          size: 20.r,
-                        ),
-                      ],
-                    ),
+                  _buildPaymentOption(
+                    value: 'cash',
+                    title: 'الدفع عند الاستلام (كاش)',
+                    subtitle: 'ادفع قيمة الكارت لمندوب التوصيل فور الاستلام',
+                    icon: Icons.payments_outlined,
                   ),
-                  SizedBox(height: AppSpacing.xxl.h),
+                  _buildPaymentOption(
+                    value: 'instapay',
+                    title: 'انستاباي (InstaPay)',
+                    subtitle: 'التحويل المباشر عبر تطبيق انستاباي',
+                    icon: Icons.bolt_rounded,
+                  ),
+                  _buildPaymentOption(
+                    value: 'vodafone_cash',
+                    title: 'محفظة كاش',
+                    subtitle: 'التحويل عبر فودافون كاش، أورنج، اتصالات، وي كاش',
+                    icon: Icons.account_balance_wallet_outlined,
+                  ),
+                  SizedBox(height: AppSpacing.lg.h),
 
                   // Submit CTA Button
                   SizedBox(
@@ -471,6 +439,108 @@ class _RequestCardBottomSheetContentState
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPaymentOption({
+    required String value,
+    required String title,
+    required String subtitle,
+    required IconData icon,
+  }) {
+    final isSelected = _paymentMethod == value;
+    return GestureDetector(
+      onTap: () {
+        if (_paymentMethod != value) {
+          setState(() {
+            _paymentMethod = value;
+          });
+        }
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        margin: EdgeInsets.only(bottom: AppSpacing.sm.h),
+        padding: EdgeInsets.symmetric(
+          horizontal: AppSpacing.md.w,
+          vertical: AppSpacing.sm.h + 2.h,
+        ),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? context.colors.primary.withValues(alpha: 0.06)
+              : context.colors.backgroundSecondary.withValues(alpha: 0.35),
+          borderRadius: BorderRadius.circular(AppRadius.medium.r),
+          border: Border.all(
+            color: isSelected
+                ? context.colors.primary
+                : context.colors.border.withValues(alpha: 0.8),
+            width: isSelected ? 1.5.w : 1.w,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: isSelected
+                  ? context.colors.primary.withValues(alpha: 0.08)
+                  : context.colors.shadowLight,
+              blurRadius: isSelected ? 6.r : 3.r,
+              offset: Offset(0, 1.h),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 36.r,
+              height: 36.r,
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? context.colors.primary.withValues(alpha: 0.12)
+                    : context.colors.backgroundSecondary,
+                borderRadius: BorderRadius.circular(AppRadius.small.r),
+              ),
+              child: Icon(
+                icon,
+                color: isSelected
+                    ? context.colors.primary
+                    : context.colors.textSecondary,
+                size: 20.r,
+              ),
+            ),
+            SizedBox(width: AppSpacing.md.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.w600,
+                      color: isSelected
+                          ? context.colors.primaryDark
+                          : context.colors.textPrimary,
+                    ),
+                  ),
+                  SizedBox(height: 2.h),
+                  Text(
+                    subtitle,
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: context.colors.textTertiary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              isSelected
+                  ? Icons.check_circle_rounded
+                  : Icons.radio_button_unchecked_rounded,
+              color: isSelected
+                  ? context.colors.primary
+                  : context.colors.textTertiary.withValues(alpha: 0.5),
+              size: 20.r,
+            ),
+          ],
         ),
       ),
     );

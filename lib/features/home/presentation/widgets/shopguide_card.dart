@@ -38,7 +38,7 @@ class ShopGuideCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'كارت ShopGuide',
+                  'كارت شوب جايد',
                   style: AppTextStyles.whiteHeading.copyWith(fontSize: 16.sp),
                 ),
                 SizedBox(height: AppSpacing.xs.h),

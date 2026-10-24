@@ -142,71 +142,71 @@ class _OfferBannerCard extends StatelessWidget {
             ),
 
             // ── Text & button content ──────────────────────────────────
-            Padding(
-              padding: EdgeInsets.all(AppSpacing.md.r),
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: AlignmentDirectional.bottomStart,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    if (offer.discount.isNotEmpty)
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: AppSpacing.sm.w,
-                          vertical: AppSpacing.xs.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: context.colors.discountRed,
-                          borderRadius: BorderRadius.circular(AppSpacing.xs.r),
-                        ),
-                        child: Text(
-                          offer.discount,
-                          style: AppTextStyles.discountBadge,
-                        ),
-                      ),
-                    SizedBox(height: AppSpacing.xs.h),
-                    Text(
-                      offer.title,
-                      style: AppTextStyles.whiteHeading,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: AppSpacing.xs.h),
-                    Text(
-                      offer.subtitle,
-                      style: AppTextStyles.whiteSmall,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: AppSpacing.xs.h),
-                    ElevatedButton(
-                      onPressed: onTap,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: context.colors.accentOrange,
-                        foregroundColor: context.colors.textOnPrimary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AppSpacing.xl.r),
-                        ),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: AppSpacing.lg.w,
-                          vertical: 4.h,
-                        ),
-                        visualDensity: VisualDensity.compact,
-                      ),
-                      child: Text(
-                        offer.buttonText.isNotEmpty
-                            ? offer.buttonText
-                            : 'تسوق الآن',
-                        style: AppTextStyles.buttonSmall,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            //   Padding(
+            //     padding: EdgeInsets.all(AppSpacing.md.r),
+            //     child: FittedBox(
+            //       fit: BoxFit.scaleDown,
+            //       alignment: AlignmentDirectional.bottomStart,
+            //       child: Column(
+            //         mainAxisSize: MainAxisSize.min,
+            //         crossAxisAlignment: CrossAxisAlignment.start,
+            //         mainAxisAlignment: MainAxisAlignment.end,
+            //         children: [
+            //           if (offer.discount.isNotEmpty)
+            //             Container(
+            //               padding: EdgeInsets.symmetric(
+            //                 horizontal: AppSpacing.sm.w,
+            //                 vertical: AppSpacing.xs.h,
+            //               ),
+            //               decoration: BoxDecoration(
+            //                 color: context.colors.discountRed,
+            //                 borderRadius: BorderRadius.circular(AppSpacing.xs.r),
+            //               ),
+            //               child: Text(
+            //                 offer.discount,
+            //                 style: AppTextStyles.discountBadge,
+            //               ),
+            //             ),
+            //           SizedBox(height: AppSpacing.xs.h),
+            //           Text(
+            //             offer.title,
+            //             style: AppTextStyles.whiteHeading,
+            //             maxLines: 1,
+            //             overflow: TextOverflow.ellipsis,
+            //           ),
+            //           SizedBox(height: AppSpacing.xs.h),
+            //           Text(
+            //             offer.subtitle,
+            //             style: AppTextStyles.whiteSmall,
+            //             maxLines: 1,
+            //             overflow: TextOverflow.ellipsis,
+            //           ),
+            //           SizedBox(height: AppSpacing.xs.h),
+            //           ElevatedButton(
+            //             onPressed: onTap,
+            //             style: ElevatedButton.styleFrom(
+            //               backgroundColor: context.colors.accentOrange,
+            //               foregroundColor: context.colors.textOnPrimary,
+            //               shape: RoundedRectangleBorder(
+            //                 borderRadius: BorderRadius.circular(AppSpacing.xl.r),
+            //               ),
+            //               padding: EdgeInsets.symmetric(
+            //                 horizontal: AppSpacing.lg.w,
+            //                 vertical: 4.h,
+            //               ),
+            //               visualDensity: VisualDensity.compact,
+            //             ),
+            //             child: Text(
+            //               offer.buttonText.isNotEmpty
+            //                   ? offer.buttonText
+            //                   : 'تسوق الآن',
+            //               style: AppTextStyles.buttonSmall,
+            //             ),
+            //           ),
+            //         ],
+            //       ),
+            //     ),
+            //   ),
           ],
         ),
       ),

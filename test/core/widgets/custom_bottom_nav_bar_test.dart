@@ -1,3 +1,4 @@
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -24,21 +25,21 @@ Widget _buildTestWidget({required String currentRoute}) {
 
 void main() {
   group('CustomBottomNavBar Widget Tests', () {
-    testWidgets('renders all tabs with correct labels', (
+    testWidgets('renders CurvedNavigationBar with 5 items', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(_buildTestWidget(currentRoute: AppRoutes.home));
       await tester.pumpAndSettle();
 
-      expect(find.byType(BottomNavigationBar), findsOneWidget);
-      expect(find.text('الرئيسية'), findsOneWidget);
-      expect(find.text('الأقسام'), findsOneWidget);
-      expect(find.text('المفضلة'), findsOneWidget);
-      expect(find.text('حسابي'), findsOneWidget);
-      expect(find.text('سلتي'), findsOneWidget);
+      expect(find.byType(CurvedNavigationBar), findsOneWidget);
+      final CurvedNavigationBar navBar = tester.widget(
+        find.byType(CurvedNavigationBar),
+      );
+      expect(navBar.items.length, equals(5));
+      expect(navBar.index, equals(0));
     });
 
-    testWidgets('activates correct index based on currentRoute', (
+    testWidgets('activates profile tab when on profile route', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
@@ -46,10 +47,10 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      final BottomNavigationBar navBar = tester.widget(
-        find.byType(BottomNavigationBar),
+      final CurvedNavigationBar navBar = tester.widget(
+        find.byType(CurvedNavigationBar),
       );
-      expect(navBar.currentIndex, equals(3));
+      expect(navBar.index, equals(2));
     });
 
     testWidgets('activates favorites tab when on favorites route', (
@@ -60,10 +61,10 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      final BottomNavigationBar navBar = tester.widget(
-        find.byType(BottomNavigationBar),
+      final CurvedNavigationBar navBar = tester.widget(
+        find.byType(CurvedNavigationBar),
       );
-      expect(navBar.currentIndex, equals(2));
+      expect(navBar.index, equals(3));
     });
 
     testWidgets('activates categories tab when on categories route', (
@@ -74,10 +75,10 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      final BottomNavigationBar navBar = tester.widget(
-        find.byType(BottomNavigationBar),
+      final CurvedNavigationBar navBar = tester.widget(
+        find.byType(CurvedNavigationBar),
       );
-      expect(navBar.currentIndex, equals(1));
+      expect(navBar.index, equals(1));
     });
   });
 }

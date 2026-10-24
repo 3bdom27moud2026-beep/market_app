@@ -39,7 +39,7 @@ class CategoryCard extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // Category Icon Circle
@@ -59,23 +59,20 @@ class CategoryCard extends StatelessWidget {
               ),
             ),
 
-            SizedBox(height: 8.h),
+            SizedBox(height: 14.h),
             // Category Name
-            SizedBox(
-              height: 34.h,
-              child: Text(
-                category.name,
-                style: TextStyle(
-                  fontFamily: AppTextStyles.fontFamily,
-                  fontSize: 11.sp,
-                  fontWeight: FontWeight.w800,
-                  color: isDark ? Colors.white : const Color(0xFF0F172A),
-                  height: 1.15,
-                ),
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+            Text(
+              category.name,
+              style: TextStyle(
+                fontFamily: AppTextStyles.fontFamily,
+                fontSize: 11.sp,
+                fontWeight: FontWeight.w800,
+                color: isDark ? Colors.white : const Color(0xFF0F172A),
+                height: 1.15,
               ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
             SizedBox(height: 2.h),
             // Stores Count

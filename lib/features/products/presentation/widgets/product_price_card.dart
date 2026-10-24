@@ -86,7 +86,7 @@ class ProductPriceCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: context.colors.surface,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: const Color(0xFFEAECF0)),
+        border: Border.all(color: context.colors.border),
         boxShadow: AppShadows.card,
       ),
       child: Column(
@@ -95,7 +95,7 @@ class ProductPriceCard extends StatelessWidget {
           Text(
             'السعر الحالي',
             style: TextStyle(
-              color: const Color(0xFF667085),
+              color: context.colors.textSecondary,
               fontSize: 12.sp,
               fontWeight: FontWeight.w500,
             ),
@@ -113,7 +113,7 @@ class ProductPriceCard extends StatelessWidget {
                   Text(
                     '${price.toStringAsFixed(0)} ج.م',
                     style: TextStyle(
-                      color: const Color(0xFF102A43),
+                      color: context.colors.textPrimary,
                       fontSize: 18.sp,
                       fontWeight: FontWeight.w900,
                     ),
@@ -124,7 +124,7 @@ class ProductPriceCard extends StatelessWidget {
                       '${oldPrice.toStringAsFixed(0)} ج.م',
                       style: TextStyle(
                         fontSize: 14.sp,
-                        color: const Color(0xFF98A2B3),
+                        color: context.colors.textTertiary,
                         decoration: TextDecoration.lineThrough,
                       ),
                     ),
@@ -139,13 +139,13 @@ class ProductPriceCard extends StatelessWidget {
                     vertical: 4.h,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFEE4E2),
+                    color: context.colors.discountRed.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(6.r),
                   ),
                   child: Text(
                     'توفير $discount%',
                     style: TextStyle(
-                      color: const Color(0xFFD92D20),
+                      color: context.colors.discountRed,
                       fontSize: 11.5.sp,
                       fontWeight: FontWeight.bold,
                     ),

@@ -13,6 +13,10 @@ class PaymentMethodModel extends PaymentMethodEntity {
   factory PaymentMethodModel.fromJson(Map<String, dynamic> json) {
     PaymentType parseType(String str) {
       switch (str) {
+        case 'instapay':
+          return PaymentType.instapay;
+        case 'cash':
+          return PaymentType.cash;
         case 'visaMastercard':
           return PaymentType.visaMastercard;
         case 'applePay':
@@ -25,7 +29,7 @@ class PaymentMethodModel extends PaymentMethodEntity {
           return PaymentType.wallet;
         case 'cashOnDelivery':
         default:
-          return PaymentType.cashOnDelivery;
+          return PaymentType.cash;
       }
     }
 

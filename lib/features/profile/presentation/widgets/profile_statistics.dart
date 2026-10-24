@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:market/core/extensions/context_extensions.dart';
 import 'package:market/core/constants/app_spacing.dart';
@@ -8,6 +8,7 @@ class ProfileStatistics extends StatelessWidget {
   final int ordersCount;
   final int subscriptionDaysRemaining;
   final int favoritesCount;
+  final bool hasActiveCard;
   final VoidCallback? onFavoritesTap;
   final VoidCallback? onOrdersTap;
 
@@ -16,6 +17,7 @@ class ProfileStatistics extends StatelessWidget {
     required this.ordersCount,
     required this.subscriptionDaysRemaining,
     required this.favoritesCount,
+    this.hasActiveCard = true,
     this.onFavoritesTap,
     this.onOrdersTap,
   });
@@ -35,11 +37,13 @@ class ProfileStatistics extends StatelessWidget {
 
           SizedBox(width: (AppSpacing.sm + 2).w),
 
-          // Subscription Days Card (Middle - Coral Red Highlighted)
+          // Subscription Days Card (Middle - Coral Red Highlighted when active)
           _StatCard(
-            value: '$subscriptionDaysRemaining يوم',
+            value: hasActiveCard
+                ? '$subscriptionDaysRemaining يوم'
+                : 'غير مفعّل',
             label: 'باقي بالاشتراك',
-            isHighlighted: true,
+            isHighlighted: hasActiveCard && subscriptionDaysRemaining > 0,
           ),
 
           SizedBox(width: (AppSpacing.sm + 2).w),

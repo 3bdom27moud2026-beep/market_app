@@ -1,66 +1,76 @@
+import 'dart:math' as math;
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:market/core/constants/app_bottom_nav.dart';
-import 'package:market/core/constants/app_text_styles.dart';
 import 'package:market/core/extensions/context_extensions.dart';
 import 'package:market/core/routes/app_routes.dart';
 import 'package:market/core/utils/cart_event_bus.dart';
+import 'package:market/core/widgets/curved_nav_bar/nav_bar_custom_icons.dart';
 import 'package:market/features/profile/presentation/cubit/profile_cubit.dart';
 
-/// A standard, elegant, and responsive bottom navigation bar.
+/// The classic, elegant curved bottom navigation bar matching the user's reference image.
 ///
 /// Features:
-/// - Standard Material BottomNavigationBar docked cleanly at the bottom.
-/// - 5 tabs: الرئيسية, الأقسام, نقاطي, حسابي, سلتي.
-/// - Theme-aware styling adapting to light and dark modes.
-/// - Subtle top border and soft shadow for clean separation.
-/// - Arabic typography using the Alexandria font family.
-/// - Preserves GoRouter StatefulNavigationShell branch switching.
+/// - Uses the standard [CurvedNavigationBar] matching the reference design.
+/// - 5 tabs in RTL order:
+///   1. الرئيسية (Home)
+///   2. الفئات (Categories)
+///   3. الحساب (Account / Profile)
+///   4. المفضلة (Favorites - standard favorite icon)
+///   5. السلة (Cart / Basket)
+/// - Active accent: Vibrant Orange (0xFFEF8226).
+/// - Inactive accent: Clean Grey (0xFF8E8E93).
+/// - Surface: Pure White (or theme surface in dark mode).
+/// - Cutout background seamlessly matches the page background.
+/// - Full synchronization with swipeable PageView in MainShell.
 class CustomBottomNavBar extends StatelessWidget {
   final String currentRoute;
   final StatefulNavigationShell? navigationShell;
+  final ValueChanged<int>? onTabSelected;
 
   const CustomBottomNavBar({
     super.key,
     required this.currentRoute,
     this.navigationShell,
+    this.onTabSelected,
   });
 
   static const List<String> _branchRoutes = [
     AppRoutes.home,
     AppRoutes.categories,
-    AppRoutes.favorites,
     AppRoutes.profile,
+    AppRoutes.favorites,
     AppRoutes.basket,
   ];
 
   @override
   Widget build(BuildContext context) {
-    final tabs = AppBottomNav.tabs;
+    final items = AppBottomNav.items;
 
     // Determine the active index:
-    // 1. Check if currentRoute matches a tab route directly
-    int activeIndex = tabs.indexWhere(
+    int activeIndex = items.indexWhere(
       (item) =>
           currentRoute == item.route ||
           currentRoute.startsWith('${item.route}/'),
     );
 
-    // 2. Fall back to navigationShell's current branch if route didn't directly match
     if (activeIndex == -1) {
       if (navigationShell != null) {
         final currentBranchIndex = navigationShell!.currentIndex;
         final currentBranchRoute = currentBranchIndex < _branchRoutes.length
             ? _branchRoutes[currentBranchIndex]
             : '';
-        final index = tabs.indexWhere((item) => item.route == currentBranchRoute);
+        final index = items.indexWhere(
+          (item) => item.route == currentBranchRoute,
+        );
         if (index != -1) {
           activeIndex = index;
         }
       } else {
-        final index = tabs.indexWhere(
+        final index = items.indexWhere(
           (item) => currentRoute.startsWith(item.route),
         );
         if (index != -1) {
@@ -74,73 +84,43 @@ class CustomBottomNavBar extends StatelessWidget {
     }
 
     final colors = context.colors;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    const activeColor = Color(0xFFEF8226);
+    const inactiveColor = Color(0xFF8E8E93);
+    final barBg = isDark ? const Color(0xFF1E2838) : Colors.white;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: colors.surface,
-        border: Border(
-          top: BorderSide(
-            color: colors.borderLight.withValues(alpha: 0.8),
-            width: 1.w,
-          ),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: colors.shadowLight.withValues(alpha: 0.05),
-            offset: const Offset(0, -2),
-            blurRadius: 8,
-          ),
-        ],
-      ),
-      child: SafeArea(
-        top: false,
-        child: Theme(
-          data: Theme.of(context).copyWith(
-            splashColor: Colors.transparent,
-            highlightColor: Colors.transparent,
-          ),
-          child: BottomNavigationBar(
-            currentIndex: activeIndex,
-            onTap: (index) => _onTabTap(context, index, tabs[index].route),
-            type: BottomNavigationBarType.fixed,
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            selectedItemColor: colors.primary,
-            unselectedItemColor: colors.textTertiary,
-            selectedFontSize: 11.sp,
-            unselectedFontSize: 11.sp,
-            selectedLabelStyle: TextStyle(
-              fontFamily: AppTextStyles.fontFamily,
-              fontWeight: FontWeight.w700,
-              fontSize: 11.sp,
-              height: 1.4,
-            ),
-            unselectedLabelStyle: TextStyle(
-              fontFamily: AppTextStyles.fontFamily,
-              fontWeight: FontWeight.w500,
-              fontSize: 11.sp,
-              height: 1.4,
-            ),
-            items: tabs.map((tab) {
-              return BottomNavigationBarItem(
-                icon: Padding(
-                  padding: EdgeInsets.only(bottom: 3.h),
-                  child: Icon(tab.icon, size: 24.sp),
-                ),
-                activeIcon: Padding(
-                  padding: EdgeInsets.only(bottom: 3.h),
-                  child: Icon(tab.activeIcon, size: 24.sp),
-                ),
-                label: tab.label,
-              );
-            }).toList(),
-          ),
-        ),
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: CurvedNavigationBar(
+        index: activeIndex,
+        height: math.min(65.0.h, 75.0),
+        color: barBg,
+        buttonBackgroundColor: barBg,
+        backgroundColor: colors.background,
+        animationCurve: Curves.easeInOutCubic,
+        animationDuration: const Duration(milliseconds: 320),
+        items: List.generate(items.length, (index) {
+          final item = items[index];
+          final isActive = index == activeIndex;
+          return NavBarCustomIcon(
+            key: ValueKey('nav_item_$index'),
+            type: item.iconType ?? NavTabType.home,
+            isActive: isActive,
+            activeColor: activeColor,
+            inactiveColor: inactiveColor,
+            size: 26.0.r,
+          );
+        }),
+        onTap: (index) => _onTabTap(context, index, items[index].route),
       ),
     );
   }
 
   void _onTabTap(BuildContext context, int index, String route) {
+    final branchIndex = _branchRoutes.indexOf(route);
+    final targetBranch = branchIndex != -1 ? branchIndex : index;
+    onTabSelected?.call(targetBranch);
+
     if (navigationShell != null) {
       if (route == AppRoutes.profile) {
         try {
@@ -150,8 +130,6 @@ class CustomBottomNavBar extends StatelessWidget {
       if (route == AppRoutes.basket) {
         CartEventBus.instance.notifyCartUpdated();
       }
-      final branchIndex = _branchRoutes.indexOf(route);
-      final targetBranch = branchIndex != -1 ? branchIndex : index;
       navigationShell!.goBranch(
         targetBranch,
         initialLocation: targetBranch == navigationShell!.currentIndex,

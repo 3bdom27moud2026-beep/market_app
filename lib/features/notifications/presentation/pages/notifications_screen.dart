@@ -20,11 +20,16 @@ class NotificationsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<NotificationsCubit>(
-      create: (_) =>
-          NotificationsDI.createNotificationsCubit()..loadNotifications(),
-      child: const _NotificationsView(),
-    );
+    try {
+      context.read<NotificationsCubit>();
+      return const _NotificationsView();
+    } catch (_) {
+      return BlocProvider<NotificationsCubit>(
+        create: (_) =>
+            NotificationsDI.createNotificationsCubit()..loadNotifications(),
+        child: const _NotificationsView(),
+      );
+    }
   }
 }
 
@@ -49,6 +54,11 @@ class _NotificationsViewState extends State<_NotificationsView> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<NotificationsCubit>().loadNotifications();
+      }
+    });
     _authSubscription = AuthEventBus.instance.stream.listen((event) {
       if (!mounted) return;
       if (event.type == AuthEventType.loggedIn) {

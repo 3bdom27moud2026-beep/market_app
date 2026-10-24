@@ -13,12 +13,12 @@ abstract final class AppBottomNav {
   static const double labelFontSize = 10;
   static const double activeLabelFontSize = 10;
 
-  /// The 5 tabs matching the screenshot exactly:
+  /// The 5 tabs matching user specification:
   /// 1. الرئيسية (Home)
-  /// 2. طلباتي (My Orders)
-  /// 3. نقاطي (My Points / Discount Card)
-  /// 4. حسابي (Profile)
-  /// 5. سلتي (My Cart)
+  /// 2. الفئات (Categories)
+  /// 3. الحساب (Account / Profile)
+  /// 4. المفضلة (Favorites)
+  /// 5. السلة (Cart / Basket)
   static const List<CurvedNavBarItemData> items = [
     CurvedNavBarItemData(
       iconType: NavTabType.home,
@@ -26,31 +26,28 @@ abstract final class AppBottomNav {
       route: AppRoutes.home,
     ),
     CurvedNavBarItemData(
-      icon: Icons.grid_view,
-      activeIcon: Icons.grid_view_rounded,
-      label: 'الاقسام',
+      iconType: NavTabType.categories,
+      label: 'الفئات',
       route: AppRoutes.categories,
     ),
     CurvedNavBarItemData(
-      icon: Icons.favorite_border_rounded,
-      activeIcon: Icons.favorite_rounded,
+      iconType: NavTabType.account,
+      label: 'الحساب',
+      route: AppRoutes.profile,
+    ),
+    CurvedNavBarItemData(
+      iconType: NavTabType.favorites,
       label: 'المفضلة',
       route: AppRoutes.favorites,
     ),
     CurvedNavBarItemData(
-      iconType: NavTabType.profile,
-      label: 'حسابي',
-      route: AppRoutes.profile,
-    ),
-    CurvedNavBarItemData(
-      icon: Icons.shopping_cart_outlined,
-      activeIcon: Icons.shopping_cart_outlined,
-      label: 'سلتي',
+      iconType: NavTabType.cart,
+      label: 'السلة',
       route: AppRoutes.basket,
     ),
   ];
 
-  /// Legacy tabs definition kept for backward compatibility.
+  /// Standard tabs definition
   static const List<TabItem> tabs = [
     TabItem(
       icon: Icons.home_outlined,
@@ -61,8 +58,14 @@ abstract final class AppBottomNav {
     TabItem(
       icon: Icons.grid_view_outlined,
       activeIcon: Icons.grid_view_rounded,
-      label: 'الأقسام',
+      label: 'الفئات',
       route: AppRoutes.categories,
+    ),
+    TabItem(
+      icon: Icons.person_outline_rounded,
+      activeIcon: Icons.person_rounded,
+      label: 'الحساب',
+      route: AppRoutes.profile,
     ),
     TabItem(
       icon: Icons.favorite_border_rounded,
@@ -71,15 +74,9 @@ abstract final class AppBottomNav {
       route: AppRoutes.favorites,
     ),
     TabItem(
-      icon: Icons.person_outline_rounded,
-      activeIcon: Icons.person_rounded,
-      label: 'حسابي',
-      route: AppRoutes.profile,
-    ),
-    TabItem(
       icon: Icons.shopping_cart_outlined,
       activeIcon: Icons.shopping_cart_rounded,
-      label: 'سلتي',
+      label: 'السلة',
       route: AppRoutes.basket,
     ),
   ];

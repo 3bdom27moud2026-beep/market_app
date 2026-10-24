@@ -10,11 +10,25 @@ class CartLocalDataSource {
 
   final List<PaymentMethodModel> _defaultPaymentMethods = const [
     PaymentMethodModel(
-      id: 'pay_cod',
-      title: 'الدفع عند الاستلام',
+      id: 'pay_cash',
+      title: 'الدفع عند الاستلام (كاش)',
       subtitle: 'الدفع نقداً عند استلام الطلب',
-      type: PaymentType.cashOnDelivery,
+      type: PaymentType.cash,
       icon: 'assets/icons/cod.png',
+    ),
+    PaymentMethodModel(
+      id: 'pay_instapay',
+      title: 'انستاباي (InstaPay)',
+      subtitle: 'التحويل المباشر عبر تطبيق انستاباي',
+      type: PaymentType.instapay,
+      icon: 'assets/icons/instapay.png',
+    ),
+    PaymentMethodModel(
+      id: 'pay_wallet',
+      title: 'محفظة كاش',
+      subtitle: 'فودافون كاش، أورنج، اتصالات، وي كاش',
+      type: PaymentType.vodafoneCash,
+      icon: 'assets/icons/wallet.png',
     ),
   ];
 

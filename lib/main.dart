@@ -13,6 +13,7 @@ import 'core/routes/app_router.dart';
 import 'core/di/dependency_injection.dart';
 import 'core/utils/end_points.dart';
 import 'features/notifications/dependency_injection.dart';
+import 'features/notifications/presentation/cubit/notifications_cubit.dart';
 import 'features/cart/presentation/cubit/cart_cubit.dart';
 import 'features/cart/dependency_injection.dart';
 
@@ -58,6 +59,10 @@ class MarketApp extends StatelessWidget {
         BlocProvider<CartCubit>(
           create: (_) => CartDI.createCartCubit()..loadCart(),
         ),
+        BlocProvider<NotificationsCubit>(
+          create: (_) =>
+              NotificationsDI.createNotificationsCubit()..loadNotifications(),
+        ),
       ],
       child: BlocBuilder<ThemeCubit, ThemeMode>(
         builder: (context, themeMode) {
@@ -81,10 +86,14 @@ class MarketApp extends StatelessWidget {
                 themeMode: themeMode,
                 routerConfig: AppRouter.router,
                 builder: (context, child) {
+                  final mediaQuery = MediaQuery.of(context);
                   return MediaQuery(
-                    data: MediaQuery.of(
-                      context,
-                    ).copyWith(textScaler: TextScaler.noScaling),
+                    data: mediaQuery.copyWith(
+                      textScaler: mediaQuery.textScaler.clamp(
+                        minScaleFactor: 0.85,
+                        maxScaleFactor: 1.25,
+                      ),
+                    ),
                     child: child ?? const SizedBox.shrink(),
                   );
                 },

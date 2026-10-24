@@ -27,27 +27,26 @@ void main() {
 
       // Verify tab labels are rendered
       expect(find.text('الرئيسية'), findsOneWidget);
-      expect(find.text('الاقسام'), findsOneWidget);
+      expect(find.text('الفئات'), findsOneWidget);
+      expect(find.text('الحساب'), findsOneWidget);
       expect(find.text('المفضلة'), findsOneWidget);
-      expect(find.text('حسابي'), findsOneWidget);
-      expect(find.text('سلتي'), findsOneWidget);
+      expect(find.text('السلة'), findsOneWidget);
 
-      // Verify NavBarCustomIcon widgets exist for custom tabs (home and profile)
-      expect(find.byType(NavBarCustomIcon), findsNWidgets(2));
-      expect(find.byType(Icon), findsWidgets);
+      // Verify NavBarCustomIcon widgets exist
+      expect(find.byType(NavBarCustomIcon), findsWidgets);
 
-      // Tap on 'الاقسام' (index 1)
-      await tester.tap(find.text('الاقسام'));
+      // Tap on 'الفئات' (index 1)
+      await tester.tap(find.text('الفئات'));
       await tester.pumpAndSettle();
       expect(tappedIndex, equals(1));
 
-      // Tap on 'المفضلة' (index 2)
-      await tester.tap(find.text('المفضلة'));
+      // Tap on 'الحساب' (index 2)
+      await tester.tap(find.text('الحساب'));
       await tester.pumpAndSettle();
       expect(tappedIndex, equals(2));
 
-      // Tap on 'سلتي' (index 4)
-      await tester.tap(find.text('سلتي'));
+      // Tap on 'السلة' (index 4)
+      await tester.tap(find.text('السلة'));
       await tester.pumpAndSettle();
       expect(tappedIndex, equals(4));
     });

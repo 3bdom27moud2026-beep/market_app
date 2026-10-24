@@ -130,7 +130,7 @@ class CartCubit extends Cubit<CartState> {
         final List<PaymentMethodEntity> paymentMethods = paymentResult
             .getOrElse(() => <PaymentMethodEntity>[]);
 
-        final defaultAddress = addresses.firstWhere(
+        var defaultAddress = addresses.firstWhere(
           (a) => a.isDefault,
           orElse: () => addresses.isNotEmpty
               ? addresses.first
@@ -145,21 +145,47 @@ class CartCubit extends Cubit<CartState> {
                 ),
         );
 
-        final codMethods = paymentMethods
-            .where((m) => m.type == PaymentType.cashOnDelivery)
-            .toList();
-        final effectivePaymentMethods = codMethods.isNotEmpty
-            ? codMethods
+        if (state is CartLoaded) {
+          final previousAddress = (state as CartLoaded).selectedAddress;
+          if (previousAddress != null &&
+              addresses.any((a) => a.id == previousAddress.id)) {
+            defaultAddress = previousAddress;
+          }
+        }
+
+        final effectivePaymentMethods = paymentMethods.isNotEmpty
+            ? paymentMethods
             : const [
                 PaymentMethodEntity(
-                  id: 'cod',
-                  title: 'الدفع عند الاستلام',
+                  id: 'pay_cash',
+                  title: 'الدفع عند الاستلام (كاش)',
                   subtitle: 'الدفع نقداً عند استلام الطلب',
-                  type: PaymentType.cashOnDelivery,
-                  icon: '',
+                  type: PaymentType.cash,
+                  icon: 'assets/icons/cod.png',
+                ),
+                PaymentMethodEntity(
+                  id: 'pay_instapay',
+                  title: 'انستاباي (InstaPay)',
+                  subtitle: 'التحويل المباشر عبر تطبيق انستاباي',
+                  type: PaymentType.instapay,
+                  icon: 'assets/icons/instapay.png',
+                ),
+                PaymentMethodEntity(
+                  id: 'pay_wallet',
+                  title: 'محفظة كاش',
+                  subtitle: 'فودافون كاش، أورنج، اتصالات، وي كاش',
+                  type: PaymentType.vodafoneCash,
+                  icon: 'assets/icons/wallet.png',
                 ),
               ];
-        final defaultPayment = effectivePaymentMethods.first;
+        PaymentMethodEntity defaultPayment = effectivePaymentMethods.first;
+        if (state is CartLoaded) {
+          final previousPayment = (state as CartLoaded).selectedPaymentMethod;
+          if (previousPayment != null &&
+              effectivePaymentMethods.any((m) => m.id == previousPayment.id)) {
+            defaultPayment = previousPayment;
+          }
+        }
 
         final productIds =
             cartData.cart.map((e) => e.product.id).toList();
@@ -425,8 +451,11 @@ class CartCubit extends Cubit<CartState> {
       final selected = currentState.selectedPaymentMethod;
       if (selected == null) return 'cash';
       switch (selected.type) {
+        case PaymentType.cash:
         case PaymentType.cashOnDelivery:
           return 'cash';
+        case PaymentType.instapay:
+          return 'instapay';
         case PaymentType.visaMastercard:
           return 'card';
         case PaymentType.vodafoneCash:

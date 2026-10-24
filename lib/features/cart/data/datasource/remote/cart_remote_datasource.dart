@@ -152,25 +152,25 @@ class CartRemoteDataSource {
   Future<List<PaymentMethodModel>> getPaymentMethods() async {
     return const [
       PaymentMethodModel(
-        id: 'cod',
-        title: 'الدفع عند الاستلام',
+        id: 'pay_cash',
+        title: 'الدفع عند الاستلام (كاش)',
         subtitle: 'الدفع نقداً عند استلام طلبك',
-        type: PaymentType.cashOnDelivery,
-        icon: '',
+        type: PaymentType.cash,
+        icon: 'assets/icons/cod.png',
       ),
       PaymentMethodModel(
-        id: 'card',
-        title: 'بطاقة بنكية',
-        subtitle: 'فيزا / ماستركارد / بطاقات ميزة',
-        type: PaymentType.visaMastercard,
-        icon: '',
+        id: 'pay_instapay',
+        title: 'انستاباي (InstaPay)',
+        subtitle: 'التحويل المباشر عبر تطبيق انستاباي',
+        type: PaymentType.instapay,
+        icon: 'assets/icons/instapay.png',
       ),
       PaymentMethodModel(
-        id: 'wallet',
-        title: 'محفظة إلكترونية',
-        subtitle: 'فودافون كاش / إنستاباي / المحافظ الذكية',
+        id: 'pay_wallet',
+        title: 'محفظة كاش',
+        subtitle: 'فودافون كاش، أورنج، اتصالات، وي كاش',
         type: PaymentType.vodafoneCash,
-        icon: '',
+        icon: 'assets/icons/wallet.png',
       ),
     ];
   }

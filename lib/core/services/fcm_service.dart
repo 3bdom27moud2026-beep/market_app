@@ -313,7 +313,7 @@ class FCMService {
   Future<void> showForegroundNotification(RemoteMessage message) async {
     final notification = message.notification;
     final title =
-        notification?.title ?? message.data['title']?.toString() ?? 'ShopGuide';
+        notification?.title ?? message.data['title']?.toString() ?? 'شوب جايد';
     final body = notification?.body ?? message.data['body']?.toString() ?? '';
 
     final androidDetails = AndroidNotificationDetails(

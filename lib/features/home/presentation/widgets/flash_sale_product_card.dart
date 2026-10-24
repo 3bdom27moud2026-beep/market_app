@@ -39,7 +39,7 @@ class FlashSaleProductCard extends StatelessWidget {
       child: GestureDetector(
         onTap: onDetailsTap,
         child: Container(
-          width: 170.w,
+          width: 155.w,
           margin: EdgeInsets.only(left: 12.w),
           decoration: BoxDecoration(
             color: context.colors.surface,

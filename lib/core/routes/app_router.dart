@@ -422,7 +422,19 @@ abstract final class AppRouter {
               ],
             ),
 
-            // 2: Favorites tab (المفضلة)
+            // 2: Profile tab (الحساب)
+            StatefulShellBranch(
+              navigatorKey: shellNavigatorProfile,
+              routes: [
+                GoRoute(
+                  path: AppRoutes.profile,
+                  name: AppRoutes.profileNamed,
+                  builder: (context, state) => const ProfileScreen(),
+                ),
+              ],
+            ),
+
+            // 3: Favorites tab (المفضلة)
             StatefulShellBranch(
               navigatorKey: shellNavigatorFavorites,
               routes: [
@@ -434,18 +446,6 @@ abstract final class AppRouter {
                         FavoritesDI.createFavoritesCubit()..loadFavorites(),
                     child: const FavoritesScreen(),
                   ),
-                ),
-              ],
-            ),
-
-            // 3: Profile tab (حسابي)
-            StatefulShellBranch(
-              navigatorKey: shellNavigatorProfile,
-              routes: [
-                GoRoute(
-                  path: AppRoutes.profile,
-                  name: AppRoutes.profileNamed,
-                  builder: (context, state) => const ProfileScreen(),
                 ),
               ],
             ),

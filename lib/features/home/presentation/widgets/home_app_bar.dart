@@ -3,18 +3,20 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:market/core/extensions/context_extensions.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:market/core/constants/app_assets.dart';
+import 'package:market/core/constants/app_text_styles.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:market/core/routes/app_routes.dart';
-// import 'package:market/core/widgets/custom_nav_buttons.dart';
+import 'package:market/features/notifications/presentation/cubit/notifications_cubit.dart';
 
 /// Custom AppBar for the application matching the brand header style.
 ///
 /// Displays:
-/// - Left side: Notification bell with orange dot
+/// - Left side: Notification bell with unread count badge
 /// - Right side: Shop Guide logo with brand name and tagline
 class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   final int? cartItemCount;
-  final int notificationCount;
+  final int? notificationCount;
   final bool hasUnreadNotifications;
   final bool showBackButton;
   final String? titleText;
@@ -26,7 +28,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   const HomeAppBar({
     super.key,
     this.cartItemCount,
-    this.notificationCount = 0,
+    this.notificationCount,
     this.hasUnreadNotifications = true,
     this.showBackButton = false,
     this.titleText,
@@ -38,6 +40,15 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    int effectiveCount = notificationCount ?? 0;
+    if (notificationCount == null) {
+      try {
+        effectiveCount = context.watch<NotificationsCubit>().state.unreadCount;
+      } catch (_) {
+        effectiveCount = 0;
+      }
+    }
+
     return Container(
       color: context.colors.background,
       child: SafeArea(
@@ -87,9 +98,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                       // const CartBadgeButton(),
                       SizedBox(width: 8.w),
                       _NotificationBellWithDot(
-                        hasUnread:
-                            hasUnreadNotifications || notificationCount > 0,
-                        count: notificationCount,
+                        count: effectiveCount,
                         onTap:
                             onNotificationTap ??
                             () => context.push(AppRoutes.notifications),
@@ -160,12 +169,10 @@ class _ShopGuideBrandLogo extends StatelessWidget {
 }
 
 class _NotificationBellWithDot extends StatelessWidget {
-  final bool hasUnread;
   final int count;
   final VoidCallback? onTap;
 
   const _NotificationBellWithDot({
-    required this.hasUnread,
     this.count = 0,
     this.onTap,
   });
@@ -189,41 +196,35 @@ class _NotificationBellWithDot extends StatelessWidget {
           ),
           if (count > 0)
             Positioned(
-              top: 0,
-              right: 0,
+              top: -2.h,
+              right: -2.w,
               child: Container(
-                padding: EdgeInsets.all(2.5.r),
+                padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.5.h),
                 decoration: BoxDecoration(
                   color: const Color(0xFFEF8226),
-                  shape: BoxShape.circle,
+                  borderRadius: BorderRadius.circular(10.r),
                   border: Border.all(color: Colors.white, width: 1.5.w),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFFEF8226).withValues(alpha: 0.35),
+                      blurRadius: 4.r,
+                      offset: const Offset(0, 1),
+                    ),
+                  ],
                 ),
-                constraints: BoxConstraints(minWidth: 16.r, minHeight: 16.r),
+                constraints: BoxConstraints(minWidth: 18.r, minHeight: 18.r),
                 child: Center(
                   child: Text(
                     count > 99 ? '99+' : count.toString(),
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 6.sp,
+                      fontFamily: AppTextStyles.fontFamily,
+                      fontSize: 8.5.sp,
                       fontWeight: FontWeight.bold,
-                      height: 1.0,
+                      height: 1.1,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                ),
-              ),
-            )
-          else if (hasUnread)
-            Positioned(
-              top: 2.h,
-              right: 2.w,
-              child: Container(
-                width: 9.r,
-                height: 9.r,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEF8226),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 1.5.w),
                 ),
               ),
             ),

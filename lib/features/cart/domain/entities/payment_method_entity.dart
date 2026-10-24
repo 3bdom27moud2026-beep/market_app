@@ -1,6 +1,8 @@
 import 'package:equatable/equatable.dart';
 
 enum PaymentType {
+  cash,
+  instapay,
   cashOnDelivery,
   visaMastercard,
   applePay,

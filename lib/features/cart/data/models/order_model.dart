@@ -118,7 +118,7 @@ class OrderModel extends OrderEntity {
     );
     final String shareMessageVal =
         json['share_message']?.toString() ??
-        'وفرت ${savedAmountVal.toStringAsFixed(0)} ج.م في طلبي من ShopGuide!';
+        'وفرت ${savedAmountVal.toStringAsFixed(0)} ج.م في طلبي من شوب جايد!';
     final String shareUrlVal =
         json['share_url']?.toString() ?? 'https://shopguide.medguide.software';
 

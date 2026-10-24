@@ -199,7 +199,7 @@ class _UnifiedAuthBottomSheetState extends State<_UnifiedAuthBottomSheet> {
 
                     // Title
                     Text(
-                      'ShopGuide',
+                      'شوب جايد',
                       style: AppTextStyles.headingMedium.copyWith(
                         color: context.colors.primaryDark,
                         fontWeight: FontWeight.bold,

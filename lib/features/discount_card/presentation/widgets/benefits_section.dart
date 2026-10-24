@@ -27,7 +27,7 @@ class BenefitsSection extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
           child: Text(
-            'مميزات كارت ShopGuide',
+            'مميزات كارت شوب جايد',
             style: AppTextStyles.sectionTitle,
           ),
         ),

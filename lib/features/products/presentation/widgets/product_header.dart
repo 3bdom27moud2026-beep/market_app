@@ -44,7 +44,7 @@ class ProductHeader extends StatelessWidget {
         Text(
           name,
           style: TextStyle(
-            color: const Color(0xFF101828),
+            color: context.colors.textPrimary,
             fontSize: 16.sp,
             fontWeight: FontWeight.bold,
           ),
@@ -57,13 +57,13 @@ class ProductHeader extends StatelessWidget {
             Icon(
               Icons.star_rounded,
               size: 20.sp,
-              color: const Color(0xFFFFB800),
+              color: context.colors.ratingYellow,
             ),
             SizedBox(width: 4.w),
             Text(
               rating > 0 ? rating.toStringAsFixed(1) : '4.9',
               style: TextStyle(
-                color: const Color(0xFFF59E0B),
+                color: context.colors.ratingGold,
                 fontSize: 14.sp,
                 fontWeight: FontWeight.bold,
               ),
@@ -72,7 +72,7 @@ class ProductHeader extends StatelessWidget {
             Text(
               reviewCount > 0 ? '($reviewCount تقييم)' : '(120 تقييم)',
               style: TextStyle(
-                color: const Color(0xFF667085),
+                color: context.colors.textTertiary,
                 fontSize: 13.sp,
                 fontWeight: FontWeight.normal,
               ),

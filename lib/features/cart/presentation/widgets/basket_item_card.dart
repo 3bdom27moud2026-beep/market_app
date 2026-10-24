@@ -63,31 +63,28 @@ class BasketItemCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // 1. Right side (in RTL): Product Image
-            Hero(
-              tag: 'cart_item_${item.id}',
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12.r),
-                child: CachedNetworkImage(
-                  imageUrl: item.imageUrl,
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12.r),
+              child: CachedNetworkImage(
+                imageUrl: item.imageUrl,
+                width: 74.r,
+                height: 74.r,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => Container(
                   width: 74.r,
                   height: 74.r,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Container(
-                    width: 74.r,
-                    height: 74.r,
-                    color: context.colors.backgroundSecondary,
-                    child: Center(
-                      child: CircularProgressIndicator(strokeWidth: 2.r),
-                    ),
+                  color: context.colors.backgroundSecondary,
+                  child: Center(
+                    child: CircularProgressIndicator(strokeWidth: 2.r),
                   ),
-                  errorWidget: (context, url, error) => Container(
-                    width: 74.r,
-                    height: 74.r,
-                    color: context.colors.backgroundSecondary,
-                    child: Icon(
-                      Icons.image_not_supported_outlined,
-                      color: context.colors.textQuaternary,
-                    ),
+                ),
+                errorWidget: (context, url, error) => Container(
+                  width: 74.r,
+                  height: 74.r,
+                  color: context.colors.backgroundSecondary,
+                  child: Icon(
+                    Icons.image_not_supported_outlined,
+                    color: context.colors.textQuaternary,
                   ),
                 ),
               ),

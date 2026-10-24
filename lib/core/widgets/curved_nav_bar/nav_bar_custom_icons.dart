@@ -1,7 +1,22 @@
 import 'package:flutter/material.dart';
 
-/// Enum representing the 5 navigation tabs.
-enum NavTabType { home, orders, points, profile, cart }
+/// Enum representing the 5 navigation tabs matching user specification:
+/// 1. home (الرئيسية)
+/// 2. categories (الفئات)
+/// 3. account (الحساب)
+/// 4. favorites (المفضلة)
+/// 5. cart (السلة)
+enum NavTabType {
+  home,
+  categories,
+  account,
+  favorites,
+  cart,
+  // Backward compatibility aliases
+  orders,
+  points,
+  profile,
+}
 
 /// A dedicated widget that renders one of the 5 custom navigation icons
 /// exactly as styled in the screenshot, supporting both active and inactive states.
@@ -23,6 +38,13 @@ class NavBarCustomIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (type == NavTabType.favorites) {
+      return Icon(
+        isActive ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+        color: isActive ? activeColor : inactiveColor,
+        size: size,
+      );
+    }
     return SizedBox(
       width: size,
       height: size,
@@ -60,17 +82,24 @@ class _NavIconPainter extends CustomPainter {
       case NavTabType.home:
         _paintHome(canvas, w, h);
         break;
+      case NavTabType.categories:
+        _paintCategories(canvas, w, h);
+        break;
+      case NavTabType.account:
+      case NavTabType.profile:
+        _paintAccount(canvas, w, h);
+        break;
+      case NavTabType.favorites:
+        _paintFavorites(canvas, w, h);
+        break;
+      case NavTabType.cart:
+        _paintCart(canvas, w, h);
+        break;
       case NavTabType.orders:
         _paintOrders(canvas, w, h);
         break;
       case NavTabType.points:
         _paintPoints(canvas, w, h);
-        break;
-      case NavTabType.profile:
-        _paintProfile(canvas, w, h);
-        break;
-      case NavTabType.cart:
-        _paintCart(canvas, w, h);
         break;
     }
   }
@@ -329,11 +358,75 @@ class _NavIconPainter extends CustomPainter {
   }
 
   // ─────────────────────────────────────────────────────────────
-  // 4. PROFILE (حسابي)
-  // Bust with head, shoulders, and bottom-right checkmark badge.
-  // Inactive: Navy outline. Active: Filled orange with badge.
+  // 2. CATEGORIES (الفئات)
+  // 2x2 rounded squares grid with bottom-right magnifying glass.
+  // Inactive: Grey outline. Active: Filled orange.
   // ─────────────────────────────────────────────────────────────
-  void _paintProfile(Canvas canvas, double w, double h) {
+  void _paintCategories(Canvas canvas, double w, double h) {
+    final strokePaint = Paint()
+      ..color = isActive ? activeColor : inactiveColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.0
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    final fillPaint = Paint()
+      ..color = activeColor
+      ..style = PaintingStyle.fill;
+
+    const r = 3.5;
+    // Top-Left Square
+    final tlRect = RRect.fromRectAndRadius(
+      Rect.fromLTWH(w * 0.15, h * 0.15, w * 0.31, h * 0.31),
+      const Radius.circular(r),
+    );
+    // Top-Right Square
+    final trRect = RRect.fromRectAndRadius(
+      Rect.fromLTWH(w * 0.54, h * 0.15, w * 0.31, h * 0.31),
+      const Radius.circular(r),
+    );
+    // Bottom-Left Square
+    final blRect = RRect.fromRectAndRadius(
+      Rect.fromLTWH(w * 0.15, h * 0.54, w * 0.31, h * 0.31),
+      const Radius.circular(r),
+    );
+    // Bottom-Right: Magnifying Glass
+    final magCenter = Offset(w * 0.67, h * 0.67);
+    final magRadius = w * 0.13;
+    final handleStart = Offset(w * 0.76, h * 0.76);
+    final handleEnd = Offset(w * 0.88, h * 0.88);
+
+    if (isActive) {
+      canvas.drawRRect(tlRect, fillPaint);
+      canvas.drawRRect(trRect, fillPaint);
+      canvas.drawRRect(blRect, fillPaint);
+      canvas.drawCircle(magCenter, magRadius, fillPaint);
+      final handlePaint = Paint()
+        ..color = activeColor
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.8
+        ..strokeCap = StrokeCap.round;
+      canvas.drawLine(handleStart, handleEnd, handlePaint);
+    } else {
+      canvas.drawRRect(tlRect, strokePaint);
+      canvas.drawRRect(trRect, strokePaint);
+      canvas.drawRRect(blRect, strokePaint);
+      canvas.drawCircle(magCenter, magRadius, strokePaint);
+      final handlePaint = Paint()
+        ..color = inactiveColor
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.2
+        ..strokeCap = StrokeCap.round;
+      canvas.drawLine(handleStart, handleEnd, handlePaint);
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // 3. ACCOUNT (الحساب)
+  // Bust with head, shoulders, and bottom-right checkmark badge.
+  // Inactive: Grey outline. Active: Filled orange with white checkmark.
+  // ─────────────────────────────────────────────────────────────
+  void _paintAccount(Canvas canvas, double w, double h) {
     final strokePaint = Paint()
       ..color = isActive ? activeColor : inactiveColor
       ..style = PaintingStyle.stroke
@@ -346,76 +439,133 @@ class _NavIconPainter extends CustomPainter {
       ..style = PaintingStyle.fill;
 
     // Head
-    final headCenter = Offset(w * 0.46, h * 0.28);
+    final headCenter = Offset(w * 0.44, h * 0.28);
     final headRadius = w * 0.17;
 
-    if (isActive) {
-      canvas.drawCircle(headCenter, headRadius, fillPaint);
-      canvas.drawCircle(headCenter, headRadius, strokePaint);
-    } else {
-      canvas.drawCircle(headCenter, headRadius, strokePaint);
-    }
-
-    // Shoulders / Torso
+    // Torso
     final torsoPath = Path();
-    final leftShoulder = Offset(w * 0.16, h * 0.84);
-    final rightShoulder = Offset(w * 0.76, h * 0.84);
+    final leftShoulder = Offset(w * 0.14, h * 0.84);
+    final rightShoulder = Offset(w * 0.74, h * 0.84);
 
     torsoPath.moveTo(leftShoulder.dx, leftShoulder.dy);
     torsoPath.cubicTo(
-      w * 0.16,
+      w * 0.14,
       h * 0.54,
-      w * 0.76,
+      w * 0.74,
       h * 0.54,
       rightShoulder.dx,
       rightShoulder.dy,
     );
     torsoPath.close();
 
-    if (isActive) {
-      canvas.drawPath(torsoPath, fillPaint);
-      canvas.drawPath(torsoPath, strokePaint);
-    } else {
-      canvas.drawPath(torsoPath, strokePaint);
-    }
-
-    // Bottom-right badge with checkmark
+    // Badge on bottom-right of torso
     final badgeCenter = Offset(w * 0.72, h * 0.72);
     final badgeRadius = w * 0.15;
 
-    // Background circle for badge to cleanly overlap shoulder
-    final bgPaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill;
-    canvas.drawCircle(badgeCenter, badgeRadius, bgPaint);
+    if (isActive) {
+      canvas.drawCircle(headCenter, headRadius, fillPaint);
+      canvas.drawPath(torsoPath, fillPaint);
 
-    final badgeStrokePaint = Paint()
-      ..color = inactiveColor
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.8
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-    canvas.drawCircle(badgeCenter, badgeRadius, badgeStrokePaint);
+      // Badge circle in orange
+      canvas.drawCircle(badgeCenter, badgeRadius, fillPaint);
 
-    // Checkmark inside badge
-    final checkPaint = Paint()
-      ..color = inactiveColor
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.8
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
+      // White checkmark
+      final checkPaint = Paint()
+        ..color = Colors.white
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.0
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round;
 
-    final checkPath = Path()
-      ..moveTo(badgeCenter.dx - 3.2, badgeCenter.dy)
-      ..lineTo(badgeCenter.dx - 0.8, badgeCenter.dy + 2.5)
-      ..lineTo(badgeCenter.dx + 3.2, badgeCenter.dy - 2.5);
-    canvas.drawPath(checkPath, checkPaint);
+      final checkPath = Path()
+        ..moveTo(badgeCenter.dx - 3.2, badgeCenter.dy)
+        ..lineTo(badgeCenter.dx - 0.8, badgeCenter.dy + 2.5)
+        ..lineTo(badgeCenter.dx + 3.2, badgeCenter.dy - 2.5);
+      canvas.drawPath(checkPath, checkPaint);
+    } else {
+      canvas.drawCircle(headCenter, headRadius, strokePaint);
+      canvas.drawPath(torsoPath, strokePaint);
+
+      // Mask circle behind badge so torso line doesn't cut through
+      final bgPaint = Paint()
+        ..color = Colors.white
+        ..style = PaintingStyle.fill;
+      canvas.drawCircle(badgeCenter, badgeRadius, bgPaint);
+      canvas.drawCircle(badgeCenter, badgeRadius, strokePaint);
+
+      // Checkmark inside badge
+      final checkPaint = Paint()
+        ..color = inactiveColor
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.8
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round;
+
+      final checkPath = Path()
+        ..moveTo(badgeCenter.dx - 3.2, badgeCenter.dy)
+        ..lineTo(badgeCenter.dx - 0.8, badgeCenter.dy + 2.5)
+        ..lineTo(badgeCenter.dx + 3.2, badgeCenter.dy - 2.5);
+      canvas.drawPath(checkPath, checkPaint);
+    }
   }
 
   // ─────────────────────────────────────────────────────────────
-  // 5. CART (سلتي)
-  // Shopping cart with angled handle, basket body, and two wheels.
-  // Inactive: Navy outline. Active: Filled orange basket with wheels.
+  // 4. FAVORITES (المفضلة)
+  // Symmetrical heart matching screenshot.
+  // Inactive: Grey outline. Active: Filled orange.
+  // ─────────────────────────────────────────────────────────────
+  void _paintFavorites(Canvas canvas, double w, double h) {
+    final strokePaint = Paint()
+      ..color = isActive ? activeColor : inactiveColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.0
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    final fillPaint = Paint()
+      ..color = activeColor
+      ..style = PaintingStyle.fill;
+
+    final path = Path();
+    final bottomPoint = Offset(w * 0.5, h * 0.86);
+    final topCenter = Offset(w * 0.5, h * 0.36);
+
+    path.moveTo(bottomPoint.dx, bottomPoint.dy);
+    // Left half of heart
+    path.cubicTo(
+      w * 0.12, h * 0.60,
+      w * 0.12, h * 0.18,
+      w * 0.32, h * 0.18,
+    );
+    path.cubicTo(
+      w * 0.42, h * 0.18,
+      w * 0.48, h * 0.26,
+      topCenter.dx, topCenter.dy,
+    );
+    // Right half of heart
+    path.cubicTo(
+      w * 0.52, h * 0.26,
+      w * 0.58, h * 0.18,
+      w * 0.68, h * 0.18,
+    );
+    path.cubicTo(
+      w * 0.88, h * 0.18,
+      w * 0.88, h * 0.60,
+      bottomPoint.dx, bottomPoint.dy,
+    );
+    path.close();
+
+    if (isActive) {
+      canvas.drawPath(path, fillPaint);
+    } else {
+      canvas.drawPath(path, strokePaint);
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // 5. CART (السلة)
+  // Shopping cart with 3 motion speed lines on the left.
+  // Inactive: Grey outline. Active: Filled orange basket with speed lines.
   // ─────────────────────────────────────────────────────────────
   void _paintCart(Canvas canvas, double w, double h) {
     final strokePaint = Paint()
@@ -429,76 +579,56 @@ class _NavIconPainter extends CustomPainter {
       ..color = activeColor
       ..style = PaintingStyle.fill;
 
-    // Cart basket polygon
-    final p0 = Offset(w * 0.14, h * 0.22); // Handle start
-    final p1 = Offset(w * 0.26, h * 0.22); // Handle bend
-    final p2 = Offset(w * 0.33, h * 0.60); // Basket rear bottom
-    final p3 = Offset(w * 0.78, h * 0.60); // Basket front bottom
-    final p4 = Offset(w * 0.86, h * 0.32); // Basket front top
-    final p5 = Offset(w * 0.30, h * 0.32); // Basket rear top
+    // 3 Speed / Motion lines on the left
+    final linePaint = Paint()
+      ..color = isActive ? activeColor : inactiveColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.0
+      ..strokeCap = StrokeCap.round;
 
-    // Basket body path (for fill)
-    final bodyPath = Path()
-      ..moveTo(p5.dx, p5.dy)
-      ..lineTo(p4.dx, p4.dy)
-      ..lineTo(p3.dx, p3.dy)
-      ..lineTo(p2.dx, p2.dy)
+    canvas.drawLine(Offset(w * 0.08, h * 0.32), Offset(w * 0.20, h * 0.32), linePaint);
+    canvas.drawLine(Offset(w * 0.04, h * 0.44), Offset(w * 0.23, h * 0.44), linePaint);
+    canvas.drawLine(Offset(w * 0.08, h * 0.56), Offset(w * 0.20, h * 0.56), linePaint);
+
+    // Cart body
+    final pHandle = Offset(w * 0.26, h * 0.22);
+    final pTurn = Offset(w * 0.34, h * 0.22);
+    final pRearBottom = Offset(w * 0.40, h * 0.62);
+    final pFrontBottom = Offset(w * 0.80, h * 0.62);
+    final pFrontTop = Offset(w * 0.88, h * 0.32);
+    final pRearTop = Offset(w * 0.37, h * 0.32);
+
+    final basketPath = Path()
+      ..moveTo(pRearTop.dx, pRearTop.dy)
+      ..lineTo(pFrontTop.dx, pFrontTop.dy)
+      ..lineTo(pFrontBottom.dx, pFrontBottom.dy)
+      ..lineTo(pRearBottom.dx, pRearBottom.dy)
       ..close();
 
-    if (isActive) {
-      canvas.drawPath(bodyPath, fillPaint);
-      final darkStroke = Paint()
-        ..color = inactiveColor
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2.0
-        ..strokeCap = StrokeCap.round
-        ..strokeJoin = StrokeJoin.round;
-      canvas.drawPath(bodyPath, darkStroke);
-    }
-
-    // Outer cart frame line: handle -> rear -> bottom -> front
     final framePath = Path()
-      ..moveTo(p0.dx, p0.dy)
-      ..lineTo(p1.dx, p1.dy)
-      ..lineTo(p2.dx, p2.dy)
-      ..lineTo(p3.dx, p3.dy)
-      ..lineTo(p4.dx, p4.dy);
-    canvas.drawPath(framePath, strokePaint);
+      ..moveTo(pHandle.dx, pHandle.dy)
+      ..lineTo(pTurn.dx, pTurn.dy)
+      ..lineTo(pRearBottom.dx, pRearBottom.dy)
+      ..lineTo(pFrontBottom.dx, pFrontBottom.dy)
+      ..lineTo(pFrontTop.dx, pFrontTop.dy);
 
-    // Horizontal grill wire line
-    final wireY = h * 0.46;
-    final wireLeft = w * 0.31;
-    final wireRight = w * 0.82;
-    canvas.drawLine(
-      Offset(wireLeft, wireY),
-      Offset(wireRight, wireY),
-      isActive
-          ? (Paint()
-              ..color = inactiveColor
-              ..style = PaintingStyle.stroke
-              ..strokeWidth = 1.5)
-          : strokePaint,
-    );
-
-    // Two small wheels at bottom
+    // Wheels
     final wheelRadius = w * 0.07;
     final wheelY = h * 0.77;
-    final wheel1Center = Offset(w * 0.40, wheelY);
-    final wheel2Center = Offset(w * 0.72, wheelY);
+    final wheel1 = Offset(w * 0.46, wheelY);
+    final wheel2 = Offset(w * 0.74, wheelY);
 
-    final wheelPaint = Paint()
-      ..color = isActive ? activeColor : inactiveColor
-      ..style = PaintingStyle.fill;
-
-    final wheelBorder = Paint()
-      ..color = inactiveColor
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-
-    canvas.drawCircle(wheel1Center, wheelRadius, wheelPaint);
-    canvas.drawCircle(wheel1Center, wheelRadius, wheelBorder);
-    canvas.drawCircle(wheel2Center, wheelRadius, wheelPaint);
-    canvas.drawCircle(wheel2Center, wheelRadius, wheelBorder);
+    if (isActive) {
+      canvas.drawPath(basketPath, fillPaint);
+      canvas.drawPath(framePath, strokePaint);
+      canvas.drawCircle(wheel1, wheelRadius, fillPaint);
+      canvas.drawCircle(wheel2, wheelRadius, fillPaint);
+    } else {
+      canvas.drawPath(framePath, strokePaint);
+      canvas.drawLine(Offset(pRearTop.dx, pRearTop.dy), Offset(pFrontTop.dx, pFrontTop.dy), strokePaint);
+      canvas.drawCircle(wheel1, wheelRadius, strokePaint);
+      canvas.drawCircle(wheel2, wheelRadius, strokePaint);
+    }
   }
 
   @override

@@ -13,8 +13,13 @@ import 'package:market/features/home/domain/entities/partner_entity.dart';
 /// Tapping navigates to the merchant details screen.
 class PartnerItem extends StatelessWidget {
   final PartnerEntity partner;
+  final bool showDiscount;
 
-  const PartnerItem({super.key, required this.partner});
+  const PartnerItem({
+    super.key,
+    required this.partner,
+    this.showDiscount = true,
+  });
 
   void _navigateToDetails(BuildContext context) {
     context.push('/merchant-details/${partner.id}');
@@ -63,27 +68,27 @@ class PartnerItem extends StatelessWidget {
             ),
           ),
 
-          SizedBox(height: AppSpacing.xs.h),
-          Container(
-            height: 20.h,
-            width: 80.w,
-            margin: EdgeInsets.only(left: AppSpacing.lg.w),
-            decoration: BoxDecoration(
-              color: context.colors.accentOrange.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(4.r),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "خصم",
-                  style: AppTextStyles.discountBadge.copyWith(
-                    color: context.colors.accentOrange,
-                    fontSize: 10.sp,
+          if (showDiscount && partner.discount.isNotEmpty) ...[
+            SizedBox(height: AppSpacing.xs.h),
+            Container(
+              height: 20.h,
+              width: 80.w,
+              margin: EdgeInsets.only(left: AppSpacing.lg.w),
+              decoration: BoxDecoration(
+                color: context.colors.accentOrange.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(4.r),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "خصم",
+                    style: AppTextStyles.discountBadge.copyWith(
+                      color: context.colors.accentOrange,
+                      fontSize: 10.sp,
+                    ),
                   ),
-                ),
-                SizedBox(width: 4.w),
-                if (partner.discount.isNotEmpty)
+                  SizedBox(width: 4.w),
                   Text(
                     partner.discount,
                     style: AppTextStyles.discountBadge.copyWith(
@@ -91,9 +96,10 @@ class PartnerItem extends StatelessWidget {
                       fontSize: 10.sp,
                     ),
                   ),
-              ],
+                ],
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:market/core/extensions/context_extensions.dart';
 import 'package:market/features/products/domain/entities/specification_entity.dart';
 
 /// Card displaying product specifications in a two-column layout.
@@ -19,7 +20,7 @@ class ProductSpecificationsCard extends StatelessWidget {
         Text(
           'المواصفات الفنية',
           style: TextStyle(
-            color: const Color(0xFF101828),
+            color: context.colors.textPrimary,
             fontSize: 15.sp,
             fontWeight: FontWeight.bold,
           ),
@@ -28,9 +29,9 @@ class ProductSpecificationsCard extends StatelessWidget {
         // Table container
         Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.colors.surface,
             borderRadius: BorderRadius.circular(12.r),
-            border: Border.all(color: const Color(0xFFEAECF0)),
+            border: Border.all(color: context.colors.border),
           ),
           clipBehavior: Clip.antiAlias,
           child: Column(
@@ -48,15 +49,15 @@ class ProductSpecificationsCard extends StatelessWidget {
                           vertical: 12.h,
                         ),
                         alignment: Alignment.centerRight,
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           border: Border(
-                            left: BorderSide(color: Color(0xFFEAECF0)),
+                            left: BorderSide(color: context.colors.border),
                           ),
                         ),
                         child: Text(
                           specifications[i].title,
                           style: TextStyle(
-                            color: const Color(0xFF344054),
+                            color: context.colors.textSecondary,
                             fontSize: 12.5.sp,
                             fontWeight: FontWeight.bold,
                           ),
@@ -73,7 +74,7 @@ class ProductSpecificationsCard extends StatelessWidget {
                           child: Text(
                             specifications[i].value,
                             style: TextStyle(
-                              color: const Color(0xFF1D2939),
+                              color: context.colors.textPrimary,
                               fontSize: 12.5.sp,
                               fontWeight: FontWeight.w500,
                             ),
@@ -84,10 +85,10 @@ class ProductSpecificationsCard extends StatelessWidget {
                   ),
                 ),
                 if (i < specifications.length - 1)
-                  const Divider(
+                  Divider(
                     height: 1,
                     thickness: 1,
-                    color: Color(0xFFEAECF0),
+                    color: context.colors.divider,
                   ),
               ],
             ],

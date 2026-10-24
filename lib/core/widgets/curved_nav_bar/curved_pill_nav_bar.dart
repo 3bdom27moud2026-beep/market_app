@@ -129,10 +129,10 @@ class _CurvedPillNavBarState extends State<CurvedPillNavBar>
         (isDark ? const Color(0xFF1E2838) : Colors.white);
     final activeCol =
         widget.activeColor ??
-        (isDark ? const Color(0xFFFF944D) : const Color(0xFFF16E36));
+        (isDark ? const Color(0xFFEF8226) : const Color(0xFFEF8226));
     final inactiveCol =
         widget.inactiveColor ??
-        (isDark ? const Color(0xFFCBD5E1) : const Color(0xFF1B2844));
+        (isDark ? const Color(0xFF8E8E93) : const Color(0xFF8E8E93));
 
     final bottomPadding = MediaQuery.paddingOf(context).bottom;
     final double barHeight = 66.0.h;

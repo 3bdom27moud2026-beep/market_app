@@ -19,6 +19,7 @@ class PaymentTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
@@ -117,8 +118,11 @@ class PaymentTile extends StatelessWidget {
 
   IconData _getIconForType(PaymentType type) {
     switch (type) {
+      case PaymentType.cash:
       case PaymentType.cashOnDelivery:
         return Icons.payments_outlined;
+      case PaymentType.instapay:
+        return Icons.bolt_rounded;
       case PaymentType.visaMastercard:
         return Icons.credit_card_rounded;
       case PaymentType.applePay:

@@ -260,6 +260,14 @@ class _MerchantDetailsBodyState extends State<_MerchantDetailsBody> {
             child: _MerchantHeaderBanner(merchant: widget.merchant),
           ),
 
+          // ── Store Information, Contacts & Reviews Collapsible Card ──
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 4.h),
+              child: _StoreInfoCollapsibleCard(merchant: widget.merchant),
+            ),
+          ),
+
           // ── Search Field ──
           SliverToBoxAdapter(
             child: Padding(
@@ -290,6 +298,9 @@ class _MerchantDetailsBodyState extends State<_MerchantDetailsBody> {
                     });
                   },
                   decoration: InputDecoration(
+                    isDense: true,
+                    filled: false,
+                    fillColor: Colors.transparent,
                     hintText: 'ابحث عن منتج...',
                     hintStyle: TextStyle(
                       fontFamily: AppTextStyles.fontFamily,
@@ -302,6 +313,8 @@ class _MerchantDetailsBodyState extends State<_MerchantDetailsBody> {
                       size: 22.r,
                     ),
                     border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
                     contentPadding: EdgeInsets.symmetric(
                       horizontal: 18.w,
                       vertical: 12.h,
@@ -494,14 +507,6 @@ class _MerchantDetailsBodyState extends State<_MerchantDetailsBody> {
               ),
             ),
 
-          // ── Store Information, Contacts & Reviews Collapsible Card ──
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.all(16.r),
-              child: _StoreInfoCollapsibleCard(merchant: widget.merchant),
-            ),
-          ),
-
           SliverToBoxAdapter(child: SizedBox(height: 24.h)),
         ],
       ),
@@ -587,7 +592,7 @@ class _MerchantHeaderBanner extends StatelessWidget {
                   child: IconButton(
                     padding: EdgeInsets.zero,
                     icon: Icon(
-                      Icons.arrow_forward_rounded,
+                      Icons.arrow_back_ios_new_rounded,
                       color: const Color(0xFF1B4270),
                       size: 20.r,
                     ),
@@ -1380,7 +1385,7 @@ class _StoreInfoCollapsibleCard extends StatelessWidget {
                 SizedBox(width: 8.w),
                 Expanded(
                   child: Text(
-                    'معلومات المتجر والتواصل والتقييمات',
+                    'معلومات التاجر ',
                     style: TextStyle(
                       fontFamily: AppTextStyles.fontFamily,
                       fontSize: 13.5.sp,

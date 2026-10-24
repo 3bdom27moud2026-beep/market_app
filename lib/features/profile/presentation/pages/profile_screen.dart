@@ -209,6 +209,7 @@ class _ProfileLoaded extends StatelessWidget {
               ordersCount: statistics.ordersCount,
               subscriptionDaysRemaining: statistics.subscriptionDaysRemaining,
               favoritesCount: statistics.favoritesCount,
+              hasActiveCard: profile.card?.isActive == true,
               onFavoritesTap: () {
                 context.go(AppRoutes.favorites);
               },
@@ -235,16 +236,28 @@ class _ProfileLoaded extends StatelessWidget {
 
           SizedBox(height: AppSpacing.xl.h),
 
-          // Loyalty Points & Referral System Card
+          // Loyalty Points Balance Card
           FadeInUp(
             duration: const Duration(milliseconds: 600),
             delay: const Duration(milliseconds: 450),
-            child: LoyaltyAndReferralCard(
+            child: PointsBalanceCard(
               pointsBalance: profile.pointsBalance,
               pointsValueEgp: profile.pointsValueEgp,
-              referralCode: profile.referralCode,
             ),
           ),
+
+          // Referral Code Card (Distinct from Points)
+          if (profile.referralCode != null &&
+              profile.referralCode!.isNotEmpty) ...[
+            SizedBox(height: AppSpacing.md.h),
+            FadeInUp(
+              duration: const Duration(milliseconds: 600),
+              delay: const Duration(milliseconds: 480),
+              child: ReferralCodeCard(
+                referralCode: profile.referralCode!,
+              ),
+            ),
+          ],
 
           SizedBox(height: AppSpacing.xxl.h),
 

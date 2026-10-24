@@ -3,7 +3,7 @@
 /// Follows Clean Architecture and avoids hardcoded strings in widgets.
 abstract final class AppStrings {
   // ── App General & Brand ──────────────────────────────────────────────────
-  static const String appName = 'دليل التسوق';
+  static const String appName = 'شوب جايد';
   static const String appNameEn = 'ShopGuide';
   static const String appTagline = 'دليل التسوق والخدمات';
   static const String currency = 'ج.م';

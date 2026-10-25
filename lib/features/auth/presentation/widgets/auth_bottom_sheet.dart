@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:market/core/extensions/context_extensions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -108,15 +109,36 @@ class _UnifiedAuthBottomSheetState extends State<_UnifiedAuthBottomSheet> {
 
   void _submitLogin(BuildContext context) {
     if (!(_loginFormKey.currentState?.validate() ?? false)) return;
+    final phone = _loginPhoneController.text.trim();
+    if (phone.length != 11) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('رقم الهاتف يجب أن يتكون من 11 رقماً بالضبط'),
+          backgroundColor: context.colors.discountRed,
+        ),
+      );
+      return;
+    }
     FocusScope.of(context).unfocus();
     context.read<AuthCubit>().login(
-      identifier: _loginPhoneController.text.trim(),
+      identifier: phone,
       password: _loginPasswordController.text,
     );
   }
 
   void _submitRegister(BuildContext context) {
     if (!(_registerFormKey.currentState?.validate() ?? false)) return;
+
+    final phone = _regPhoneController.text.trim();
+    if (phone.length != 11) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('رقم الهاتف يجب أن يتكون من 11 رقماً بالضبط'),
+          backgroundColor: context.colors.discountRed,
+        ),
+      );
+      return;
+    }
 
     final locationState = context.read<LocationCubit>().state;
     if (locationState.selectedArea == null) {
@@ -132,7 +154,7 @@ class _UnifiedAuthBottomSheetState extends State<_UnifiedAuthBottomSheet> {
     FocusScope.of(context).unfocus();
     context.read<AuthCubit>().register(
       name: _nameController.text.trim(),
-      phone: _regPhoneController.text.trim(),
+      phone: phone,
       password: _regPasswordController.text,
       areaId: locationState.selectedArea!.id,
       requestCard: _requestCard,
@@ -268,13 +290,26 @@ class _UnifiedAuthBottomSheetState extends State<_UnifiedAuthBottomSheet> {
           AppTextField(
             controller: _loginPhoneController,
             enabled: !isLoading,
-            hintText: 'رقم الهاتف',
+            hintText: 'رقم الهاتف (11 رقماً)',
             suffixIcon: Icons.phone_outlined,
             keyboardType: TextInputType.phone,
-            textDirection: TextDirection.rtl,
-            validator: (v) => (v == null || v.trim().isEmpty)
-                ? 'يرجى إدخال رقم الهاتف'
-                : null,
+            textDirection: TextDirection.ltr,
+            textAlign: TextAlign.right,
+            maxLength: 11,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(11),
+            ],
+            validator: (v) {
+              if (v == null || v.trim().isEmpty) {
+                return 'يرجى إدخال رقم الهاتف';
+              }
+              final digits = v.trim();
+              if (digits.length != 11) {
+                return 'رقم الهاتف يجب أن يتكون من 11 رقماً بالضبط';
+              }
+              return null;
+            },
           ),
           SizedBox(height: AppSpacing.md.h),
 
@@ -373,13 +408,26 @@ class _UnifiedAuthBottomSheetState extends State<_UnifiedAuthBottomSheet> {
           AppTextField(
             controller: _regPhoneController,
             enabled: !isLoading,
-            hintText: 'رقم الهاتف',
+            hintText: 'رقم الهاتف (11 رقماً)',
             suffixIcon: Icons.phone_outlined,
             keyboardType: TextInputType.phone,
-            textDirection: TextDirection.rtl,
-            validator: (v) => (v == null || v.trim().isEmpty)
-                ? 'يرجى إدخال رقم الهاتف'
-                : null,
+            textDirection: TextDirection.ltr,
+            textAlign: TextAlign.right,
+            maxLength: 11,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(11),
+            ],
+            validator: (v) {
+              if (v == null || v.trim().isEmpty) {
+                return 'يرجى إدخال رقم الهاتف';
+              }
+              final digits = v.trim();
+              if (digits.length != 11) {
+                return 'رقم الهاتف يجب أن يتكون من 11 رقماً بالضبط';
+              }
+              return null;
+            },
           ),
           SizedBox(height: AppSpacing.md.h),
 

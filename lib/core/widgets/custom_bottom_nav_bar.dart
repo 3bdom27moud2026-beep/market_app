@@ -63,11 +63,7 @@ class CustomBottomNavBar extends StatelessWidget {
         final currentBranchRoute = currentBranchIndex < _branchRoutes.length
             ? _branchRoutes[currentBranchIndex]
             : '';
-<<<<<<< HEAD
         final index = items.indexWhere(
-=======
-        final index = tabs.indexWhere(
->>>>>>> b6fa6321f2dd520aaf5d36db3c607f68bb5947b1
           (item) => item.route == currentBranchRoute,
         );
         if (index != -1) {
@@ -93,7 +89,6 @@ class CustomBottomNavBar extends StatelessWidget {
     const inactiveColor = Color(0xFF8E8E93);
     final barBg = isDark ? const Color(0xFF1E2838) : Colors.white;
 
-<<<<<<< HEAD
     return Directionality(
       textDirection: TextDirection.rtl,
       child: CurvedNavigationBar(
@@ -117,71 +112,6 @@ class CustomBottomNavBar extends StatelessWidget {
           );
         }),
         onTap: (index) => _onTabTap(context, index, items[index].route),
-=======
-    return Container(
-      decoration: BoxDecoration(
-        color: colors.surface,
-        border: Border(
-          top: BorderSide(
-            color: colors.borderLight.withValues(alpha: 0.8),
-            width: 1.w,
-          ),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: colors.shadowLight.withValues(alpha: 0.05),
-            offset: const Offset(0, -2),
-            blurRadius: 8,
-          ),
-        ],
-      ),
-      child: SafeArea(
-        top: false,
-        child: Theme(
-          data: Theme.of(context).copyWith(
-            splashColor: Colors.transparent,
-            highlightColor: Colors.transparent,
-          ),
-          child: BottomNavigationBar(
-            currentIndex: activeIndex,
-            onTap: (index) => _onTabTap(context, index, tabs[index].route),
-            type: BottomNavigationBarType.fixed,
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            selectedItemColor: colors.accentOrange,
-            unselectedItemColor: colors.textTertiary,
-            selectedFontSize: 11.sp,
-            unselectedFontSize: 11.sp,
-            selectedLabelStyle: TextStyle(
-              fontFamily: AppTextStyles.fontFamily,
-              fontFamilyFallback: AppTextStyles.fontFamilyFallback,
-              fontWeight: FontWeight.w700,
-              fontSize: 11.sp,
-              height: 1.4,
-            ),
-            unselectedLabelStyle: TextStyle(
-              fontFamily: AppTextStyles.fontFamily,
-              fontFamilyFallback: AppTextStyles.fontFamilyFallback,
-              fontWeight: FontWeight.w500,
-              fontSize: 11.sp,
-              height: 1.4,
-            ),
-            items: tabs.map((tab) {
-              return BottomNavigationBarItem(
-                icon: Padding(
-                  padding: EdgeInsets.only(bottom: 3.h),
-                  child: Icon(tab.icon, size: 24.sp),
-                ),
-                activeIcon: Padding(
-                  padding: EdgeInsets.only(bottom: 3.h),
-                  child: Icon(tab.activeIcon, size: 24.sp),
-                ),
-                label: tab.label,
-              );
-            }).toList(),
-          ),
-        ),
->>>>>>> b6fa6321f2dd520aaf5d36db3c607f68bb5947b1
       ),
     );
   }

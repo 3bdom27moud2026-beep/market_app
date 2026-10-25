@@ -38,14 +38,16 @@ abstract final class AppTextStyles {
 
   // -- Splash Screen (always on brand gradient — keep white) --
   static TextStyle get splashTitle => _style(
-    fontSize: 36.sp,
-    fontWeight: FontWeight.bold,
+    fontSize: 28.sp,
+    fontWeight: FontWeight.w800,
     color: const Color(0xFFFFFFFF),
+    letterSpacing: 0.2,
   );
   static TextStyle get splashSubtitle => _style(
-    fontSize: 18.sp,
+    fontSize: 15.sp,
     fontWeight: FontWeight.w500,
-    color: const Color(0xCCFFFFFF),
+    color: const Color(0xCCE2EAF2),
+    letterSpacing: 0.2,
   );
 
   // -- Headings (no hardcoded color — use context.colors) --

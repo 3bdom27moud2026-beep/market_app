@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -76,20 +77,30 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: BlocProvider<SplashCubit>.value(
-        value: _cubit,
-        child: BlocListener<SplashCubit, SplashState>(
-          listener: (context, state) {
-            if (state is SplashReady) {
-              _tryNavigate();
-            } else if (state is SplashError) {
-              // Optionally show error dialog or retry
-              debugPrint('Splash initialization error: ${state.message}');
-            }
-          },
-          child: SplashBackground(
-            child: SplashContent(onAnimationsComplete: _onAnimationsComplete),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+        systemNavigationBarColor: Color(0xFF081628),
+        systemNavigationBarIconBrightness: Brightness.light,
+      ),
+      child: Scaffold(
+        backgroundColor: const Color(0xFF081628),
+        body: BlocProvider<SplashCubit>.value(
+          value: _cubit,
+          child: BlocListener<SplashCubit, SplashState>(
+            listener: (context, state) {
+              if (state is SplashReady) {
+                _tryNavigate();
+              } else if (state is SplashError) {
+                // Optionally show error dialog or retry
+                debugPrint('Splash initialization error: ${state.message}');
+              }
+            },
+            child: SplashBackground(
+              child: SplashContent(onAnimationsComplete: _onAnimationsComplete),
+            ),
           ),
         ),
       ),

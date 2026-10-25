@@ -45,9 +45,20 @@ class _LoginPageState extends State<LoginPage> {
 
   void _submitLogin(BuildContext context) {
     if (_formKey.currentState?.validate() ?? false) {
+      final id = _identifierController.text.trim();
+      final isNumeric = RegExp(r'^[0-9]+$').hasMatch(id);
+      if ((isNumeric || !id.contains('@')) && id.length != 11) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('رقم الهاتف يجب أن يتكون من 11 رقماً بالضبط'),
+            backgroundColor: context.colors.discountRed,
+          ),
+        );
+        return;
+      }
       FocusScope.of(context).unfocus();
       context.read<AuthCubit>().login(
-        identifier: _identifierController.text,
+        identifier: id,
         password: _passwordController.text,
       );
     }
@@ -189,6 +200,13 @@ class _LoginPageState extends State<LoginPage> {
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return 'يرجى إدخال البريد الإلكتروني أو رقم الهاتف';
+                        }
+                        final trimmed = value.trim();
+                        final isNumeric = RegExp(r'^[0-9]+$').hasMatch(trimmed);
+                        if (isNumeric || !trimmed.contains('@')) {
+                          if (trimmed.length != 11) {
+                            return 'رقم الهاتف يجب أن يتكون من 11 رقماً بالضبط';
+                          }
                         }
                         return null;
                       },

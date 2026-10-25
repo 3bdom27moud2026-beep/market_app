@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../../core/extensions/context_extensions.dart';
 
 /// Three animated page indicators that cycle through active dots.
 ///
@@ -55,24 +54,26 @@ class _SplashPageIndicatorState extends State<SplashPageIndicator>
                   0.0,
                   1.0,
                 );
-                final double dotWidth = (8.0 + (12.0 * activeFactor)).w;
-                final double dotOpacity = 0.3 + (0.7 * activeFactor);
+                final double dotOpacity = 0.25 + (0.75 * activeFactor);
 
                 return Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 4.w),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 150),
-                    width: dotWidth,
-                    height: 8.h,
+                  padding: EdgeInsets.symmetric(horizontal: 3.5.w),
+                  child: Container(
+                    width: 4.5.r,
+                    height: 4.5.r,
                     decoration: BoxDecoration(
-                      color: activeFactor > 0.4
-                          ? context.colors.accentOrange.withValues(
-                              alpha: dotOpacity,
-                            )
-                          : context.colors.textOnPrimary.withValues(
-                              alpha: dotOpacity,
-                            ),
-                      borderRadius: BorderRadius.circular(4.r),
+                      shape: BoxShape.circle,
+                      color: activeFactor > 0.35
+                          ? const Color(0xFFEF8226).withValues(alpha: dotOpacity)
+                          : Colors.white.withValues(alpha: dotOpacity),
+                      boxShadow: activeFactor > 0.6
+                          ? [
+                              BoxShadow(
+                                color: const Color(0x88EF8226),
+                                blurRadius: 4.r,
+                              ),
+                            ]
+                          : null,
                     ),
                   ),
                 );

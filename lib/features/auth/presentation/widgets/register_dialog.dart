@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:market/core/extensions/context_extensions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -68,11 +69,32 @@ class _RegisterDialogState extends State<RegisterDialog> {
       FocusScope.of(context).unfocus();
       final cubit = context.read<AuthCubit>();
       if (_isLoginMode) {
+        final id = _emailOrPhoneController.text.trim();
+        final isNumeric = RegExp(r'^[0-9]+$').hasMatch(id);
+        if ((isNumeric || !id.contains('@')) && id.length != 11) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('رقم الهاتف يجب أن يتكون من 11 رقماً بالضبط'),
+              backgroundColor: context.colors.discountRed,
+            ),
+          );
+          return;
+        }
         cubit.login(
-          identifier: _emailOrPhoneController.text.trim(),
+          identifier: id,
           password: _passwordController.text,
         );
       } else {
+        final phone = _phoneController.text.trim();
+        if (phone.length != 11) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('رقم الهاتف يجب أن يتكون من 11 رقماً بالضبط'),
+              backgroundColor: context.colors.discountRed,
+            ),
+          );
+          return;
+        }
         final locationState = context.read<LocationCubit>().state;
         if (locationState.selectedArea == null) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -85,7 +107,7 @@ class _RegisterDialogState extends State<RegisterDialog> {
         }
         cubit.register(
           name: _nameController.text.trim(),
-          phone: _phoneController.text.trim(),
+          phone: phone,
           password: _passwordController.text,
           areaId: locationState.selectedArea!.id,
           requestCard: _requestCard,
@@ -256,6 +278,13 @@ class _RegisterDialogState extends State<RegisterDialog> {
                                 (value == null || value.trim().isEmpty)) {
                               return 'يرجى إدخال رقم الهاتف أو البريد الإلكتروني';
                             }
+                            final trimmed = value!.trim();
+                            final isNumeric = RegExp(r'^[0-9]+$').hasMatch(trimmed);
+                            if (isNumeric || !trimmed.contains('@')) {
+                              if (trimmed.length != 11) {
+                                return 'رقم الهاتف يجب أن يتكون من 11 رقماً بالضبط';
+                              }
+                            }
                             return null;
                           },
                         ),
@@ -269,8 +298,14 @@ class _RegisterDialogState extends State<RegisterDialog> {
                           enabled: !isLoading,
                           keyboardType: TextInputType.phone,
                           textDirection: TextDirection.rtl,
+                          maxLength: 11,
+                          buildCounter: (context, {required currentLength, required isFocused, maxLength}) => null,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(11),
+                          ],
                           decoration: InputDecoration(
-                            labelText: 'رقم الهاتف المحمول',
+                            labelText: 'رقم الهاتف المحمول (11 رقماً)',
                             hintText: '01012345678',
                             prefixIcon: const Icon(
                               Icons.phone_android_outlined,
@@ -286,8 +321,8 @@ class _RegisterDialogState extends State<RegisterDialog> {
                                 (value == null || value.trim().isEmpty)) {
                               return 'يرجى إدخال رقم الهاتف';
                             }
-                            if (!_isLoginMode && value!.trim().length < 10) {
-                              return 'يرجى إدخال رقم هاتف صحيح';
+                            if (!_isLoginMode && value!.trim().length != 11) {
+                              return 'رقم الهاتف يجب أن يتكون من 11 رقماً بالضبط';
                             }
                             return null;
                           },

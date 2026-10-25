@@ -13,8 +13,8 @@ abstract final class AppSpacing {
   static const double massive = 64;
   static const double superLarge = 75;
   // Splash screen specific
-  static const double logoContainerSize = 100;
+  static const double logoContainerSize = 122;
   static const double progressMinWidth = 60;
-  static const double loadingIndicatorWidth = 120;
-  static const double loadingBarHeight = 2;
+  static const double loadingIndicatorWidth = 140;
+  static const double loadingBarHeight = 3.5;
 }

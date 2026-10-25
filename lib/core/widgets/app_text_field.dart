@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:market/core/constants/app_text_styles.dart';
 import 'package:market/core/extensions/context_extensions.dart';
@@ -55,6 +56,9 @@ class AppTextField extends StatelessWidget {
   final TextAlign textAlign;
   final TextInputAction textInputAction;
   final int? maxLines;
+  final List<TextInputFormatter>? inputFormatters;
+  final int? maxLength;
+  final InputCounterWidgetBuilder? buildCounter;
 
   // ── Validation ────────────────────────────────────────────────────────────
   final String? Function(String?)? validator;
@@ -78,6 +82,9 @@ class AppTextField extends StatelessWidget {
     this.textAlign = TextAlign.right,
     this.textInputAction = TextInputAction.next,
     this.maxLines = 1,
+    this.inputFormatters,
+    this.maxLength,
+    this.buildCounter,
     this.validator,
     this.onChanged,
     this.onTap,
@@ -105,6 +112,9 @@ class AppTextField extends StatelessWidget {
        textAlign = TextAlign.right,
        textInputAction = TextInputAction.done,
        maxLines = 1,
+       inputFormatters = null,
+       maxLength = null,
+       buildCounter = null,
        onChanged = null,
        onTap = null,
        _isPasswordToggle = true,
@@ -147,6 +157,17 @@ class AppTextField extends StatelessWidget {
       textAlign: textAlign,
       textInputAction: textInputAction,
       maxLines: maxLines,
+      inputFormatters: inputFormatters,
+      maxLength: maxLength,
+      buildCounter: buildCounter ??
+          (maxLength != null
+              ? (
+                  context, {
+                  required currentLength,
+                  required isFocused,
+                  maxLength,
+                }) => null
+              : null),
       onChanged: onChanged,
       onTap: onTap,
       style: AppTextStyles.bodyMedium.copyWith(color: colors.textPrimary),

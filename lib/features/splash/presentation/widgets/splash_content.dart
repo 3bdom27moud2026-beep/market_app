@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/constants/app_durations.dart';
-import '../../../../core/constants/app_spacing.dart';
 import 'splash_logo.dart';
 import 'splash_title.dart';
 import 'splash_subtitle.dart';
@@ -74,21 +73,21 @@ class _SplashContentState extends State<SplashContent>
 
         return Center(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 58.0.w),
+            padding: EdgeInsets.symmetric(horizontal: 24.w),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 SplashLogo(
                   opacity: _staggeredOpacity(progress, 0.0, _logoEnd),
                   scale:
-                      0.85 +
-                      (0.15 * _staggeredOpacity(progress, 0.0, _logoEnd)),
+                      0.88 +
+                      (0.12 * _staggeredOpacity(progress, 0.0, _logoEnd)),
                 ),
-                SizedBox(height: AppSpacing.xxl.h),
+                SizedBox(height: 22.h),
                 SplashTitle(
                   opacity: _staggeredOpacity(progress, _titleStart, _titleEnd),
                 ),
-                SizedBox(height: AppSpacing.sm.h),
+                SizedBox(height: 8.h),
                 SplashSubtitle(
                   opacity: _staggeredOpacity(
                     progress,
@@ -96,7 +95,7 @@ class _SplashContentState extends State<SplashContent>
                     _subtitleEnd,
                   ),
                 ),
-                SizedBox(height: (AppSpacing.xl + AppSpacing.xl).h),
+                SizedBox(height: 36.h),
                 SplashProgressIndicator(
                   opacity: _staggeredOpacity(
                     progress,
@@ -104,7 +103,7 @@ class _SplashContentState extends State<SplashContent>
                     _progressEnd,
                   ),
                 ),
-                SizedBox(height: AppSpacing.lg.h),
+                SizedBox(height: 12.h),
                 SplashPageIndicator(
                   opacity: _staggeredOpacity(
                     progress,

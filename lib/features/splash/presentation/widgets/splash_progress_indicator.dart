@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../../core/extensions/context_extensions.dart';
 
 /// Animated loading progress bar with an orange indicator sliding left to right.
 ///
@@ -60,43 +59,51 @@ class _SplashProgressIndicatorState extends State<SplashProgressIndicator>
     return Opacity(
       opacity: widget.opacity.clamp(0.0, 1.0),
       child: RepaintBoundary(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final double maxWidth = constraints.maxWidth > 0
-                ? constraints.maxWidth
-                : MediaQuery.of(context).size.width * 0.6;
-            return SizedBox(
-              width: maxWidth.clamp(160.w, 400.w),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(2.r),
-                child: Container(
-                  height: 4.h,
-                  color: context.colors.textOnPrimary.withValues(alpha: 0.2),
-                  child: AnimatedBuilder(
-                    animation: _animation,
-                    builder: (context, child) {
-                      return Align(
-                        alignment: _animation.value,
-                        child: Container(
-                          width: maxWidth * 0.4,
-                          height: 4.h,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(2.r),
-                            gradient: LinearGradient(
-                              colors: [
-                                context.colors.accentOrange,
-                                context.colors.accentOrangeLight,
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+        child: SizedBox(
+          width: 140.w,
+          height: 3.5.h,
+          child: Stack(
+            children: [
+              // Track
+              Container(
+                width: 140.w,
+                height: 3.5.h,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.16),
+                  borderRadius: BorderRadius.circular(2.r),
                 ),
               ),
-            );
-          },
+              // Moving indicator
+              AnimatedBuilder(
+                animation: _animation,
+                builder: (context, child) {
+                  return Align(
+                    alignment: _animation.value,
+                    child: Container(
+                      width: 42.w,
+                      height: 3.5.h,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(2.r),
+                        gradient: const LinearGradient(
+                          colors: [
+                            Color(0xFFEF8226),
+                            Color(0xFFFFA366),
+                          ],
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0x77EF8226),
+                            blurRadius: 4.r,
+                            offset: Offset(0, 0.5.h),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

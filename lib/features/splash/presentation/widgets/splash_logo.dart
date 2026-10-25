@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '../../../../core/constants/app_spacing.dart';
-import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_assets.dart';
-import '../../../../core/extensions/context_extensions.dart';
 
-/// Splash logo with fade-in and scale-up entrance animation.
+/// Splash logo app icon card with fade-in and scale-up entrance animation.
 ///
-/// The animation values ([opacity], [scale]) are driven from the parent
-/// [SplashContent] via a single [AnimationController], eliminating the need
-/// for a separate controller and avoiding unnecessary rebuilds.
+/// Features a pure-white squircle card matching modern app icon design:
+/// - Stylized cart SVG brand mark with navy basket and orange wheels
 class SplashLogo extends StatelessWidget {
   /// Current opacity (0.0 – 1.0).
   final double opacity;
@@ -27,22 +23,30 @@ class SplashLogo extends StatelessWidget {
       child: Transform.scale(
         scale: scale,
         child: Container(
-          width: AppSpacing.logoContainerSize.r,
-          height: AppSpacing.logoContainerSize.r,
+          width: 98.r,
+          height: 98.r,
           decoration: BoxDecoration(
-            color: context.colors.logoBackground,
-            borderRadius: BorderRadius.circular(AppRadius.logoContainer.r),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(22.r),
             boxShadow: [
               BoxShadow(
-                color: context.colors.logoShadow,
-                blurRadius: 12.r,
-                offset: Offset(0, 4.h),
+                color: const Color(0xFF06152B).withValues(alpha: 0.35),
+                blurRadius: 28.r,
+                offset: Offset(0, 12.h),
+              ),
+              BoxShadow(
+                color: const Color(0xFF06152B).withValues(alpha: 0.10),
+                blurRadius: 8.r,
+                offset: Offset(0, 2.h),
               ),
             ],
           ),
           child: Padding(
-            padding: EdgeInsets.all(16.0.r),
-            child: SvgPicture.asset(AppAssets.logoSvg, fit: BoxFit.contain),
+            padding: EdgeInsets.all(18.r),
+            child: SvgPicture.asset(
+              AppAssets.logoSvg,
+              fit: BoxFit.contain,
+            ),
           ),
         ),
       ),

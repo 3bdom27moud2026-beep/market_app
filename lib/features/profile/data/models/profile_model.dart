@@ -14,6 +14,9 @@ class UserCardModel extends UserCardEntity {
     super.expiresAt,
     super.createdAt,
     super.updatedAt,
+    super.paymentMethod,
+    super.paymentReceipt,
+    super.pricePaid,
   });
 
   /// Creates a [UserCardModel] from JSON.
@@ -22,14 +25,25 @@ class UserCardModel extends UserCardEntity {
       id: (json['id'] as num?)?.toInt() ?? 0,
       userId: (json['user_id'] as num?)?.toInt() ?? 0,
       cardNo:
-          json['card_no']?.toString() ?? json['coupon_code']?.toString() ?? '',
-      type: json['type']?.toString() ?? 'monthly',
+          json['card_no']?.toString() ??
+          json['card_number']?.toString() ??
+          json['coupon_code']?.toString() ??
+          '',
+      type:
+          json['plan_type']?.toString() ??
+          json['type']?.toString() ??
+          'monthly',
       status: json['status']?.toString() ?? 'inactive',
       totalSavings: (json['total_savings'] as num?)?.toDouble() ?? 0.0,
       activatedAt: json['activated_at']?.toString(),
-      expiresAt: json['expires_at']?.toString(),
+      expiresAt:
+          json['expires_at']?.toString() ??
+          json['expires_at_formatted']?.toString(),
       createdAt: json['created_at']?.toString(),
       updatedAt: json['updated_at']?.toString(),
+      paymentMethod: json['payment_method']?.toString(),
+      paymentReceipt: json['payment_receipt']?.toString(),
+      pricePaid: (json['price_paid'] as num?)?.toDouble(),
     );
   }
 
@@ -46,6 +60,9 @@ class UserCardModel extends UserCardEntity {
       'expires_at': expiresAt,
       'created_at': createdAt,
       'updated_at': updatedAt,
+      if (paymentMethod != null) 'payment_method': paymentMethod,
+      if (paymentReceipt != null) 'payment_receipt': paymentReceipt,
+      if (pricePaid != null) 'price_paid': pricePaid,
     };
   }
 

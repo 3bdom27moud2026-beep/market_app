@@ -11,6 +11,8 @@ import 'package:market/features/auth/presentation/widgets/auth_bottom_sheet.dart
 import 'package:market/core/widgets/dashed_painters.dart';
 import 'package:market/features/home/presentation/widgets/home_app_bar.dart';
 
+import 'package:market/features/discount_card/presentation/widgets/request_card_bottom_sheet.dart';
+import '../../domain/entities/cart_data_entity.dart';
 import '../cubit/cart_cubit.dart';
 import '../cubit/cart_state.dart';
 import '../widgets/basket_item_card.dart';
@@ -244,9 +246,11 @@ class _BasketScreenState extends State<BasketScreen> {
                       ),
                     ),
 
-                    // Savings motivation banner (ONLY if savings > 0)
-                    if (cartData.cartSavings > 0)
-                      _buildSavingsBanner(context, cartData.cartSavings),
+                    // Savings motivation banner (ONLY if member and savings > 0)
+                    if (cartData.isMember && cartData.cartSavings > 0)
+                      _buildSavingsBanner(context, cartData.cartSavings)
+                    else if (!cartData.isMember)
+                      _buildCardUpsellCard(context, cartData),
 
                     // Cart Items
                     ...cartData.cart.map((item) {
@@ -277,6 +281,16 @@ class _BasketScreenState extends State<BasketScreen> {
                       savings: cartData.cartSavings,
                       count: cartData.cartCount,
                       isMember: cartData.isMember,
+                      totalWithoutCard: cartData.cartTotalWithoutCard,
+                      totalWithCard: cartData.cartTotalWithCard,
+                      potentialSavings: cartData.cartPotentialCardSavings ??
+                          cartData.cardUpsell?.potentialSavings,
+                      onSubscribe: () async {
+                        await showRequestCardBottomSheet(context);
+                        if (context.mounted) {
+                          context.read<CartCubit>().loadCart();
+                        }
+                      },
                       onCheckout: () {
                         context.push(
                           AppRoutes.checkout,
@@ -293,6 +307,134 @@ class _BasketScreenState extends State<BasketScreen> {
 
           return const SizedBox.shrink();
         },
+      ),
+    );
+  }
+
+  Widget _buildCardUpsellCard(BuildContext context, CartDataEntity cartData) {
+    final upsell = cartData.cardUpsell;
+    final double potentialSavings = (upsell?.potentialSavings ??
+        cartData.cartPotentialCardSavings?.toDouble() ??
+        0.0);
+
+    if (potentialSavings <= 0 && upsell == null) {
+      return const SizedBox.shrink();
+    }
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final title = upsell != null && upsell.title.isNotEmpty
+        ? upsell.title
+        : 'وفّر ${potentialSavings.toStringAsFixed(0)} جنيه على منتجات سلتك الآن!';
+    final message = upsell != null && upsell.message.isNotEmpty
+        ? upsell.message
+        : 'لو اشتركت في كارت ShopGuide هتوفر ${potentialSavings.toStringAsFixed(0)} ج.م على منتجات سلتك الحالية فوراً وكل طلباتك القادمة!';
+    final badge = upsell != null && upsell.badge.isNotEmpty
+        ? upsell.badge
+        : 'وفر ${upsell?.savingsPercentage.toInt() ?? 16}% مع الكارت 💳';
+    final ctaText = upsell != null && upsell.ctaText.isNotEmpty
+        ? upsell.ctaText
+        : 'اشترك ووفر ${potentialSavings.toStringAsFixed(0)} ج.م';
+
+    return Container(
+      margin: EdgeInsets.only(bottom: 16.h),
+      padding: EdgeInsets.all(14.r),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: isDark
+              ? [const Color(0xFF1E293B), const Color(0xFF0F172A)]
+              : [const Color(0xFFFFFBEB), const Color(0xFFFEF3C7)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(
+          color: const Color(0xFFF59E0B),
+          width: 1.2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFF59E0B).withValues(alpha: isDark ? 0.2 : 0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF59E0B),
+                  borderRadius: BorderRadius.circular(20.r),
+                ),
+                child: Text(
+                  badge,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 10.5.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              Icon(
+                Icons.card_membership_rounded,
+                color: const Color(0xFFD97706),
+                size: 24.r,
+              ),
+            ],
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 13.5.sp,
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : const Color(0xFF92400E),
+            ),
+          ),
+          SizedBox(height: 4.h),
+          Text(
+            message,
+            style: TextStyle(
+              fontSize: 10.5.sp,
+              color: isDark ? context.colors.textSecondary : const Color(0xFF78350F),
+              height: 1.4,
+            ),
+          ),
+          SizedBox(height: 12.h),
+          SizedBox(
+            width: double.infinity,
+            height: 42.h,
+            child: ElevatedButton.icon(
+              onPressed: () async {
+                await showRequestCardBottomSheet(context);
+                if (context.mounted) {
+                  context.read<CartCubit>().loadCart();
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFEF8226),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.r),
+                ),
+                elevation: 0,
+              ),
+              icon: const Icon(Icons.flash_on_rounded, size: 18),
+              label: Text(
+                ctaText,
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

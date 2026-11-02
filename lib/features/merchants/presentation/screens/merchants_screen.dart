@@ -9,12 +9,21 @@ import 'package:market/features/merchants/presentation/cubit/merchants_state.dar
 import 'package:market/features/products/presentation/widgets/category_header_banner.dart';
 import 'package:market/features/products/presentation/widgets/category_merchant_card.dart';
 
+import 'package:market/features/categories/domain/entities/category_entity.dart';
+import 'package:market/core/utils/category_visual_helper.dart';
+
 /// Screen that displays all partner merchants (شركاء التميز).
 class MerchantsScreen extends StatefulWidget {
   final String? categoryId;
   final String? categoryName;
+  final List<CategoryEntity>? subcategories;
 
-  const MerchantsScreen({super.key, this.categoryId, this.categoryName});
+  const MerchantsScreen({
+    super.key,
+    this.categoryId,
+    this.categoryName,
+    this.subcategories,
+  });
 
   @override
   State<MerchantsScreen> createState() => _MerchantsScreenState();
@@ -22,6 +31,20 @@ class MerchantsScreen extends StatefulWidget {
 
 class _MerchantsScreenState extends State<MerchantsScreen> {
   final TextEditingController _searchController = TextEditingController();
+  String? _selectedSubcategoryId;
+
+  List<CategoryEntity> get _effectiveSubcategories {
+    if (widget.subcategories != null && widget.subcategories!.isNotEmpty) {
+      return widget.subcategories!;
+    }
+    if (widget.categoryId != null || widget.categoryName != null) {
+      return CategoryVisualHelper.getDefaultSubcategories(
+        id: widget.categoryId ?? '',
+        name: widget.categoryName ?? '',
+      );
+    }
+    return const [];
+  }
 
   @override
   void initState() {
@@ -49,9 +72,18 @@ class _MerchantsScreenState extends State<MerchantsScreen> {
             color: const Color(0xFFEF8226),
             onRefresh: () async {
               _searchController.clear();
-              await context.read<MerchantsCubit>().refresh(
+              final cubit = context.read<MerchantsCubit>();
+              await cubit.refresh(
                 categoryId: widget.categoryId,
               );
+              if (!mounted) return;
+              if (_selectedSubcategoryId != null) {
+                final sub = _effectiveSubcategories.firstWhere(
+                  (s) => s.id == _selectedSubcategoryId,
+                  orElse: () => _effectiveSubcategories.first,
+                );
+                cubit.filterBySubcategory(sub);
+              }
             },
             child: SafeArea(
               child: CustomScrollView(
@@ -65,6 +97,12 @@ class _MerchantsScreenState extends State<MerchantsScreen> {
                       onBack: () => Navigator.of(context).pop(),
                     ),
                   ),
+
+                  // ── Subcategories Horizontal Filter Chips ─────────────────────
+                  if (_effectiveSubcategories.isNotEmpty)
+                    SliverToBoxAdapter(
+                      child: _buildSubcategoriesFilterBar(),
+                    ),
 
                   // ── Search Field & Counter ───────────────────────────────────
                   SliverToBoxAdapter(
@@ -170,7 +208,10 @@ class _MerchantsScreenState extends State<MerchantsScreen> {
                         message: state.message,
                         onRetry: () => context
                             .read<MerchantsCubit>()
-                            .loadMerchants(categoryId: widget.categoryId),
+                            .loadMerchants(
+                              categoryId:
+                                  _selectedSubcategoryId ?? widget.categoryId,
+                            ),
                       ),
                     )
                   else if (state is MerchantsEmpty)
@@ -186,8 +227,10 @@ class _MerchantsScreenState extends State<MerchantsScreen> {
                           query: state.searchQuery,
                           onClear: () {
                             _searchController.clear();
-                            context.read<MerchantsCubit>().searchMerchants('');
-                            setState(() {});
+                            setState(() {
+                              _selectedSubcategoryId = null;
+                            });
+                            context.read<MerchantsCubit>().filterBySubcategory(null);
                           },
                         ),
                       )
@@ -230,6 +273,118 @@ class _MerchantsScreenState extends State<MerchantsScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildSubcategoriesFilterBar() {
+    final subcategories = _effectiveSubcategories;
+    if (subcategories.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final isAllSelected = _selectedSubcategoryId == null;
+
+    return Container(
+      height: 42.h,
+      margin: EdgeInsets.only(top: 8.h, bottom: 4.h),
+      child: ListView.separated(
+        padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg.w),
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        itemCount: subcategories.length + 1,
+        separatorBuilder: (_, _) => SizedBox(width: 8.w),
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            return _buildFilterChip(
+              label: 'الكل',
+              isSelected: isAllSelected,
+              onTap: () {
+                if (!isAllSelected) {
+                  setState(() {
+                    _selectedSubcategoryId = null;
+                  });
+                  _searchController.clear();
+                  context.read<MerchantsCubit>().filterBySubcategory(null);
+                }
+              },
+            );
+          }
+
+          final sub = subcategories[index - 1];
+          final isSelected = _selectedSubcategoryId == sub.id;
+
+          return _buildFilterChip(
+            label: sub.name,
+            isSelected: isSelected,
+            onTap: () {
+              if (!isSelected) {
+                setState(() {
+                  _selectedSubcategoryId = sub.id;
+                });
+                _searchController.clear();
+                context.read<MerchantsCubit>().filterBySubcategory(sub);
+              }
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildFilterChip({
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    const primaryColor = Color(0xFFEF8226);
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20.r),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? primaryColor
+              : (isDark ? context.colors.surface : Colors.white),
+          borderRadius: BorderRadius.circular(20.r),
+          border: Border.all(
+            color: isSelected
+                ? primaryColor
+                : (isDark ? context.colors.borderLight : const Color(0xFFE2E8F0)),
+            width: 1.2,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: primaryColor.withValues(alpha: 0.28),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: isDark ? 0.15 : 0.02),
+                    blurRadius: 4,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          label,
+          style: TextStyle(
+            fontFamily: AppTextStyles.fontFamily,
+            fontSize: 12.sp,
+            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+            color: isSelected
+                ? Colors.white
+                : (isDark ? Colors.white70 : const Color(0xFF475569)),
+          ),
+        ),
       ),
     );
   }
@@ -379,6 +534,7 @@ class _NoSearchResultsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasQuery = query.trim().isNotEmpty;
     return Center(
       child: Padding(
         padding: EdgeInsets.all(AppSpacing.xxxl.r),
@@ -386,13 +542,17 @@ class _NoSearchResultsView extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.search_off_rounded,
+              hasQuery
+                  ? Icons.search_off_rounded
+                  : Icons.store_mall_directory_outlined,
               size: 64.r,
               color: context.colors.textSecondary,
             ),
             SizedBox(height: AppSpacing.lg.h),
             Text(
-              'لم يتم العثور على نتائج لـ "$query"',
+              hasQuery
+                  ? 'لم يتم العثور على نتائج لـ "$query"'
+                  : 'لا يوجد تجار متاحين في هذا القسم الفرعي حالياً',
               style: TextStyle(
                 fontFamily: AppTextStyles.fontFamily,
                 color: context.colors.textPrimary,
@@ -404,8 +564,14 @@ class _NoSearchResultsView extends StatelessWidget {
             SizedBox(height: AppSpacing.md.h),
             TextButton.icon(
               onPressed: onClear,
-              icon: Icon(Icons.clear_rounded, size: 16.r),
-              label: Text('مسح البحث', style: TextStyle(fontSize: 13.sp)),
+              icon: Icon(
+                hasQuery ? Icons.clear_rounded : Icons.view_list_rounded,
+                size: 16.r,
+              ),
+              label: Text(
+                hasQuery ? 'مسح البحث' : 'عرض كل التجار',
+                style: TextStyle(fontSize: 13.sp),
+              ),
               style: TextButton.styleFrom(
                 foregroundColor: const Color(0xFFEF8226),
               ),

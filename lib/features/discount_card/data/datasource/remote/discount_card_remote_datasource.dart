@@ -14,6 +14,8 @@ import 'package:market/features/discount_card/data/models/discount_card_data_mod
 import 'package:market/features/discount_card/data/models/card_request_model.dart';
 import 'package:market/features/discount_card/data/models/card_request_response_model.dart';
 
+import 'package:market/features/discount_card/data/models/subscription_plans_response_model.dart';
+
 /// Remote data source for discount card API calls.
 class DiscountCardRemoteDataSource {
   final ApiClient _apiClient;
@@ -21,7 +23,25 @@ class DiscountCardRemoteDataSource {
   const DiscountCardRemoteDataSource({required ApiClient apiClient})
     : _apiClient = apiClient;
 
-  /// Submits discount card request via POST /v1/card/request.
+  /// Fetches dynamic subscription plans via GET /v1/subscription/plans.
+  Future<Either<String, SubscriptionPlansResponseModel>> getSubscriptionPlans() async {
+    try {
+      final response = await _apiClient.get<Map<String, dynamic>>(
+        EndPoints.subscriptionPlans,
+      );
+      final raw = response.data ?? {};
+      return Right(SubscriptionPlansResponseModel.fromJson(raw));
+    } catch (e) {
+      return Left(
+        AppErrorHandler.getMessage(
+          e,
+          defaultMessage: 'تعذر جلب باقات الاشتراك',
+        ),
+      );
+    }
+  }
+
+  /// Submits discount card request via POST /v1/card/request (multipart/form-data).
   ///
   /// Returns Right(CardRequestResponseModel) for responses with status=true or status=false.
   /// Returns Left(errorMessage) for transport/network failures.
@@ -29,9 +49,10 @@ class DiscountCardRemoteDataSource {
     CardRequestModel request,
   ) async {
     try {
+      final formData = await request.toFormData();
       final response = await _apiClient.post<Map<String, dynamic>>(
         EndPoints.requestCard,
-        data: request.toJson(),
+        data: formData,
       );
       final raw = response.data ?? {};
       return Right(CardRequestResponseModel.fromJson(raw));

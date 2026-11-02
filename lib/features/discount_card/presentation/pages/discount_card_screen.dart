@@ -131,8 +131,8 @@ class _DiscountCardLoadedContent extends StatelessWidget {
                   children: [
                     SizedBox(height: AppSpacing.lg.h),
 
-                    // STATE A (Has Card) vs STATE B (No Card)
-                    if (card != null) ...[
+                    // STATE A (Has Active Card) vs STATE B (No Card or Inactive)
+                    if (card != null && card.isActive) ...[
                       // Real Shop Guide Card
                       DiscountCardWidget(card: card),
                       SizedBox(height: AppSpacing.md.h),

@@ -12,11 +12,13 @@ import 'package:market/features/discount_card/presentation/widgets/merchant_tile
 class PartnerDiscountsSection extends StatefulWidget {
   final List<StatisticsEntity> statistics;
   final List<DiscountCategoryEntity> categories;
+  final EdgeInsetsGeometry? padding;
 
   const PartnerDiscountsSection({
     super.key,
     required this.statistics,
     required this.categories,
+    this.padding,
   });
 
   @override
@@ -212,7 +214,7 @@ class _PartnerDiscountsSectionState extends State<PartnerDiscountsSection> {
     final totalMerchants = _getTotalMerchantsCount();
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      padding: widget.padding ?? EdgeInsets.symmetric(horizontal: 16.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

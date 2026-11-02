@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 
+import 'package:market/core/utils/app_strings.dart';
 import 'failures.dart';
 
 /// Central error handler for the application.
@@ -59,12 +60,21 @@ class AppErrorHandler {
       }
 
       final statusCode = error.response?.statusCode;
+      final path = error.requestOptions.path.toLowerCase();
+      final isAuthEndpoint =
+          path.contains('login') || path.contains('register');
+
       if (statusCode == 401) {
+        if (isAuthEndpoint) {
+          return ValidationFailure(
+            getMessage(error, defaultMessage: defaultMessage),
+          );
+        }
         return UnauthorizedFailure(
           getMessage(error, defaultMessage: defaultMessage),
         );
       }
-      if (statusCode == 400 || statusCode == 422) {
+      if (statusCode == 400 || statusCode == 422 || statusCode == 409) {
         return ValidationFailure(
           getMessage(error, defaultMessage: defaultMessage),
         );
@@ -165,92 +175,246 @@ class AppErrorHandler {
   }) {
     final statusCode = error.response?.statusCode;
     final data = error.response?.data;
+    final path = error.requestOptions.path.toLowerCase();
+    final isLogin = path.contains('login');
+    final isRegister = path.contains('register');
+    final isChangePassword =
+        path.contains('change-password') || path.contains('password');
 
     // 1. Try to extract clean message from response data
     if (data is Map<String, dynamic>) {
       // Check Laravel errors map e.g. {"errors": {"phone": ["رقم الهاتف مسجل"]}}
       final errors = data['errors'];
       if (errors is Map<String, dynamic> && errors.isNotEmpty) {
+        final firstKey = errors.keys.first.toLowerCase();
         final firstVal = errors.values.first;
+        String? extracted;
         if (firstVal is List && firstVal.isNotEmpty) {
-          final firstMsg = firstVal.first.toString().trim();
-          if (_isCleanUserFacing(firstMsg)) {
-            return firstMsg;
-          }
-        } else if (firstVal is String && _isCleanUserFacing(firstVal)) {
-          return firstVal.trim();
+          extracted = firstVal.first.toString().trim();
+        } else if (firstVal is String) {
+          extracted = firstVal.trim();
         }
-      } else if (errors is String && _isCleanUserFacing(errors)) {
-        return errors.trim();
+
+        if (extracted != null && extracted.isNotEmpty) {
+          if (_containsArabic(extracted) && _isCleanUserFacing(extracted)) {
+            return extracted;
+          }
+          final mapped = _mapKnownBackendEnglishMessage(
+            extracted,
+            field: firstKey,
+            isLogin: isLogin,
+          );
+          if (mapped != null) return mapped;
+          if (_isCleanUserFacing(extracted)) return extracted;
+        }
+      } else if (errors is String && errors.trim().isNotEmpty) {
+        final errStr = errors.trim();
+        if (_containsArabic(errStr) && _isCleanUserFacing(errStr)) {
+          return errStr;
+        }
+        final mapped = _mapKnownBackendEnglishMessage(errStr, isLogin: isLogin);
+        if (mapped != null) return mapped;
+        if (_isCleanUserFacing(errStr)) return errStr;
       }
 
       // Check 'message' or 'error' fields
       final rawMsg = data['message'] ?? data['error'];
       if (rawMsg != null) {
         final msgStr = rawMsg.toString().trim();
-        final mapped = _mapKnownBackendEnglishMessage(msgStr);
-        if (mapped != null) return mapped;
-        if (_isCleanUserFacing(msgStr)) return msgStr;
+        if (msgStr.isNotEmpty) {
+          if (_containsArabic(msgStr) && _isCleanUserFacing(msgStr)) {
+            return msgStr;
+          }
+          final mapped = _mapKnownBackendEnglishMessage(
+            msgStr,
+            isLogin: isLogin,
+          );
+          if (mapped != null) return mapped;
+          if (_isCleanUserFacing(msgStr)) return msgStr;
+        }
       }
-    } else if (data is String && _isCleanUserFacing(data)) {
-      final mapped = _mapKnownBackendEnglishMessage(data.trim());
+    } else if (data is String && data.trim().isNotEmpty) {
+      final str = data.trim();
+      if (_containsArabic(str) && _isCleanUserFacing(str)) {
+        return str;
+      }
+      final mapped = _mapKnownBackendEnglishMessage(str, isLogin: isLogin);
       if (mapped != null) return mapped;
-      return data.trim();
+      if (_isCleanUserFacing(str)) return str;
     }
 
     // 2. Fallback to status-code specific messages
     if (statusCode != null) {
       switch (statusCode) {
         case 400:
+          if (isChangePassword) {
+            return AppStrings.currentPasswordIncorrect;
+          }
           return 'طلب غير صالح، يرجى مراجعة البيانات والمحاولة مجدداً.';
         case 401:
-          return 'انتهت صلاحية الجلسة، يرجى إعادة تسجيل الدخول.';
+          if (isLogin) {
+            return AppStrings.invalidCredentials;
+          }
+          if (isChangePassword) {
+            return AppStrings.currentPasswordIncorrect;
+          }
+          return AppStrings.unauthorizedError;
         case 403:
-          return 'غير مصرح لك بالوصول إلى هذا المحتوى.';
+          return 'غير مصرح لك بالوصول إلى هذا المحتوى أو الحساب موقوف.';
         case 404:
+          if (isLogin) {
+            return AppStrings.userNotFound;
+          }
           return 'البيانات المطلوبة غير متوفرة حالياً.';
         case 409:
+          if (isRegister) {
+            return AppStrings.phoneAlreadyRegistered;
+          }
           return 'تم تنفيذ هذا الطلب مسبقاً.';
         case 422:
+          if (isLogin) {
+            return AppStrings.invalidCredentials;
+          }
+          if (isRegister) {
+            return 'البيانات المدخلة غير صحيحة، يرجى مراجعة بيانات التسجيل والمحاولة مجدداً.';
+          }
           return 'البيانات المدخلة غير صحيحة، يرجى التحقق منها والمحاولة مجدداً.';
         case 429:
-          return 'تم تجاوز عدد المحاولات المسموح بها، يرجى الانتظار قليلاً والمحاولة لاحقاً.';
+          return AppStrings.tooManyAttempts;
         case 500:
         case 502:
         case 503:
         case 504:
-          return 'حدث خطأ في الخادم، يرجى المحاولة في وقت لاحق.';
+          return AppStrings.serverError;
       }
     }
 
-    return defaultMessage ?? 'حدث خطأ غير متوقع. يرجى المحاولة لاحقاً.';
+    return defaultMessage ?? AppStrings.genericError;
   }
 
-  static String? _mapKnownBackendEnglishMessage(String message) {
+  static String? _mapKnownBackendEnglishMessage(
+    String message, {
+    String? field,
+    bool isLogin = false,
+  }) {
     final lower = message.trim().toLowerCase();
+
+    // Credentials / Login failures
+    if (lower.contains('credentials') ||
+        lower.contains('invalid credentials') ||
+        lower.contains('do not match our records') ||
+        lower.contains('incorrect password') ||
+        lower.contains('wrong password') ||
+        (isLogin && (lower.contains('unauthenticated') || lower.contains('unauthorized')))) {
+      return AppStrings.invalidCredentials;
+    }
+
+    // Unauthenticated on protected routes
     if (lower == 'unauthenticated' || lower == 'unauthenticated.') {
-      return 'انتهت صلاحية الجلسة، يرجى إعادة تسجيل الدخول.';
+      return AppStrings.unauthorizedError;
     }
     if (lower == 'unauthorized' || lower == 'unauthorized.') {
       return 'غير مصرح لك بالقيام بهذه العملية.';
     }
+
+    // User existence & account status
+    if (lower.contains('user not found') ||
+        lower.contains('no user found') ||
+        lower.contains('user does not exist')) {
+      return AppStrings.userNotFound;
+    }
+    if (lower.contains('inactive') ||
+        lower.contains('deactivated') ||
+        lower.contains('suspended') ||
+        lower.contains('blocked') ||
+        lower.contains('banned')) {
+      return AppStrings.accountInactive;
+    }
+
+    // Phone validation
+    if (lower.contains('users_phone_unique') ||
+        (lower.contains('phone') && (lower.contains('taken') || lower.contains('exists') || lower.contains('already')))) {
+      return AppStrings.phoneAlreadyRegistered;
+    }
+    if (lower.contains('phone') && (lower.contains('digit') || lower.contains('invalid') || lower.contains('format'))) {
+      return 'رقم الهاتف يجب أن يتكون من 11 رقماً صالحاً.';
+    }
+
+    // Email validation
+    if (lower.contains('users_email_unique') ||
+        (lower.contains('email') && (lower.contains('taken') || lower.contains('exists') || lower.contains('already')))) {
+      return AppStrings.emailAlreadyRegistered;
+    }
+    if (lower.contains('email') && lower.contains('valid email')) {
+      return 'البريد الإلكتروني غير صالح، يرجى إدخال بريد صحيح.';
+    }
+
+    // Password validation
+    if (lower.contains('current password') || lower.contains('current_password')) {
+      return AppStrings.currentPasswordIncorrect;
+    }
+    if (lower.contains('confirmation does not match') || lower.contains('passwords do not match')) {
+      return AppStrings.passwordMismatch;
+    }
+    if (lower.contains('password') && (lower.contains('at least') || lower.contains('min') || lower.contains('short'))) {
+      return AppStrings.passwordMinLength;
+    }
+
+    // Referral code
+    if (lower.contains('referral') || (field != null && field.contains('referral'))) {
+      return AppStrings.invalidReferralCode;
+    }
+
+    // Area & location
+    if (lower.contains('area') || lower.contains('governorate') || (field != null && field.contains('area'))) {
+      return AppStrings.selectAreaPrompt;
+    }
+
+    // Required fields
+    if (lower.contains('is required') || lower.contains('field is required')) {
+      if (field == 'phone') return 'يرجى إدخال رقم الهاتف.';
+      if (field == 'password') return 'يرجى إدخال كلمة المرور.';
+      if (field == 'name') return 'يرجى إدخال الاسم بالكامل.';
+      if (field == 'area_id') return AppStrings.selectAreaPrompt;
+      return AppStrings.requiredField;
+    }
+
+    // Cart / E-Commerce
+    if (lower.contains('cart is empty') || lower.contains('empty cart')) {
+      return 'سلة المشتريات فارغة، يرجى إضافة منتجات أولاً.';
+    }
+    if (lower.contains('out of stock') || lower.contains('not enough stock')) {
+      return 'الكمية المطلوبة غير متوفرة في المخزون حالياً.';
+    }
+    if (lower.contains('coupon') && (lower.contains('invalid') || lower.contains('expired') || lower.contains('not found'))) {
+      return 'كوبون الخصم غير صالح أو انتهت صلاحيته.';
+    }
+    if (lower.contains('coupon') && (lower.contains('already') || lower.contains('used'))) {
+      return 'تم استخدام كوبون الخصم هذا مسبقاً.';
+    }
+
+    // General
     if (lower == 'forbidden' || lower == 'forbidden.') {
       return 'غير مصرح لك بالوصول إلى هذا المحتوى.';
     }
     if (lower == 'not found' || lower == 'resource not found.') {
       return 'البيانات المطلوبة غير متوفرة حالياً.';
     }
-    if (lower == 'the given data was invalid.' ||
-        lower == 'the given data was invalid') {
+    if (lower == 'the given data was invalid.' || lower == 'the given data was invalid') {
       return 'البيانات المدخلة غير صحيحة، يرجى مراجعة البيانات والمحاولة مجدداً.';
     }
     if (lower == 'too many requests' || lower.contains('too many attempts')) {
-      return 'تم تجاوز عدد المحاولات، يرجى الانتظار قليلاً والمحاولة لاحقاً.';
+      return AppStrings.tooManyAttempts;
     }
     if (lower == 'server error' || lower == 'internal server error') {
-      return 'حدث خطأ في الخادم، يرجى المحاولة في وقت لاحق.';
+      return AppStrings.serverError;
     }
+
     return null;
+  }
+
+  static bool _containsArabic(String text) {
+    return RegExp(r'[\u0600-\u06FF]').hasMatch(text);
   }
 
   static bool _isCleanUserFacing(String message) {

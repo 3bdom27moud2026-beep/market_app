@@ -7,6 +7,8 @@ import 'package:market/core/utils/auth_event_bus.dart';
 import 'package:market/features/auth/domain/usecases/check_auth_usecase.dart';
 import 'package:market/features/discount_card/data/models/card_request_model.dart';
 import 'package:market/features/discount_card/domain/entities/card_request_result_entity.dart';
+import 'package:market/features/discount_card/domain/entities/subscription_plans_data_entity.dart';
+import 'package:market/features/discount_card/domain/usecases/get_subscription_plans_usecase.dart';
 import 'package:market/features/discount_card/domain/usecases/get_discount_card_data_usecase.dart';
 import 'package:market/features/discount_card/domain/usecases/request_card_usecase.dart';
 import 'package:market/features/discount_card/presentation/cubit/discount_card_state.dart';
@@ -15,12 +17,14 @@ import 'package:market/features/discount_card/presentation/cubit/discount_card_s
 class DiscountCardCubit extends Cubit<DiscountCardState> {
   final GetDiscountCardDataUseCase _getDiscountCardDataUseCase;
   final RequestCardUseCase _requestCardUseCase;
+  final GetSubscriptionPlansUseCase _getSubscriptionPlansUseCase;
   final CheckAuthUseCase? _checkAuthUseCase;
   StreamSubscription<AuthEvent>? _authSubscription;
 
   DiscountCardCubit(
     this._getDiscountCardDataUseCase,
-    this._requestCardUseCase, [
+    this._requestCardUseCase,
+    this._getSubscriptionPlansUseCase, [
     this._checkAuthUseCase,
   ]) : super(const DiscountCardInitial()) {
     _authSubscription = AuthEventBus.instance.stream.listen((event) {
@@ -81,18 +85,27 @@ class DiscountCardCubit extends Cubit<DiscountCardState> {
     }
   }
 
-  /// Submits a discount card request via POST /v1/card/request.
+  /// Fetches subscription plans and payment methods.
+  Future<Either<String, SubscriptionPlansDataEntity>> getSubscriptionPlans() async {
+    return _getSubscriptionPlansUseCase();
+  }
+
+  /// Submits a discount card request with receipt upload via POST /v1/card/request.
   ///
   /// On successful request or if a card is returned, refreshes the card status.
   Future<Either<String, CardRequestResultEntity>> submitCardRequest({
-    required String deliveryAddress,
-    required String phone,
-    String paymentMethod = 'cash',
+    required String planType,
+    required String paymentMethod,
+    required String receiptImagePath,
+    String? phone,
+    String? deliveryAddress,
   }) async {
     final request = CardRequestModel(
-      deliveryAddress: deliveryAddress,
-      phone: phone,
+      planType: planType,
       paymentMethod: paymentMethod,
+      receiptImagePath: receiptImagePath,
+      phone: phone,
+      deliveryAddress: deliveryAddress,
     );
 
     final result = await _requestCardUseCase(request);

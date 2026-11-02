@@ -18,12 +18,28 @@ class CartItemEntity extends Equatable {
   /// The nested canonical Product entity.
   final ProductEntity product;
 
+  /// Regular price without card.
+  final num? regularPrice;
+
+  /// Special price with card.
+  final num? memberPrice;
+
+  /// Potential savings per unit.
+  final num? unitPotentialSaving;
+
+  /// Potential savings for the whole line quantity.
+  final num? linePotentialSaving;
+
   const CartItemEntity({
     required this.id,
     required this.qty,
     required this.lineTotal,
     required this.lineSavings,
     required this.product,
+    this.regularPrice,
+    this.memberPrice,
+    this.unitPotentialSaving,
+    this.linePotentialSaving,
   });
 
   // Convenience getters mapping to nested canonical ProductEntity
@@ -56,5 +72,15 @@ class CartItemEntity extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, qty, lineTotal, lineSavings, product];
+  List<Object?> get props => [
+    id,
+    qty,
+    lineTotal,
+    lineSavings,
+    product,
+    regularPrice,
+    memberPrice,
+    unitPotentialSaving,
+    linePotentialSaving,
+  ];
 }

@@ -8,17 +8,33 @@ class CartItemModel extends CartItemEntity {
     required super.lineTotal,
     required super.lineSavings,
     required super.product,
+    super.regularPrice,
+    super.memberPrice,
+    super.unitPotentialSaving,
+    super.linePotentialSaving,
   });
 
   factory CartItemModel.fromJson(Map<String, dynamic> json) {
     final int idVal = _parseInt(json['id']);
     final int qtyVal = _parseInt(json['qty'] ?? json['quantity'], 1);
     final num lineTotalVal = _parseNum(
-      json['line_total'] ?? json['price'] ?? json['total_price'],
+      json['line_total'] ?? json['subtotal'] ?? json['price'] ?? json['total_price'],
     );
     final num lineSavingsVal = _parseNum(
-      json['line_savings'] ?? json['savings'],
+      json['line_potential_saving'] ?? json['line_savings'] ?? json['savings'],
     );
+    final num? regularPriceVal = json['regular_price'] != null
+        ? _parseNum(json['regular_price'])
+        : (json['old_price'] != null ? _parseNum(json['old_price']) : null);
+    final num? memberPriceVal = json['member_price'] != null
+        ? _parseNum(json['member_price'])
+        : (json['price'] != null ? _parseNum(json['price']) : null);
+    final num? unitPotentialSavingVal = json['unit_potential_saving'] != null
+        ? _parseNum(json['unit_potential_saving'])
+        : null;
+    final num? linePotentialSavingVal = json['line_potential_saving'] != null
+        ? _parseNum(json['line_potential_saving'])
+        : null;
 
     final Map<String, dynamic> productMap =
         json['product'] is Map<String, dynamic>
@@ -33,6 +49,10 @@ class CartItemModel extends CartItemEntity {
       lineTotal: lineTotalVal,
       lineSavings: lineSavingsVal,
       product: productModel,
+      regularPrice: regularPriceVal,
+      memberPrice: memberPriceVal,
+      unitPotentialSaving: unitPotentialSavingVal,
+      linePotentialSaving: linePotentialSavingVal,
     );
   }
 

@@ -20,6 +20,7 @@ class EndPoints {
   static const String flashSaleProducts = '/v1/products?is_flash_sale=true';
   static const String cardStatus = '/v1/card/status';
   static const String requestCard = '/v1/card/request';
+  static const String subscriptionPlans = '/v1/subscription/plans';
   static const String fcmToken = '/v1/notifications/fcm-token';
   static const String notifications = '/v1/notifications';
   static const String notificationsReadAll = '/v1/notifications/read-all';

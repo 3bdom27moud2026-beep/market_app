@@ -151,6 +151,7 @@ class _CategoriesContent extends StatelessWidget {
                   CacheHelper.setSelectedCategoryId(categoryId);
                   context.push(
                     '${AppRoutes.merchants}?categoryId=$categoryId&name=${Uri.encodeComponent(category.name)}',
+                    extra: category,
                   );
                 },
               ),

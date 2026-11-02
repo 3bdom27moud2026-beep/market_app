@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:market/core/extensions/context_extensions.dart';
 import 'package:market/core/constants/app_radius.dart';
@@ -18,7 +18,45 @@ class CardStatusInfoWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isActive = card.isActive;
-    final bool isExpired = card.status.toLowerCase() == 'expired';
+    final bool isPending = card.isPending;
+    final bool isExpired = card.isExpired;
+
+    if (isPending) {
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.lg,
+          vertical: AppSpacing.md,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.amber.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(AppRadius.medium),
+          border: Border.all(
+            color: Colors.amber.withValues(alpha: 0.4),
+          ),
+        ),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.hourglass_top_rounded,
+              color: Colors.amber,
+              size: 20,
+            ),
+            SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: Text(
+                'طلبك قيد المراجعة — سيتم تفعيل الكارت فور التحقق من إيصال الدفع',
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: Colors.amber.shade900,
+                  fontSize: 10.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
     if (isActive) {
       final days = card.daysRemaining;

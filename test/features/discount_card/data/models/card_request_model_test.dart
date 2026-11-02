@@ -6,32 +6,36 @@ void main() {
   group('CardRequestModel Serialization Verification', () {
     test('toJson serializes correctly with required and default fields', () {
       const model = CardRequestModel(
+        planType: 'yearly',
+        paymentMethod: 'cash_wallet',
         deliveryAddress: 'المنصورة - شارع المشاية',
         phone: '01012345678',
-        paymentMethod: 'cash',
       );
 
       final json = model.toJson();
 
       expect(json, {
+        'plan_type': 'yearly',
+        'payment_method': 'cash_wallet',
         'delivery_address': 'المنصورة - شارع المشاية',
         'phone': '01012345678',
-        'payment_method': 'cash',
       });
     });
 
     test('fromJson deserializes correctly', () {
       final json = {
+        'plan_type': 'monthly',
         'delivery_address': 'القاهرة - المعادي',
         'phone': '01198765432',
-        'payment_method': 'cash',
+        'payment_method': 'cash_wallet',
       };
 
       final model = CardRequestModel.fromJson(json);
 
+      expect(model.planType, 'monthly');
       expect(model.deliveryAddress, 'القاهرة - المعادي');
       expect(model.phone, '01198765432');
-      expect(model.paymentMethod, 'cash');
+      expect(model.paymentMethod, 'cash_wallet');
     });
   });
 

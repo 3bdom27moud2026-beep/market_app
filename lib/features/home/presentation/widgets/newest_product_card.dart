@@ -46,7 +46,8 @@ class NewestProductCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Image
-            Expanded(
+            SizedBox(
+              height: 150.h,
               child: Stack(
                 children: [
                   Positioned.fill(

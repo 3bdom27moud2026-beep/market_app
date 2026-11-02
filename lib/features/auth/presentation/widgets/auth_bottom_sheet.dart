@@ -86,17 +86,29 @@ class _UnifiedAuthBottomSheetState extends State<_UnifiedAuthBottomSheet> {
     super.initState();
     _selectedTab = widget.initialTab;
 
-    _loginPhoneController = TextEditingController();
-    _loginPasswordController = TextEditingController();
+    _loginPhoneController = TextEditingController()..addListener(_onFieldChanged);
+    _loginPasswordController = TextEditingController()..addListener(_onFieldChanged);
 
-    _nameController = TextEditingController();
-    _regPhoneController = TextEditingController();
+    _nameController = TextEditingController()..addListener(_onFieldChanged);
+    _regPhoneController = TextEditingController()..addListener(_onFieldChanged);
     _referralCodeController = TextEditingController();
-    _regPasswordController = TextEditingController();
+    _regPasswordController = TextEditingController()..addListener(_onFieldChanged);
+  }
+
+  void _onFieldChanged() {
+    if (mounted && context.read<AuthCubit>().state is AuthError) {
+      context.read<AuthCubit>().clearError();
+    }
   }
 
   @override
   void dispose() {
+    _loginPhoneController.removeListener(_onFieldChanged);
+    _loginPasswordController.removeListener(_onFieldChanged);
+    _nameController.removeListener(_onFieldChanged);
+    _regPhoneController.removeListener(_onFieldChanged);
+    _regPasswordController.removeListener(_onFieldChanged);
+
     _loginPhoneController.dispose();
     _loginPasswordController.dispose();
 
@@ -235,7 +247,7 @@ class _UnifiedAuthBottomSheetState extends State<_UnifiedAuthBottomSheet> {
                     Text(
                       _selectedTab == AuthBottomSheetTab.login
                           ? 'أهلاً بعودتك! سجّل دخولك للمتابعة'
-                          : 'أدخل بياناتك لإنشاء حسابك وطلب كارت الخصم',
+                          : 'أدخل بياناتك لإنشاء حساب جديد',
                       style: AppTextStyles.bodySmall.copyWith(
                         color: context.colors.textTertiary,
                         fontSize: 10.sp,
@@ -249,6 +261,7 @@ class _UnifiedAuthBottomSheetState extends State<_UnifiedAuthBottomSheet> {
                       selectedTab: _selectedTab,
                       onTabChanged: (tab) {
                         if (!isLoading && _selectedTab != tab) {
+                          context.read<AuthCubit>().clearError();
                           setState(() => _selectedTab = tab);
                         }
                       },
@@ -528,7 +541,7 @@ class _UnifiedAuthBottomSheetState extends State<_UnifiedAuthBottomSheet> {
           // Submit
           _SubmitButton(
             isLoading: isLoading,
-            label: 'طلب كارت',
+            label: 'إنشاء حساب',
             onPressed: () => _submitRegister(context),
           ),
           SizedBox(height: AppSpacing.md.h),
@@ -603,10 +616,10 @@ class _AuthSegmentedTabBar extends StatelessWidget {
               ),
             ),
             SizedBox(width: 4.w),
-            // Left: طلب كارت
+            // Left: إنشاء حساب
             Expanded(
               child: _TabButton(
-                title: 'طلب كارت',
+                title: 'إنشاء حساب',
                 isSelected: selectedTab == AuthBottomSheetTab.register,
                 onTap: () => onTabChanged(AuthBottomSheetTab.register),
               ),

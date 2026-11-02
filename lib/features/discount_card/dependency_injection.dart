@@ -3,6 +3,7 @@ import 'package:market/core/utils/api_client.dart';
 import 'package:market/features/auth/domain/usecases/check_auth_usecase.dart';
 import 'package:market/features/discount_card/domain/repository/discount_card_repository.dart';
 import 'package:market/features/discount_card/domain/usecases/get_discount_card_data_usecase.dart';
+import 'package:market/features/discount_card/domain/usecases/get_subscription_plans_usecase.dart';
 import 'package:market/features/discount_card/domain/usecases/request_card_usecase.dart';
 import 'package:market/features/discount_card/data/datasource/remote/discount_card_remote_datasource.dart';
 import 'package:market/features/discount_card/data/repository/discount_card_repository_impl.dart';
@@ -25,6 +26,7 @@ abstract final class DiscountCardDI {
             as DiscountCardRepository;
     final getDiscountCardDataUseCase = GetDiscountCardDataUseCase(repository);
     final requestCardUseCase = RequestCardUseCase(repository);
+    final getSubscriptionPlansUseCase = GetSubscriptionPlansUseCase(repository);
     final checkAuthUseCase = CoreDI.sl.isRegistered<CheckAuthUseCase>()
         ? CoreDI.sl<CheckAuthUseCase>()
         : null;
@@ -32,6 +34,7 @@ abstract final class DiscountCardDI {
     return DiscountCardCubit(
       getDiscountCardDataUseCase,
       requestCardUseCase,
+      getSubscriptionPlansUseCase,
       checkAuthUseCase,
     );
   }

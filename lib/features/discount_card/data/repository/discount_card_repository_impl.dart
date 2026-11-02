@@ -9,6 +9,7 @@ import 'package:market/features/discount_card/domain/entities/merchant_entity.da
 import 'package:market/features/discount_card/domain/entities/benefit_entity.dart';
 import 'package:market/features/discount_card/data/models/card_request_model.dart';
 import 'package:market/features/discount_card/domain/entities/card_request_result_entity.dart';
+import 'package:market/features/discount_card/domain/entities/subscription_plans_data_entity.dart';
 import 'package:market/features/discount_card/domain/repository/discount_card_repository.dart';
 import 'package:market/features/discount_card/data/datasource/remote/discount_card_remote_datasource.dart';
 
@@ -19,6 +20,12 @@ class DiscountCardRepositoryImpl implements DiscountCardRepository {
   DiscountCardRepositoryImpl({
     required DiscountCardRemoteDataSource remoteDataSource,
   }) : _remoteDataSource = remoteDataSource;
+
+  @override
+  Future<Either<String, SubscriptionPlansDataEntity>> getSubscriptionPlans() async {
+    final result = await _remoteDataSource.getSubscriptionPlans();
+    return result.fold((error) => Left(error), (data) => Right(data));
+  }
 
   @override
   Future<Either<String, DiscountCardDataEntity>> getDiscountCardData() async {

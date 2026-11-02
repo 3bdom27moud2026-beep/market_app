@@ -1,3 +1,5 @@
+import 'package:market/features/discount_card/data/models/payment_method_model.dart';
+import 'package:market/features/discount_card/data/models/subscription_plan_model.dart';
 import '../../domain/entities/cart_data_entity.dart';
 import 'cart_item_model.dart';
 
@@ -9,6 +11,9 @@ class CartResponseModel extends CartDataEntity {
     required super.cartTotal,
     required super.cartSavings,
     required super.cartCount,
+    super.cartTotalWithoutCard,
+    super.cartTotalWithCard,
+    super.cartPotentialCardSavings,
     super.cardUpsell,
   });
 
@@ -27,17 +32,58 @@ class CartResponseModel extends CartDataEntity {
     }
 
     final num cartTotalVal = _parseNum(json['cart_total']);
-    final num cartSavingsVal = _parseNum(json['cart_savings']);
+    final num cartSavingsVal = _parseNum(
+      json['cart_potential_card_savings'] ?? json['cart_savings'],
+    );
     final int cartCountVal = _parseInt(json['cart_count'], items.length);
+
+    final num? cartTotalWithoutCardVal = json['cart_total_without_card'] != null
+        ? _parseNum(json['cart_total_without_card'])
+        : null;
+    final num? cartTotalWithCardVal = json['cart_total_with_card'] != null
+        ? _parseNum(json['cart_total_with_card'])
+        : null;
+    final num? cartPotentialCardSavingsVal =
+        json['cart_potential_card_savings'] != null
+        ? _parseNum(json['cart_potential_card_savings'])
+        : null;
 
     CardUpsellEntity? upsell;
     if (json['card_upsell'] is Map<String, dynamic>) {
       final u = json['card_upsell'] as Map<String, dynamic>;
+
+      final rawPlans = u['plans'];
+      final List<SubscriptionPlanModel> parsedPlans = [];
+      if (rawPlans is List) {
+        for (final p in rawPlans) {
+          if (p is Map<String, dynamic>) {
+            parsedPlans.add(SubscriptionPlanModel.fromJson(p));
+          }
+        }
+      }
+
+      final rawMethods = u['payment_methods'];
+      final List<PaymentMethodModel> parsedMethods = [];
+      if (rawMethods is List) {
+        for (final m in rawMethods) {
+          if (m is Map<String, dynamic>) {
+            parsedMethods.add(PaymentMethodModel.fromJson(m));
+          }
+        }
+      }
+
       upsell = CardUpsellEntity(
+        showUpsell: u['show_upsell'] as bool? ?? true,
         potentialSavings: (u['potential_savings'] as num?)?.toDouble() ?? 0.0,
+        savingsPercentage: (u['savings_percentage'] as num?)?.toDouble() ?? 0.0,
+        title: u['title']?.toString() ?? '',
         message: u['message']?.toString() ?? '',
+        badge: u['badge']?.toString() ?? '',
         subscriptionActionUrl:
-            u['subscription_action_url']?.toString() ?? '/card/subscribe',
+            u['subscription_action_url']?.toString() ?? '/discount-card',
+        ctaText: u['cta_text']?.toString() ?? 'اشترك ووفر الآن',
+        plans: parsedPlans,
+        paymentMethods: parsedMethods,
       );
     }
 
@@ -48,6 +94,9 @@ class CartResponseModel extends CartDataEntity {
       cartTotal: cartTotalVal,
       cartSavings: cartSavingsVal,
       cartCount: cartCountVal,
+      cartTotalWithoutCard: cartTotalWithoutCardVal,
+      cartTotalWithCard: cartTotalWithCardVal,
+      cartPotentialCardSavings: cartPotentialCardSavingsVal,
       cardUpsell: upsell,
     );
   }
@@ -75,6 +124,12 @@ class CartResponseModel extends CartDataEntity {
       'cart_total': cartTotal,
       'cart_savings': cartSavings,
       'cart_count': cartCount,
+      if (cartTotalWithoutCard != null)
+        'cart_total_without_card': cartTotalWithoutCard,
+      if (cartTotalWithCard != null)
+        'cart_total_with_card': cartTotalWithCard,
+      if (cartPotentialCardSavings != null)
+        'cart_potential_card_savings': cartPotentialCardSavings,
     };
   }
 }

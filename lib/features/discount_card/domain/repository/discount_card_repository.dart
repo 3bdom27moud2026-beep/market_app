@@ -9,8 +9,13 @@ import 'package:market/features/discount_card/domain/entities/benefit_entity.dar
 import 'package:market/features/discount_card/data/models/card_request_model.dart';
 import 'package:market/features/discount_card/domain/entities/card_request_result_entity.dart';
 
+import 'package:market/features/discount_card/domain/entities/subscription_plans_data_entity.dart';
+
 /// Abstract repository for discount card data.
 abstract class DiscountCardRepository {
+  /// Fetches dynamic subscription plans.
+  Future<Either<String, SubscriptionPlansDataEntity>> getSubscriptionPlans();
+
   /// Fetches all data for the discount card screen.
   Future<Either<String, DiscountCardDataEntity>> getDiscountCardData();
 

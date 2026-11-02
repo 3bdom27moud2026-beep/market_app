@@ -115,4 +115,10 @@ class AuthCubit extends Cubit<AuthState> {
     AuthEventBus.instance.notifyLoggedOut();
     emit(const SessionExpired());
   }
+
+  void clearError() {
+    if (state is AuthError) {
+      emit(AuthInitial());
+    }
+  }
 }

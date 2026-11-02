@@ -225,7 +225,7 @@ class CategoryMerchantCard extends StatelessWidget {
                               merchant.name,
                               style: TextStyle(
                                 fontFamily: AppTextStyles.fontFamily,
-                                fontSize: 13.sp,
+                                fontSize: 12.sp,
                                 fontWeight: FontWeight.w900,
                                 color: context.colors.textPrimary,
                               ),

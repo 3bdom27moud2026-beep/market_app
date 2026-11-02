@@ -212,49 +212,6 @@ class _OfferBannerCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const Spacer(),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: ElevatedButton(
-                      onPressed: onTap,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: context.colors.accentOrange,
-                        foregroundColor: context.colors.textOnPrimary,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AppSpacing.sm.r),
-                        ),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: AppSpacing.md.w,
-                          vertical: 20.h,
-                        ),
-                        visualDensity: VisualDensity.compact,
-                      ),
-                      child: Directionality(
-                        textDirection: TextDirection.ltr,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.chevron_left,
-                              color: Colors.white,
-                              size: 16.r,
-                            ),
-                            SizedBox(width: 4.w),
-                            Text(
-                              offer.buttonText.isNotEmpty
-                                  ? offer.buttonText
-                                  : 'تسوق الآن',
-                              style: AppTextStyles.buttonSmall.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20.h),
                 ],
               ),
             ),

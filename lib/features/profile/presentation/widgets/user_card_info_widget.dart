@@ -16,7 +16,7 @@ class UserCardInfoWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (card == null || card!.cardNo.isEmpty) {
+    if (card == null || card!.cardNo.isEmpty || !card!.isActive) {
       return _buildNoCardView(context);
     }
 
@@ -90,7 +90,7 @@ class UserCardInfoWidget extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    'غير متاح',
+                    card != null && !card!.isActive ? 'قيد التفعيل' : 'غير متاح',
                     style: TextStyle(
                       fontSize: 11.sp,
                       fontWeight: FontWeight.bold,
@@ -105,7 +105,9 @@ class UserCardInfoWidget extends StatelessWidget {
 
             // Description text explaining how to request a card
             Text(
-              'ليس لديك كارت خصومات حالياً. يمكنك تقديم طلب للحصول على كارت والاستفادة من أفضل العروض والخصومات!',
+              card != null && !card!.isActive
+                  ? 'طلب كارت الخصم الخاص بك قيد المراجعة أو غير مفعّل حالياً. سيتم إشعارك وتفعيله قريباً لتتمكن من استخدامه والاستفادة من أفضل العروض والخصومات!'
+                  : 'ليس لديك كارت خصومات حالياً. يمكنك تقديم طلب للحصول على كارت والاستفادة من أفضل العروض والخصومات!',
               style: TextStyle(
                 fontSize: 12.sp,
                 color: context.colors.textOnPrimary.withValues(alpha: 0.8),
@@ -115,36 +117,37 @@ class UserCardInfoWidget extends StatelessWidget {
 
             SizedBox(height: AppSpacing.lg.h),
 
-            // CTA Button to request a card
-            SizedBox(
-              width: double.infinity,
-              height: 46.h,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  if (onRequestCardTap != null) {
-                    onRequestCardTap!();
-                  } else {
-                    showRequestCardBottomSheet(context);
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: context.colors.primary,
-                  foregroundColor: context.colors.textOnPrimary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.r),
+            // CTA Button to request a card (only if user has no card at all)
+            if (card == null || card!.cardNo.isEmpty)
+              SizedBox(
+                width: double.infinity,
+                height: 46.h,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    if (onRequestCardTap != null) {
+                      onRequestCardTap!();
+                    } else {
+                      showRequestCardBottomSheet(context);
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: context.colors.primary,
+                    foregroundColor: context.colors.textOnPrimary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                    elevation: 0,
                   ),
-                  elevation: 0,
-                ),
-                icon: Icon(Icons.card_membership_rounded, size: 20.r),
-                label: Text(
-                  'تقديم طلب للحصول على كارت',
-                  style: TextStyle(
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.bold,
+                  icon: Icon(Icons.card_membership_rounded, size: 20.r),
+                  label: Text(
+                    'تقديم طلب للحصول على كارت',
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
-            ),
           ],
         ),
       ),
@@ -225,12 +228,16 @@ class UserCardInfoWidget extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: isActive
                               ? const Color(0x2B10B981)
-                              : const Color(0x2BEF4444),
+                              : (cardEntity.isPending
+                                  ? const Color(0x2BF59E0B)
+                                  : const Color(0x2BEF4444)),
                           borderRadius: BorderRadius.circular(20.r),
                           border: Border.all(
                             color: isActive
                                 ? const Color(0xFF10B981)
-                                : const Color(0xFFEF4444),
+                                : (cardEntity.isPending
+                                    ? const Color(0xFFF59E0B)
+                                    : const Color(0xFFEF4444)),
                             width: 1.w,
                           ),
                         ),
@@ -244,18 +251,26 @@ class UserCardInfoWidget extends StatelessWidget {
                                 shape: BoxShape.circle,
                                 color: isActive
                                     ? const Color(0xFF10B981)
-                                    : const Color(0xFFEF4444),
+                                    : (cardEntity.isPending
+                                        ? const Color(0xFFF59E0B)
+                                        : const Color(0xFFEF4444)),
                               ),
                             ),
                             SizedBox(width: 6.w),
                             Text(
-                              isActive ? 'مُفعل' : 'غير مُفعل',
+                              isActive
+                                  ? 'مُفعل'
+                                  : (cardEntity.isPending
+                                      ? 'قيد المراجعة'
+                                      : 'غير مُفعل'),
                               style: TextStyle(
                                 fontSize: 11.sp,
                                 fontWeight: FontWeight.bold,
                                 color: isActive
                                     ? const Color(0xFF10B981)
-                                    : const Color(0xFFEF4444),
+                                    : (cardEntity.isPending
+                                        ? const Color(0xFFF59E0B)
+                                        : const Color(0xFFEF4444)),
                               ),
                             ),
                           ],

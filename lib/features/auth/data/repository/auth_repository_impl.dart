@@ -3,6 +3,7 @@ import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:market/core/error/error_handler.dart';
 import 'package:market/core/error/failures.dart';
+import 'package:market/core/utils/app_strings.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repository/auth_repository.dart';
 import '../datasource/local/auth_local_datasource.dart';
@@ -30,7 +31,7 @@ class AuthRepositoryImpl implements AuthRepository {
       await _localDataSource.saveAuthData(userModel);
       return Right(userModel);
     } on DioException catch (e) {
-      return Left(_handleDioError(e));
+      return Left(_handleRegisterDioError(e));
     } catch (e) {
       return Left(
         AppErrorHandler.handleToFailure(
@@ -48,7 +49,7 @@ class AuthRepositoryImpl implements AuthRepository {
       await _localDataSource.saveAuthData(userModel);
       return Right(userModel);
     } on DioException catch (e) {
-      return Left(_handleDioError(e));
+      return Left(_handleLoginDioError(e));
     } catch (e) {
       return Left(
         AppErrorHandler.handleToFailure(
@@ -84,33 +85,93 @@ class AuthRepositoryImpl implements AuthRepository {
     return _localDataSource.isLoggedIn();
   }
 
-  /// Categorizes DioException into domain Failure types.
-  Failure _handleDioError(DioException e) {
+  /// Categorizes DioException specifically for login attempts.
+  Failure _handleLoginDioError(DioException e) {
     if (AppErrorHandler.isNetworkError(e)) {
-      return const NetworkFailure();
+      return const NetworkFailure(AppStrings.networkError);
+    }
+
+    final statusCode = e.response?.statusCode;
+    final message = AppErrorHandler.getMessage(
+      e,
+      defaultMessage: AppStrings.invalidCredentials,
+    );
+
+    // Safeguard: Ensure login failure never displays "Session expired"
+    final cleanMessage = (message.contains('انتهت صلاحية الجلسة') ||
+            message.toLowerCase().contains('unauthenticated') ||
+            message.toLowerCase().contains('unauthorized'))
+        ? AppStrings.invalidCredentials
+        : message;
+
+    if (statusCode == 401 || statusCode == 400 || statusCode == 422) {
+      return ValidationFailure(cleanMessage);
+    }
+
+    return ServerFailure(cleanMessage, code: statusCode?.toString());
+  }
+
+  /// Categorizes DioException specifically for registration / card request attempts.
+  Failure _handleRegisterDioError(DioException e) {
+    if (AppErrorHandler.isNetworkError(e)) {
+      return const NetworkFailure(AppStrings.networkError);
     }
 
     final statusCode = e.response?.statusCode;
     final responseData = e.response?.data;
 
-    if (statusCode == 401) {
-      return const UnauthorizedFailure();
-    }
-
+    // Check specific validation errors
     if (responseData is Map<String, dynamic>) {
-      final message =
-          responseData['message']?.toString() ??
-          responseData['error']?.toString();
-      if (message != null && message.isNotEmpty) {
-        if (message.contains('email')) {
-          return const ValidationFailure('البريد الإلكتروني مسجل بالفعل');
+      final errors = responseData['errors'];
+      if (errors is Map<String, dynamic>) {
+        if (errors.containsKey('phone')) {
+          final val = errors['phone'];
+          final msg = (val is List && val.isNotEmpty)
+              ? val.first.toString().toLowerCase()
+              : val.toString().toLowerCase();
+          if (msg.contains('taken') || msg.contains('مسجل') || msg.contains('exists')) {
+            return const ValidationFailure(AppStrings.phoneAlreadyRegistered);
+          }
+          if (msg.contains('digit') || msg.contains('11') || msg.contains('invalid')) {
+            return const ValidationFailure('رقم الهاتف يجب أن يتكون من 11 رقماً صالحاً.');
+          }
         }
-        if (message.contains('phone')) {
-          return const ValidationFailure('رقم الهاتف مسجل بالفعل');
+        if (errors.containsKey('email')) {
+          final val = errors['email'];
+          final msg = (val is List && val.isNotEmpty)
+              ? val.first.toString().toLowerCase()
+              : val.toString().toLowerCase();
+          if (msg.contains('taken') || msg.contains('مسجل') || msg.contains('exists')) {
+            return const ValidationFailure(AppStrings.emailAlreadyRegistered);
+          }
+        }
+        if (errors.containsKey('referral_code')) {
+          return const ValidationFailure(AppStrings.invalidReferralCode);
+        }
+        if (errors.containsKey('password')) {
+          return const ValidationFailure(AppStrings.passwordMinLength);
+        }
+        if (errors.containsKey('area_id')) {
+          return const ValidationFailure(AppStrings.selectAreaPrompt);
         }
       }
     }
 
-    return AppErrorHandler.handleToFailure(e);
+    final message = AppErrorHandler.getMessage(
+      e,
+      defaultMessage: 'تعذر إنشاء الحساب، يرجى مراجعة البيانات المدخلة والمحاولة مجدداً.',
+    );
+
+    final cleanMessage = (message.contains('انتهت صلاحية الجلسة') ||
+            message.toLowerCase().contains('unauthenticated') ||
+            message.toLowerCase().contains('unauthorized'))
+        ? 'تعذر إنشاء الحساب، يرجى مراجعة البيانات المدخلة والمحاولة مجدداً.'
+        : message;
+
+    if (statusCode == 400 || statusCode == 422 || statusCode == 409) {
+      return ValidationFailure(cleanMessage);
+    }
+
+    return ServerFailure(cleanMessage, code: statusCode?.toString());
   }
 }

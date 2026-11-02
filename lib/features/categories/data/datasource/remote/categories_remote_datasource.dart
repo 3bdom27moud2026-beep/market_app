@@ -112,13 +112,16 @@ class CategoriesRemoteDataSource {
             counts[model.id] ?? counts[model.name] ?? model.storesCount;
         return CategoryModel(
           id: model.id,
+          parentId: model.parentId,
           name: model.name,
           icon: model.icon,
+          customIconUrl: model.customIconUrl,
           storesCount: count,
           color: model.color,
           iconColor: model.iconColor,
           slug: model.slug,
           type: model.type,
+          subcategories: model.subcategories,
         );
       }).toList();
 
@@ -162,13 +165,16 @@ class CategoriesRemoteDataSource {
             counts[model.id] ?? counts[model.name] ?? model.storesCount;
         return CategoryModel(
           id: model.id,
+          parentId: model.parentId,
           name: model.name,
           icon: model.icon,
+          customIconUrl: model.customIconUrl,
           storesCount: count,
           color: model.color,
           iconColor: model.iconColor,
           slug: model.slug,
           type: model.type,
+          subcategories: model.subcategories,
         );
       }).toList();
     } catch (e) {
@@ -207,13 +213,16 @@ class CategoriesRemoteDataSource {
             counts[model.id] ?? counts[model.name] ?? model.storesCount;
         return CategoryModel(
           id: model.id,
+          parentId: model.parentId,
           name: model.name,
           icon: model.icon,
+          customIconUrl: model.customIconUrl,
           storesCount: count,
           color: model.color,
           iconColor: model.iconColor,
           slug: model.slug,
           type: model.type,
+          subcategories: model.subcategories,
         );
       }).toList();
     } catch (e) {

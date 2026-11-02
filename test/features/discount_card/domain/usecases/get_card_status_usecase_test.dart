@@ -12,9 +12,14 @@ import 'package:market/features/profile/domain/entities/profile_entity.dart'
 
 import 'package:market/features/discount_card/data/models/card_request_model.dart';
 import 'package:market/features/discount_card/domain/entities/card_request_result_entity.dart';
+import 'package:market/features/discount_card/domain/entities/subscription_plans_data_entity.dart';
 
 class MockDiscountCardRepository implements DiscountCardRepository {
   Either<String, UserCardEntity?>? mockCardStatusResult;
+
+  @override
+  Future<Either<String, SubscriptionPlansDataEntity>> getSubscriptionPlans() async =>
+      const Right(SubscriptionPlansDataEntity(plans: [], paymentMethods: []));
 
   @override
   Future<Either<String, CardRequestResultEntity>> requestCard(

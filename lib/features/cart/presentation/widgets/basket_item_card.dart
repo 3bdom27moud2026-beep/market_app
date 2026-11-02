@@ -165,6 +165,29 @@ class BasketItemCard extends StatelessWidget {
                             ],
                           ),
                         ),
+                      if (item.linePotentialSaving != null && item.linePotentialSaving! > 0)
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 6.w,
+                            vertical: 2.h,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE8F8F5),
+                            borderRadius: BorderRadius.circular(6.r),
+                            border: Border.all(
+                              color: const Color(0xFF0D9488),
+                              width: 0.6,
+                            ),
+                          ),
+                          child: Text(
+                            'وفر ${item.linePotentialSaving!.toStringAsFixed(0)} ج.م بالكارت',
+                            style: TextStyle(
+                              fontSize: 9.5.sp,
+                              fontWeight: FontWeight.bold,
+                              color: const Color(0xFF0D9488),
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ],

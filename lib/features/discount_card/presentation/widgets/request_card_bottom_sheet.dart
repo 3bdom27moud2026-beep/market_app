@@ -1,15 +1,22 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:market/core/extensions/context_extensions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:market/core/constants/app_radius.dart';
 import 'package:market/core/constants/app_spacing.dart';
-import 'package:market/core/constants/app_text_styles.dart';
+import 'package:market/core/extensions/context_extensions.dart';
 import 'package:market/features/discount_card/dependency_injection.dart';
+import 'package:market/features/discount_card/domain/entities/payment_method_entity.dart';
+import 'package:market/features/discount_card/domain/entities/subscription_plan_entity.dart';
 import 'package:market/features/discount_card/presentation/cubit/discount_card_cubit.dart';
 
 /// Shows a bottom sheet to request a discount card via POST /v1/card/request.
-Future<void> showRequestCardBottomSheet(BuildContext context) {
+Future<void> showRequestCardBottomSheet(
+  BuildContext context, {
+  File? initialReceiptFile,
+}) {
   DiscountCardCubit cubit;
   try {
     cubit = context.read<DiscountCardCubit>();
@@ -23,13 +30,17 @@ Future<void> showRequestCardBottomSheet(BuildContext context) {
     barrierColor: Colors.black54,
     builder: (ctx) => BlocProvider<DiscountCardCubit>.value(
       value: cubit,
-      child: const _RequestCardBottomSheetContent(),
+      child: _RequestCardBottomSheetContent(
+        initialReceiptFile: initialReceiptFile,
+      ),
     ),
   );
 }
 
 class _RequestCardBottomSheetContent extends StatefulWidget {
-  const _RequestCardBottomSheetContent();
+  final File? initialReceiptFile;
+
+  const _RequestCardBottomSheetContent({this.initialReceiptFile});
 
   @override
   State<_RequestCardBottomSheetContent> createState() =>
@@ -41,8 +52,29 @@ class _RequestCardBottomSheetContentState
   final _formKey = GlobalKey<FormState>();
   final _addressController = TextEditingController();
   final _phoneController = TextEditingController();
-  String _paymentMethod = 'cash';
+  final ImagePicker _picker = ImagePicker();
+
+  bool _isLoadingPlans = true;
   bool _isSubmitting = false;
+
+  List<SubscriptionPlanEntity> _plans = [];
+  List<PaymentMethodEntity> _paymentMethods = [];
+  String _instructions =
+      'قم بتحويل قيمة الاشتراك عبر خدمات الكاش أو إنستاباي ثم اضغط على زر "إرسال صورة التحويل" وأرفق لقطة الشاشة لتفعيل الكارت فوراً.';
+  String _supportPhone = '01023654866';
+
+  String _selectedPlanType = 'semi_annual';
+  String _selectedPaymentMethod = 'cash_wallet';
+  File? _receiptFile;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialReceiptFile != null) {
+      _receiptFile = widget.initialReceiptFile;
+    }
+    _loadPlans();
+  }
 
   @override
   void dispose() {
@@ -51,8 +83,191 @@ class _RequestCardBottomSheetContentState
     super.dispose();
   }
 
+  Future<void> _loadPlans() async {
+    final result = await context.read<DiscountCardCubit>().getSubscriptionPlans();
+    if (!mounted) return;
+
+    result.fold(
+      (error) {
+        // Fallback default plans matching API spec
+        setState(() {
+          _plans = const [
+            SubscriptionPlanEntity(
+              id: 'monthly',
+              planId: 1,
+              planType: 'monthly',
+              name: 'شهري',
+              durationMonths: 1,
+              durationLabel: 'شهرياً',
+              price: 50.0,
+              priceLabel: '50 جنيه / شهرياً',
+              monthlyEquivalent: 50.0,
+              description: 'قيمة الاشتراك 50 جنيه شهرياً',
+              isActive: true,
+              badge: null,
+              color: '#10b981',
+              icon: 'calendar',
+            ),
+            SubscriptionPlanEntity(
+              id: 'semi_annual',
+              planId: 2,
+              planType: 'semi_annual',
+              name: 'نصف سنوي',
+              durationMonths: 6,
+              durationLabel: '6 أشهر',
+              price: 150.0,
+              priceLabel: '150 جنيه / 6 أشهر',
+              monthlyEquivalent: 25.0,
+              description: 'قيمة الاشتراك 150 جنيه (6 أشهر)',
+              isActive: true,
+              badge: 'الأكثر طلباً ⭐',
+              color: '#f59e0b',
+              icon: 'star',
+            ),
+            SubscriptionPlanEntity(
+              id: 'annual',
+              planId: 3,
+              planType: 'annual',
+              name: 'سنوي',
+              durationMonths: 12,
+              durationLabel: 'سنوياً',
+              price: 300.0,
+              priceLabel: '300 جنيه / سنوياً',
+              monthlyEquivalent: 25.0,
+              description: 'قيمة الاشتراك 300 جنيه (12 شهراً)',
+              isActive: true,
+              badge: 'أعلى توفير 👑',
+              color: '#2563eb',
+              icon: 'crown',
+            ),
+          ];
+          _paymentMethods = const [
+            PaymentMethodEntity(
+              id: 'cash_wallet',
+              name: 'خدمات الكاش',
+              number: '01023654866',
+              icon: 'wallet',
+              description: 'فودافون كاش، أورنج كاش، اتصالات كاش، وي باي',
+              actionLabel: 'نسخ الرقم',
+            ),
+            PaymentMethodEntity(
+              id: 'instapay',
+              name: 'إنستاباي',
+              number: '01023654866',
+              icon: 'send',
+              description: 'تحويل فوري عبر تطبيق InstaPay',
+              actionLabel: 'نسخ الحساب',
+            ),
+          ];
+          _isLoadingPlans = false;
+        });
+      },
+      (data) {
+        setState(() {
+          _plans = data.activePlans.isNotEmpty ? data.activePlans : data.plans;
+          _paymentMethods = data.paymentMethods;
+          if (data.instructions.isNotEmpty) {
+            _instructions = data.instructions;
+          }
+          if (data.supportPhone.isNotEmpty) {
+            _supportPhone = data.supportPhone;
+          }
+          if (_plans.isNotEmpty &&
+              !_plans.any((p) => p.planType == _selectedPlanType)) {
+            _selectedPlanType = _plans.first.planType;
+          }
+          if (_paymentMethods.isNotEmpty &&
+              !_paymentMethods.any((m) => m.id == _selectedPaymentMethod)) {
+            _selectedPaymentMethod = _paymentMethods.first.id;
+          }
+          _isLoadingPlans = false;
+        });
+      },
+    );
+  }
+
+  Future<void> _pickReceipt(ImageSource source) async {
+    try {
+      final XFile? picked = await _picker.pickImage(
+        source: source,
+        imageQuality: 85,
+      );
+      if (picked != null) {
+        setState(() {
+          _receiptFile = File(picked.path);
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('تعذر اختيار الصورة: $e'),
+          backgroundColor: context.colors.accentRed,
+        ),
+      );
+    }
+  }
+
+  void _showImageSourceDialog() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: context.colors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 16.h),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'اختيار صورة إيصال التحويل',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.bold,
+                    color: context.colors.textPrimary,
+                  ),
+                ),
+                SizedBox(height: 12.h),
+                ListTile(
+                  leading: Icon(Icons.photo_library_outlined, color: context.colors.primary),
+                  title: const Text('المعرض (Gallery)'),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _pickReceipt(ImageSource.gallery);
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.camera_alt_outlined, color: context.colors.primary),
+                  title: const Text('الكاميرا (Camera)'),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _pickReceipt(ImageSource.camera);
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _submitRequest() async {
     if (_isSubmitting) return;
+
+    if (_receiptFile == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('يرجى إرفاق صورة إيصال أو لقطة شاشة التحويل أولاً'),
+          backgroundColor: context.colors.accentRed,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
 
     if (!_formKey.currentState!.validate()) {
       return;
@@ -66,9 +281,15 @@ class _RequestCardBottomSheetContentState
     final navigator = Navigator.of(context);
 
     final result = await context.read<DiscountCardCubit>().submitCardRequest(
-      deliveryAddress: _addressController.text.trim(),
-      phone: _phoneController.text.trim(),
-      paymentMethod: _paymentMethod,
+      planType: _selectedPlanType,
+      paymentMethod: _selectedPaymentMethod,
+      receiptImagePath: _receiptFile!.path,
+      phone: _phoneController.text.trim().isNotEmpty
+          ? _phoneController.text.trim()
+          : null,
+      deliveryAddress: _addressController.text.trim().isNotEmpty
+          ? _addressController.text.trim()
+          : null,
     );
 
     if (!mounted) return;
@@ -83,106 +304,67 @@ class _RequestCardBottomSheetContentState
           SnackBar(
             content: Row(
               children: [
-                Icon(
-                  Icons.error_outline_rounded,
-                  color: context.colors.textOnPrimary,
-                ),
-                SizedBox(width: AppSpacing.sm.w),
+                const Icon(Icons.error_outline_rounded, color: Colors.white),
+                SizedBox(width: 8.w),
                 Expanded(
                   child: Text(
                     transportError,
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: context.colors.textOnPrimary,
-                    ),
+                    style: const TextStyle(color: Colors.white),
                   ),
                 ),
               ],
             ),
             backgroundColor: context.colors.accentRed,
-            duration: const Duration(seconds: 4),
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppRadius.medium.r),
-            ),
           ),
         );
       },
       (businessResult) {
-        if (businessResult.status) {
-          navigator.pop();
-          scaffoldMessenger.showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  Icon(
-                    Icons.check_circle_rounded,
-                    color: context.colors.textOnPrimary,
-                  ),
-                  SizedBox(width: AppSpacing.sm.w),
-                  Expanded(
-                    child: Text(
-                      businessResult.message.isNotEmpty
-                          ? businessResult.message
-                          : 'تم تقديم طلب الكارت بنجاح!',
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: context.colors.textOnPrimary,
-                      ),
+        navigator.pop();
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle_rounded, color: Colors.white),
+                SizedBox(width: 8.w),
+                Expanded(
+                  child: Text(
+                    businessResult.message.isNotEmpty
+                        ? businessResult.message
+                        : 'تم تقديم طلب كارت التوفير بنجاح وهو قيد المراجعة',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
-                ],
-              ),
-              backgroundColor: context.colors.accentGreen,
-              duration: const Duration(seconds: 4),
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppRadius.medium.r),
-              ),
+                ),
+              ],
             ),
-          );
-        } else {
-          // Business Rejection
-          if (businessResult.card != null) {
-            navigator.pop();
-          }
-          scaffoldMessenger.showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  Icon(
-                    Icons.info_outline_rounded,
-                    color: context.colors.textOnPrimary,
-                  ),
-                  SizedBox(width: AppSpacing.sm.w),
-                  Expanded(
-                    child: Text(
-                      businessResult.message.isNotEmpty
-                          ? businessResult.message
-                          : 'لا يمكن تقديم الطلب حالياً.',
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: context.colors.textOnPrimary,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              backgroundColor: context.colors.accentOrange,
-              duration: const Duration(seconds: 5),
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppRadius.medium.r),
-              ),
-            ),
-          );
-        }
+            backgroundColor: context.colors.accentGreen,
+            duration: const Duration(seconds: 4),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
       },
+    );
+  }
+
+  void _copyToClipboard(String text, String label) {
+    Clipboard.setData(ClipboardData(text: text));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('تم نسخ $label: $text'),
+        backgroundColor: context.colors.accentGreen,
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       decoration: BoxDecoration(
@@ -193,10 +375,10 @@ class _RequestCardBottomSheetContentState
         top: false,
         child: Padding(
           padding: EdgeInsets.only(
-            left: AppSpacing.xl.w,
-            right: AppSpacing.xl.w,
-            top: AppSpacing.xl.h,
-            bottom: AppSpacing.xl.h + bottomInset,
+            left: AppSpacing.lg.w,
+            right: AppSpacing.lg.w,
+            top: AppSpacing.md.h,
+            bottom: AppSpacing.lg.h + bottomInset,
           ),
           child: SingleChildScrollView(
             child: Form(
@@ -208,7 +390,7 @@ class _RequestCardBottomSheetContentState
                   // Drag Handle
                   Center(
                     child: Container(
-                      width: 40.w,
+                      width: 44.w,
                       height: 4.h,
                       decoration: BoxDecoration(
                         color: context.colors.border,
@@ -216,112 +398,187 @@ class _RequestCardBottomSheetContentState
                       ),
                     ),
                   ),
-                  SizedBox(height: AppSpacing.lg.h),
+                  SizedBox(height: 14.h),
 
-                  // Header Icon & Title
-                  Center(
-                    child: Container(
-                      width: 64.r,
-                      height: 64.r,
-                      decoration: BoxDecoration(
-                        color: context.colors.primary.withValues(alpha: 0.1),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.add_card_rounded,
-                        color: context.colors.primary,
-                        size: 32.r,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: AppSpacing.md.h),
-                  Text(
-                    'طلب كارت الخصومات',
-                    style: AppTextStyles.headingMedium.copyWith(
-                      fontSize: 16.sp,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: AppSpacing.xs.h),
-                  Text(
-                    'احصل على كارتك الخاص للاستفادة من أضخم الخصومات والتخفيضات الحصرية!',
-                    style: AppTextStyles.bodySmall.copyWith(
-                      fontSize: 9.sp,
-                      height: 1.5,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: AppSpacing.xl.h),
-
-                  // Delivery Address Field
-                  Text(
-                    'عنوان التوصيل',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: context.colors.textPrimary,
-                    ),
-                  ),
-                  SizedBox(height: AppSpacing.xs.h),
-                  TextFormField(
-                    key: const Key('card_request_address_field'),
-                    controller: _addressController,
-                    enabled: !_isSubmitting,
-                    textInputAction: TextInputAction.next,
-                    decoration: InputDecoration(
-                      hintText: 'مثال: المنصورة - شارع المشاية',
-                      prefixIcon: Icon(
-                        Icons.location_on_outlined,
-                        color: context.colors.textTertiary,
-                        size: 20.r,
-                      ),
-                      filled: true,
-                      fillColor: context.colors.backgroundTertiary,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(AppRadius.medium.r),
-                        borderSide: BorderSide(color: context.colors.border),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(AppRadius.medium.r),
-                        borderSide: BorderSide(color: context.colors.border),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(AppRadius.medium.r),
-                        borderSide: BorderSide(
+                  // Header with badge
+                  Row(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(10.r),
+                        decoration: BoxDecoration(
+                          color: context.colors.primary.withValues(alpha: 0.12),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.add_card_rounded,
                           color: context.colors.primary,
-                          width: 1.5.w,
+                          size: 24.r,
                         ),
                       ),
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: AppSpacing.md.w,
-                        vertical: AppSpacing.md.h,
+                      SizedBox(width: 10.w),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'طلب كارت التوفير والاشتراك',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.bold,
+                                color: context.colors.textPrimary,
+                              ),
+                            ),
+                            SizedBox(height: 2.h),
+                            Text(
+                              'اختر باقتك المفضلة وأرفق إيصال التحويل لتفعيل الكارت فوراً',
+                              style: TextStyle(
+                                fontSize: 10.sp,
+                                color: context.colors.textTertiary,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'يرجى إدخال عنوان التوصيل';
-                      }
-                      return null;
-                    },
+                    ],
                   ),
-                  SizedBox(height: AppSpacing.md.h),
+                  SizedBox(height: 16.h),
 
-                  // Phone Field
+                  // ── 1. PLANS SELECTION ──────────────────────────────────
                   Text(
-                    'رقم الهاتف',
-                    style: AppTextStyles.bodyMedium.copyWith(
+                    '1. اختر باقة الاشتراك',
+                    style: TextStyle(
+                      fontSize: 13.sp,
                       fontWeight: FontWeight.bold,
                       color: context.colors.textPrimary,
                     ),
                   ),
-                  SizedBox(height: AppSpacing.xs.h),
+                  SizedBox(height: 8.h),
+                  if (_isLoadingPlans)
+                    SizedBox(
+                      height: 90.h,
+                      child: const Center(child: CircularProgressIndicator()),
+                    )
+                  else
+                    Column(
+                      children: _plans.map((plan) {
+                        final isSelected = _selectedPlanType == plan.planType;
+                        return _buildPlanCard(plan, isSelected);
+                      }).toList(),
+                    ),
+
+                  SizedBox(height: 16.h),
+
+                  // ── 2. PAYMENT METHOD & NUMBERS ─────────────────────────
+                  Text(
+                    '2. طريقة الدفع وبيانات التحويل',
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.bold,
+                      color: context.colors.textPrimary,
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+                  Column(
+                    children: _paymentMethods.map((method) {
+                      final isSelected = _selectedPaymentMethod == method.id;
+                      return _buildPaymentMethodCard(method, isSelected);
+                    }).toList(),
+                  ),
+
+                  // Instructions Box
+                  SizedBox(height: 10.h),
+                  Container(
+                    padding: EdgeInsets.all(12.r),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFEF3C7).withValues(alpha: isDark ? 0.15 : 0.6),
+                      borderRadius: BorderRadius.circular(12.r),
+                      border: Border.all(
+                        color: const Color(0xFFF59E0B).withValues(alpha: 0.4),
+                      ),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.info_outline_rounded,
+                          color: const Color(0xFFD97706),
+                          size: 18.r,
+                        ),
+                        SizedBox(width: 8.w),
+                        Expanded(
+                          child: Text(
+                            _instructions,
+                            style: TextStyle(
+                              fontSize: 10.5.sp,
+                              color: isDark ? Colors.white : const Color(0xFF92400E),
+                              height: 1.45,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  SizedBox(height: 16.h),
+
+                  // ── 3. RECEIPT IMAGE UPLOAD ─────────────────────────────
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '3. إرفاق صورة إيصال التحويل *',
+                        style: TextStyle(
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.bold,
+                          color: context.colors.textPrimary,
+                        ),
+                      ),
+                      if (_receiptFile != null)
+                        TextButton.icon(
+                          onPressed: _showImageSourceDialog,
+                          icon: Icon(Icons.refresh_rounded, size: 14.r),
+                          label: const Text('تغيير'),
+                          style: TextButton.styleFrom(
+                            foregroundColor: context.colors.primary,
+                            padding: EdgeInsets.zero,
+                          ),
+                        ),
+                    ],
+                  ),
+                  SizedBox(height: 8.h),
+                  _buildReceiptPickerArea(),
+
+                  SizedBox(height: 16.h),
+
+                  // ── 4. OPTIONAL FIELDS (PHONE & ADDRESS) ────────────────
+                  Text(
+                    '4. بيانات إضافية للتواصل (اختياري)',
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.bold,
+                      color: context.colors.textPrimary,
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+
+                  // Phone
                   TextFormField(
                     key: const Key('card_request_phone_field'),
                     controller: _phoneController,
                     enabled: !_isSubmitting,
                     keyboardType: TextInputType.phone,
-                    textInputAction: TextInputAction.done,
+                    textInputAction: TextInputAction.next,
+                    validator: (val) {
+                      if (val != null &&
+                          val.trim().isNotEmpty &&
+                          val.trim().length < 10) {
+                        return 'يرجى إدخال رقم هاتف صالح';
+                      }
+                      return null;
+                    },
                     decoration: InputDecoration(
-                      hintText: 'مثال: 01012345678',
+                      hintText: 'رقم هاتف التواصل (اختياري)',
                       prefixIcon: Icon(
                         Icons.phone_outlined,
                         color: context.colors.textTertiary,
@@ -333,64 +590,43 @@ class _RequestCardBottomSheetContentState
                         borderRadius: BorderRadius.circular(AppRadius.medium.r),
                         borderSide: BorderSide(color: context.colors.border),
                       ),
-                      enabledBorder: OutlineInputBorder(
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: AppSpacing.md.w,
+                        vertical: AppSpacing.sm.h,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 10.h),
+
+                  // Address
+                  TextFormField(
+                    key: const Key('card_request_address_field'),
+                    controller: _addressController,
+                    enabled: !_isSubmitting,
+                    textInputAction: TextInputAction.done,
+                    decoration: InputDecoration(
+                      hintText: 'العنوان في حال طلب كارت بلاستيكي مطبوع (اختياري)',
+                      prefixIcon: Icon(
+                        Icons.location_on_outlined,
+                        color: context.colors.textTertiary,
+                        size: 20.r,
+                      ),
+                      filled: true,
+                      fillColor: context.colors.backgroundTertiary,
+                      border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(AppRadius.medium.r),
                         borderSide: BorderSide(color: context.colors.border),
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(AppRadius.medium.r),
-                        borderSide: BorderSide(
-                          color: context.colors.primary,
-                          width: 1.5.w,
-                        ),
-                      ),
                       contentPadding: EdgeInsets.symmetric(
                         horizontal: AppSpacing.md.w,
-                        vertical: AppSpacing.md.h,
+                        vertical: AppSpacing.sm.h,
                       ),
                     ),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'يرجى إدخال رقم الهاتف';
-                      }
-                      if (value.trim().length < 8) {
-                        return 'يرجى إدخال رقم هاتف صالح';
-                      }
-                      return null;
-                    },
                   ),
-                  SizedBox(height: AppSpacing.md.h),
 
-                  // Payment Method Selection (Cash & InstaPay)
-                  Text(
-                    'طريقة الدفع',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: context.colors.textPrimary,
-                    ),
-                  ),
-                  SizedBox(height: AppSpacing.xs.h),
-                  _buildPaymentOption(
-                    value: 'cash',
-                    title: 'الدفع عند الاستلام (كاش)',
-                    subtitle: 'ادفع قيمة الكارت لمندوب التوصيل فور الاستلام',
-                    icon: Icons.payments_outlined,
-                  ),
-                  _buildPaymentOption(
-                    value: 'instapay',
-                    title: 'انستاباي (InstaPay)',
-                    subtitle: 'التحويل المباشر عبر تطبيق انستاباي',
-                    icon: Icons.bolt_rounded,
-                  ),
-                  _buildPaymentOption(
-                    value: 'vodafone_cash',
-                    title: 'محفظة كاش',
-                    subtitle: 'التحويل عبر فودافون كاش، أورنج، اتصالات، وي كاش',
-                    icon: Icons.account_balance_wallet_outlined,
-                  ),
-                  SizedBox(height: AppSpacing.lg.h),
+                  SizedBox(height: 22.h),
 
-                  // Submit CTA Button
+                  // ── 5. SUBMIT CTA BUTTON ────────────────────────────────
                   SizedBox(
                     height: 52.h,
                     child: ElevatedButton(
@@ -398,13 +634,9 @@ class _RequestCardBottomSheetContentState
                       onPressed: _isSubmitting ? null : _submitRequest,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: context.colors.primary,
-                        disabledBackgroundColor: context.colors.primary
-                            .withValues(alpha: 0.6),
-                        foregroundColor: context.colors.textOnPrimary,
+                        foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                            AppRadius.medium.r,
-                          ),
+                          borderRadius: BorderRadius.circular(AppRadius.medium.r),
                         ),
                         elevation: 0,
                       ),
@@ -412,29 +644,40 @@ class _RequestCardBottomSheetContentState
                           ? SizedBox(
                               width: 24.r,
                               height: 24.r,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2.5.r,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  context.colors.textOnPrimary,
-                                ),
+                              child: const CircularProgressIndicator(
+                                strokeWidth: 2.5,
+                                color: Colors.white,
                               ),
                             )
                           : Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.send_rounded, size: 20.r),
-                                SizedBox(width: AppSpacing.sm.w),
+                                const Icon(Icons.send_rounded, size: 18),
+                                SizedBox(width: 8.w),
                                 Text(
-                                  'تأكيد طلب الكارت',
-                                  style: AppTextStyles.buttonOrange.copyWith(
-                                    fontSize: 12.sp,
+                                  'إرسال صورة التحويل وتفعيل الكارت',
+                                  style: TextStyle(
+                                    fontSize: 13.5.sp,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ],
                             ),
                     ),
                   ),
-                  SizedBox(height: AppSpacing.sm.h),
+                  if (_supportPhone.isNotEmpty) ...[
+                    SizedBox(height: 12.h),
+                    Center(
+                      child: Text(
+                        'للاستفسار أو المساعدة: $_supportPhone',
+                        style: TextStyle(
+                          fontSize: 11.sp,
+                          color: context.colors.textTertiary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -444,105 +687,394 @@ class _RequestCardBottomSheetContentState
     );
   }
 
-  Widget _buildPaymentOption({
-    required String value,
-    required String title,
-    required String subtitle,
-    required IconData icon,
-  }) {
-    final isSelected = _paymentMethod == value;
-    return GestureDetector(
-      onTap: () {
-        if (_paymentMethod != value) {
-          setState(() {
-            _paymentMethod = value;
-          });
-        }
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        margin: EdgeInsets.only(bottom: AppSpacing.sm.h),
-        padding: EdgeInsets.symmetric(
-          horizontal: AppSpacing.md.w,
-          vertical: AppSpacing.sm.h + 2.h,
-        ),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? context.colors.primary.withValues(alpha: 0.06)
-              : context.colors.backgroundSecondary.withValues(alpha: 0.35),
-          borderRadius: BorderRadius.circular(AppRadius.medium.r),
-          border: Border.all(
-            color: isSelected
-                ? context.colors.primary
-                : context.colors.border.withValues(alpha: 0.8),
-            width: isSelected ? 1.5.w : 1.w,
-          ),
-          boxShadow: [
-            BoxShadow(
+  Widget _buildPlanCard(SubscriptionPlanEntity plan, bool isSelected) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final planColor = _parseColor(plan.color) ?? context.colors.primary;
+
+    return Container(
+      margin: EdgeInsets.only(bottom: 8.h),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            setState(() {
+              _selectedPlanType = plan.planType;
+            });
+          },
+          borderRadius: BorderRadius.circular(14.r),
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+            decoration: BoxDecoration(
               color: isSelected
-                  ? context.colors.primary.withValues(alpha: 0.08)
-                  : context.colors.shadowLight,
-              blurRadius: isSelected ? 6.r : 3.r,
-              offset: Offset(0, 1.h),
+                  ? planColor.withValues(alpha: isDark ? 0.2 : 0.08)
+                  : (isDark ? context.colors.surface : Colors.white),
+              borderRadius: BorderRadius.circular(14.r),
+              border: Border.all(
+                color: isSelected ? planColor : context.colors.border,
+                width: isSelected ? 2 : 1,
+              ),
             ),
-          ],
+            child: Row(
+              children: [
+                // Radio indicator
+                Container(
+                  width: 20.r,
+                  height: 20.r,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: isSelected ? planColor : context.colors.textTertiary,
+                      width: 2,
+                    ),
+                    color: isSelected ? planColor : Colors.transparent,
+                  ),
+                  child: isSelected
+                      ? Icon(Icons.check, size: 13.r, color: Colors.white)
+                      : null,
+                ),
+                SizedBox(width: 12.w),
+
+                // Plan details
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            plan.name,
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.bold,
+                              color: context.colors.textPrimary,
+                            ),
+                          ),
+                          if (plan.badge != null && plan.badge!.isNotEmpty) ...[
+                            SizedBox(width: 8.w),
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 8.w,
+                                vertical: 2.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: planColor.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(20.r),
+                                border: Border.all(color: planColor, width: 0.8),
+                              ),
+                              child: Text(
+                                plan.badge!,
+                                style: TextStyle(
+                                  fontSize: 9.5.sp,
+                                  fontWeight: FontWeight.bold,
+                                  color: planColor,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                      SizedBox(height: 2.h),
+                      Text(
+                        plan.description,
+                        style: TextStyle(
+                          fontSize: 10.sp,
+                          color: context.colors.textTertiary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Price
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      '${plan.price.toStringAsFixed(0)} ج.م',
+                      style: TextStyle(
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.bold,
+                        color: planColor,
+                      ),
+                    ),
+                    Text(
+                      plan.durationLabel,
+                      style: TextStyle(
+                        fontSize: 9.5.sp,
+                        color: context.colors.textTertiary,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPaymentMethodCard(PaymentMethodEntity method, bool isSelected) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primary = context.colors.primary;
+
+    return Container(
+      margin: EdgeInsets.only(bottom: 8.h),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            setState(() {
+              _selectedPaymentMethod = method.id;
+            });
+          },
+          borderRadius: BorderRadius.circular(14.r),
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? primary.withValues(alpha: isDark ? 0.2 : 0.08)
+                  : (isDark ? context.colors.surface : Colors.white),
+              borderRadius: BorderRadius.circular(14.r),
+              border: Border.all(
+                color: isSelected ? primary : context.colors.border,
+                width: isSelected ? 1.8 : 1,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      method.id == 'instapay'
+                          ? Icons.send_rounded
+                          : Icons.account_balance_wallet_rounded,
+                      color: isSelected ? primary : context.colors.textTertiary,
+                      size: 22.r,
+                    ),
+                    SizedBox(width: 10.w),
+                    Expanded(
+                      child: Text(
+                        method.name,
+                        style: TextStyle(
+                          fontSize: 13.5.sp,
+                          fontWeight: FontWeight.bold,
+                          color: context.colors.textPrimary,
+                        ),
+                      ),
+                    ),
+                    // Copy Number Button
+                    InkWell(
+                      onTap: () => _copyToClipboard(method.number, method.name),
+                      borderRadius: BorderRadius.circular(8.r),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 10.w,
+                          vertical: 5.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: context.colors.accentOrange.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(8.r),
+                          border: Border.all(
+                            color: context.colors.accentOrange,
+                            width: 0.8,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.copy_rounded,
+                              size: 13.r,
+                              color: context.colors.accentOrange,
+                            ),
+                            SizedBox(width: 4.w),
+                            Text(
+                              method.actionLabel.isNotEmpty
+                                  ? method.actionLabel
+                                  : 'نسخ',
+                              style: TextStyle(
+                                fontSize: 10.5.sp,
+                                fontWeight: FontWeight.bold,
+                                color: context.colors.accentOrange,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 6.h),
+                Row(
+                  children: [
+                    Text(
+                      'رقم التحويل: ',
+                      style: TextStyle(
+                        fontSize: 10.5.sp,
+                        color: context.colors.textSecondary,
+                      ),
+                    ),
+                    Text(
+                      method.number,
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.bold,
+                        color: primary,
+                        letterSpacing: 1.2,
+                        fontFamily: 'monospace',
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 2.h),
+                Text(
+                  method.description,
+                  style: TextStyle(
+                    fontSize: 9.5.sp,
+                    color: context.colors.textTertiary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildReceiptPickerArea() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    if (_receiptFile != null) {
+      return Container(
+        padding: EdgeInsets.all(10.r),
+        decoration: BoxDecoration(
+          color: isDark ? context.colors.surface : Colors.white,
+          borderRadius: BorderRadius.circular(14.r),
+          border: Border.all(color: context.colors.accentGreen, width: 1.5),
         ),
         child: Row(
           children: [
-            Container(
-              width: 36.r,
-              height: 36.r,
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? context.colors.primary.withValues(alpha: 0.12)
-                    : context.colors.backgroundSecondary,
-                borderRadius: BorderRadius.circular(AppRadius.small.r),
-              ),
-              child: Icon(
-                icon,
-                color: isSelected
-                    ? context.colors.primary
-                    : context.colors.textSecondary,
-                size: 20.r,
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8.r),
+              child: Image.file(
+                _receiptFile!,
+                width: 58.r,
+                height: 58.r,
+                fit: BoxFit.cover,
               ),
             ),
-            SizedBox(width: AppSpacing.md.w),
+            SizedBox(width: 12.w),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      fontWeight:
-                          isSelected ? FontWeight.bold : FontWeight.w600,
-                      color: isSelected
-                          ? context.colors.primaryDark
-                          : context.colors.textPrimary,
-                    ),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.check_circle_rounded,
+                        color: context.colors.accentGreen,
+                        size: 16.r,
+                      ),
+                      SizedBox(width: 4.w),
+                      Text(
+                        'تم إرفاق صورة الإيصال بنجاح',
+                        style: TextStyle(
+                          fontSize: 11.5.sp,
+                          fontWeight: FontWeight.bold,
+                          color: context.colors.accentGreen,
+                        ),
+                      ),
+                    ],
                   ),
-                  SizedBox(height: 2.h),
+                  SizedBox(height: 4.h),
                   Text(
-                    subtitle,
-                    style: AppTextStyles.bodySmall.copyWith(
+                    _receiptFile!.path.split('/').last.split('\\').last,
+                    style: TextStyle(
+                      fontSize: 10.sp,
                       color: context.colors.textTertiary,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
             ),
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  _receiptFile = null;
+                });
+              },
+              icon: Icon(
+                Icons.delete_outline_rounded,
+                color: context.colors.accentRed,
+                size: 20.r,
+              ),
+              tooltip: 'حذف الصورة',
+            ),
+          ],
+        ),
+      );
+    }
+
+    return InkWell(
+      onTap: _showImageSourceDialog,
+      borderRadius: BorderRadius.circular(14.r),
+      child: Container(
+        height: 94.h,
+        decoration: BoxDecoration(
+          color: context.colors.primary.withValues(alpha: isDark ? 0.08 : 0.04),
+          borderRadius: BorderRadius.circular(14.r),
+          border: Border.all(
+            color: context.colors.primary.withValues(alpha: 0.5),
+            style: BorderStyle.solid,
+            width: 1.2,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
             Icon(
-              isSelected
-                  ? Icons.check_circle_rounded
-                  : Icons.radio_button_unchecked_rounded,
-              color: isSelected
-                  ? context.colors.primary
-                  : context.colors.textTertiary.withValues(alpha: 0.5),
-              size: 20.r,
+              Icons.cloud_upload_outlined,
+              size: 28.r,
+              color: context.colors.primary,
+            ),
+            SizedBox(height: 6.h),
+            Text(
+              'اضغط هنا لرفع لقطة شاشة التحويل (Screenshot / Receipt)',
+              style: TextStyle(
+                fontSize: 11.sp,
+                fontWeight: FontWeight.bold,
+                color: context.colors.primary,
+              ),
+            ),
+            SizedBox(height: 2.h),
+            Text(
+              'صيغ مقبولة: JPG, PNG, WEBP',
+              style: TextStyle(
+                fontSize: 9.sp,
+                color: context.colors.textTertiary,
+              ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  Color? _parseColor(String? hexString) {
+    if (hexString == null || hexString.isEmpty) return null;
+    try {
+      final clean = hexString.replaceAll('#', '').trim();
+      if (clean.length == 6) {
+        return Color(int.parse('0xFF$clean'));
+      } else if (clean.length == 8) {
+        return Color(int.parse('0x$clean'));
+      }
+    } catch (_) {}
+    return null;
   }
 }

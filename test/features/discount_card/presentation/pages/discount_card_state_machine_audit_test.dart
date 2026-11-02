@@ -23,10 +23,17 @@ import 'package:market/features/discount_card/presentation/widgets/qr_code_widge
 import 'package:market/features/profile/domain/entities/profile_entity.dart'
     show UserCardEntity;
 
+import 'package:market/features/discount_card/domain/usecases/get_subscription_plans_usecase.dart';
+import 'package:market/features/discount_card/domain/entities/subscription_plans_data_entity.dart';
+
 class MockAuditRepo implements DiscountCardRepository {
   DiscountCardDataEntity? currentData;
   String? errorMessage;
   int getDiscountCardDataCallCount = 0;
+
+  @override
+  Future<Either<String, SubscriptionPlansDataEntity>> getSubscriptionPlans() async =>
+      const Right(SubscriptionPlansDataEntity(plans: [], paymentMethods: []));
 
   @override
   Future<Either<String, DiscountCardDataEntity>> getDiscountCardData() async {
@@ -84,7 +91,8 @@ class MockAuditRepo implements DiscountCardRepository {
 Widget buildAuditApp(MockAuditRepo repo) {
   final getUsecase = GetDiscountCardDataUseCase(repo);
   final reqUsecase = RequestCardUseCase(repo);
-  final cubit = DiscountCardCubit(getUsecase, reqUsecase);
+  final plansUseCase = GetSubscriptionPlansUseCase(repo);
+  final cubit = DiscountCardCubit(getUsecase, reqUsecase, plansUseCase);
 
   return MaterialApp(
     home: BlocProvider<DiscountCardCubit>.value(
@@ -257,7 +265,8 @@ void main() {
     test('Cubit isClosed safety: does not emit after close', () async {
       final getUsecase = GetDiscountCardDataUseCase(repo);
       final reqUsecase = RequestCardUseCase(repo);
-      final cubit = DiscountCardCubit(getUsecase, reqUsecase);
+      final plansUseCase = GetSubscriptionPlansUseCase(repo);
+      final cubit = DiscountCardCubit(getUsecase, reqUsecase, plansUseCase);
 
       await cubit.close();
 

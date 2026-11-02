@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,11 +19,18 @@ import 'package:market/features/discount_card/presentation/widgets/request_card_
 import 'package:market/features/profile/domain/entities/profile_entity.dart'
     show UserCardEntity;
 
+import 'package:market/features/discount_card/domain/usecases/get_subscription_plans_usecase.dart';
+import 'package:market/features/discount_card/domain/entities/subscription_plans_data_entity.dart';
+
 class MockDiscountCardRepoForSheet implements DiscountCardRepository {
   int requestCallCount = 0;
   int getDiscountCardDataCallCount = 0;
   Completer<Either<String, CardRequestResultEntity>>? completer;
   Either<String, CardRequestResultEntity>? immediateResult;
+
+  @override
+  Future<Either<String, SubscriptionPlansDataEntity>> getSubscriptionPlans() async =>
+      const Right(SubscriptionPlansDataEntity(plans: [], paymentMethods: []));
 
   @override
   Future<Either<String, CardRequestResultEntity>> requestCard(
@@ -91,14 +99,15 @@ void main() {
     mockRepo = MockDiscountCardRepoForSheet();
     final getUsecase = GetDiscountCardDataUseCase(mockRepo);
     final reqUsecase = RequestCardUseCase(mockRepo);
-    cubit = DiscountCardCubit(getUsecase, reqUsecase);
+    final plansUseCase = GetSubscriptionPlansUseCase(mockRepo);
+    cubit = DiscountCardCubit(getUsecase, reqUsecase, plansUseCase);
   });
 
   tearDown(() {
     cubit.close();
   });
 
-  Widget buildTestWidget() {
+  Widget buildTestWidget({File? initialReceiptFile}) {
     return MaterialApp(
       home: BlocProvider<DiscountCardCubit>.value(
         value: cubit,
@@ -106,7 +115,10 @@ void main() {
           body: Builder(
             builder: (context) {
               return ElevatedButton(
-                onPressed: () => showRequestCardBottomSheet(context),
+                onPressed: () => showRequestCardBottomSheet(
+                  context,
+                  initialReceiptFile: initialReceiptFile,
+                ),
                 child: const Text('Open Sheet'),
               );
             },
@@ -117,7 +129,7 @@ void main() {
   }
 
   testWidgets(
-    'Validation failure: Submitting empty form shows validation errors and prevents API call',
+    'Validation failure: Submitting form without receipt shows validation error and prevents API call',
     (tester) async {
       await tester.pumpWidget(buildTestWidget());
 
@@ -125,18 +137,20 @@ void main() {
       await tester.tap(find.text('Open Sheet'));
       await tester.pumpAndSettle();
 
-      expect(find.text('طلب كارت الخصومات'), findsOneWidget);
+      expect(find.text('طلب كارت التوفير والاشتراك'), findsOneWidget);
       final submitFinder = find.byKey(const Key('card_request_submit_button'));
       await tester.ensureVisible(submitFinder);
       await tester.pumpAndSettle();
 
-      // Tap confirm with empty fields
+      // Tap confirm without receipt
       await tester.tap(submitFinder);
       await tester.pumpAndSettle();
 
-      // Validation errors must appear
-      expect(find.text('يرجى إدخال عنوان التوصيل'), findsOneWidget);
-      expect(find.text('يرجى إدخال رقم الهاتف'), findsOneWidget);
+      // Validation error must appear
+      expect(
+        find.text('يرجى إرفاق صورة إيصال أو لقطة شاشة التحويل أولاً'),
+        findsOneWidget,
+      );
       expect(mockRepo.requestCallCount, 0);
     },
   );
@@ -144,23 +158,18 @@ void main() {
   testWidgets(
     'Validation failure: Submitting short phone shows invalid phone error',
     (tester) async {
-      await tester.pumpWidget(buildTestWidget());
+      final fakeReceipt = File('test_receipt.jpg');
+      await tester.pumpWidget(buildTestWidget(initialReceiptFile: fakeReceipt));
 
       await tester.tap(find.text('Open Sheet'));
       await tester.pumpAndSettle();
 
-      final addressFinder = find.descendant(
-        of: find.byKey(const Key('card_request_address_field')),
-        matching: find.byType(EditableText),
-      );
       final phoneFinder = find.descendant(
         of: find.byKey(const Key('card_request_phone_field')),
         matching: find.byType(EditableText),
       );
       final submitFinder = find.byKey(const Key('card_request_submit_button'));
 
-      await tester.ensureVisible(addressFinder);
-      await tester.enterText(addressFinder, 'المنصورة');
       await tester.ensureVisible(phoneFinder);
       await tester.enterText(phoneFinder, '010');
 
@@ -178,8 +187,9 @@ void main() {
     'Duplicate submit protection: Disables button and prevents double API calls while in-flight',
     (tester) async {
       mockRepo.completer = Completer();
+      final fakeReceipt = File('test_receipt.jpg');
 
-      await tester.pumpWidget(buildTestWidget());
+      await tester.pumpWidget(buildTestWidget(initialReceiptFile: fakeReceipt));
 
       // Open bottom sheet
       await tester.tap(find.text('Open Sheet'));
@@ -241,8 +251,9 @@ void main() {
           message: 'لديك بالفعل كارت توفير ساري حتى 2028-08-14',
         ),
       );
+      final fakeReceipt = File('test_receipt.jpg');
 
-      await tester.pumpWidget(buildTestWidget());
+      await tester.pumpWidget(buildTestWidget(initialReceiptFile: fakeReceipt));
 
       await tester.tap(find.text('Open Sheet'));
       await tester.pumpAndSettle();
@@ -279,8 +290,9 @@ void main() {
     tester,
   ) async {
     mockRepo.immediateResult = const Left('فشل الاتصال بالخادم');
+    final fakeReceipt = File('test_receipt.jpg');
 
-    await tester.pumpWidget(buildTestWidget());
+    await tester.pumpWidget(buildTestWidget(initialReceiptFile: fakeReceipt));
 
     await tester.tap(find.text('Open Sheet'));
     await tester.pumpAndSettle();

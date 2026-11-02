@@ -16,6 +16,7 @@ import 'package:market/features/products/presentation/screens/product_details_sc
 import 'package:market/features/products/presentation/cubit/product_details_cubit.dart';
 import 'package:market/features/categories/dependency_injection.dart';
 import 'package:market/features/categories/presentation/cubit/categories_cubit.dart';
+import 'package:market/features/categories/domain/entities/category_entity.dart';
 import 'package:market/features/categories/presentation/screens/categories_screen.dart';
 import 'package:market/features/discount_card/dependency_injection.dart';
 import 'package:market/features/discount_card/presentation/cubit/discount_card_cubit.dart';
@@ -46,6 +47,7 @@ import 'package:market/features/products/presentation/cubit/all_products_cubit.d
 import 'package:market/features/products/presentation/cubit/all_products_state.dart';
 import 'package:market/features/products/presentation/cubit/category_products_cubit.dart';
 import 'app_routes.dart';
+import 'package:market/core/utils/category_visual_helper.dart';
 import 'package:market/features/products/presentation/screens/all_products_screen.dart';
 import 'package:market/features/products/presentation/screens/category_products_screen.dart';
 import 'package:market/features/search/dependency_injection.dart';
@@ -344,11 +346,27 @@ abstract final class AppRouter {
             final categoryName =
                 state.uri.queryParameters['name'] ??
                 state.uri.queryParameters['categoryName'];
+            final extraCategory = state.extra is CategoryEntity
+                ? state.extra as CategoryEntity
+                : null;
+            final effectiveCatId = categoryId ?? extraCategory?.id;
+            final effectiveCatName = categoryName ?? extraCategory?.name;
+            final effectiveSubs = (extraCategory?.subcategories != null &&
+                    extraCategory!.subcategories.isNotEmpty)
+                ? extraCategory.subcategories
+                : (effectiveCatId != null || effectiveCatName != null)
+                    ? CategoryVisualHelper.getDefaultSubcategories(
+                        id: effectiveCatId ?? '',
+                        name: effectiveCatName ?? '',
+                      )
+                    : null;
+
             return BlocProvider<MerchantsCubit>(
               create: (_) => MerchantsDI.createMerchantsCubit(),
               child: MerchantsScreen(
-                categoryId: categoryId,
-                categoryName: categoryName,
+                categoryId: effectiveCatId,
+                categoryName: effectiveCatName,
+                subcategories: effectiveSubs,
               ),
             );
           },

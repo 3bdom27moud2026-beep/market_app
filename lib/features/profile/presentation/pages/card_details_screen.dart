@@ -31,15 +31,16 @@ class CardDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool hasCard = card != null && card!.cardNo.isNotEmpty;
+    final bool hasActiveCard =
+        card != null && card!.cardNo.isNotEmpty && card!.isActive;
     final UserCardEntity? cardData = card;
 
     return Scaffold(
       backgroundColor: context.colors.background,
       appBar: const CustomDetailAppBar(title: 'تفاصيل الكارت'),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(AppSpacing.lg.r),
-        child: hasCard
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+        child: hasActiveCard
             ? _buildCardDetailsContent(context, cardData!)
             : _buildNoCardContent(context),
       ),
@@ -264,6 +265,7 @@ class CardDetailsScreen extends StatelessWidget {
                 return PartnerDiscountsSection(
                   statistics: stats,
                   categories: cats,
+                  padding: EdgeInsets.zero,
                 );
               },
             ),
@@ -356,6 +358,8 @@ class CardDetailsScreen extends StatelessWidget {
   }
 
   Widget _buildNoCardContent(BuildContext context) {
+    final bool isInactive = card != null && !card!.isActive;
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -375,7 +379,7 @@ class CardDetailsScreen extends StatelessWidget {
         ),
         SizedBox(height: AppSpacing.xl.h),
         Text(
-          'لا يوجد كارت خصومات مسجل',
+          isInactive ? 'الكارت غير مفعّل حالياً' : 'لا يوجد كارت خصومات مسجل',
           style: TextStyle(
             fontSize: 16.sp,
             fontWeight: FontWeight.bold,
@@ -386,7 +390,9 @@ class CardDetailsScreen extends StatelessWidget {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: AppSpacing.xl.w),
           child: Text(
-            'احصل على كارت خصومات شوب جايد الآن للاستمتاع بخصومات حصرية على جميع المتاجر والمنتجات!',
+            isInactive
+                ? 'طلب الكارت الخاص بك قيد المراجعة أو غير مفعّل. سيتم تفعيله قريباً لتتمكن من استخدامه والاستفادة من كافة العروض والخصومات!'
+                : 'احصل على كارت خصومات شوب جايد الآن للاستمتاع بخصومات حصرية على جميع المتاجر والمنتجات!',
             style: TextStyle(
               fontSize: 12.sp,
               color: context.colors.textSecondary,
@@ -396,24 +402,46 @@ class CardDetailsScreen extends StatelessWidget {
           ),
         ),
         SizedBox(height: AppSpacing.xxl.h),
-        SizedBox(
-          width: double.infinity,
-          height: 52.h,
-          child: ElevatedButton.icon(
-            onPressed: () => showRequestCardBottomSheet(context),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: context.colors.accentOrange,
-              foregroundColor: context.colors.textOnPrimary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14.r),
+        if (!isInactive) ...[
+          SizedBox(
+            width: double.infinity,
+            height: 52.h,
+            child: ElevatedButton.icon(
+              onPressed: () => showRequestCardBottomSheet(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: context.colors.accentOrange,
+                foregroundColor: context.colors.textOnPrimary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14.r),
+                ),
+                elevation: 0,
               ),
-              elevation: 0,
+              icon: Icon(Icons.add_card_rounded, size: 20.r),
+              label: Text(
+                'تقديم طلب للحصول على كارت',
+                style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.bold),
+              ),
             ),
-            icon: Icon(Icons.add_card_rounded, size: 20.r),
-            label: Text(
-              'تقديم طلب للحصول على كارت',
-              style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.bold),
-            ),
+          ),
+          SizedBox(height: AppSpacing.xxl.h),
+        ],
+        BlocProvider<DiscountCardCubit>(
+          create: (_) =>
+              DiscountCardDI.createDiscountCardCubit()..loadDiscountCardData(),
+          child: BlocBuilder<DiscountCardCubit, DiscountCardState>(
+            builder: (context, state) {
+              List<StatisticsEntity> stats = [];
+              List<DiscountCategoryEntity> cats = [];
+              if (state is DiscountCardLoaded) {
+                stats = state.data.statistics;
+                cats = state.data.categories;
+              }
+              return PartnerDiscountsSection(
+                statistics: stats,
+                categories: cats,
+                padding: EdgeInsets.zero,
+              );
+            },
           ),
         ),
       ],

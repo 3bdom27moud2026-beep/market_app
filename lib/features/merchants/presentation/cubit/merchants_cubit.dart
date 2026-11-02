@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_initializing_formals
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:market/features/favorites/domain/usecases/favorites_usecases.dart';
+import 'package:market/features/categories/domain/entities/category_entity.dart';
 import 'package:market/features/merchants/domain/repository/merchants_repository.dart';
 import 'merchants_state.dart';
 
@@ -91,6 +92,64 @@ class MerchantsCubit extends Cubit<MerchantsState> {
       ),
     );
   }
+
+  /// Filters loaded merchants by [subcategory].
+  /// If [subcategory] is null, resets to all loaded merchants.
+  void filterBySubcategory(CategoryEntity? subcategory) {
+    if (state is! MerchantsLoaded) return;
+    final currentState = state as MerchantsLoaded;
+
+    if (subcategory == null) {
+      emit(
+        currentState.copyWith(
+          filteredMerchants: currentState.merchants,
+          searchQuery: '',
+        ),
+      );
+      return;
+    }
+
+    final subId = subcategory.id.trim();
+    final subName = subcategory.name.trim().toLowerCase();
+
+    // Extract significant keywords (length >= 3)
+    final keywords = subName
+        .split(RegExp(r'[\s،,و/]+'))
+        .map((w) => w.trim())
+        .where((w) => w.length >= 3)
+        .toList();
+
+    final filtered = currentState.merchants.where((m) {
+      final catId = m.categoryId.isNotEmpty
+          ? m.categoryId
+          : (m.category?.id.toString() ?? '');
+      if (catId == subId) return true;
+
+      final mName = m.name.toLowerCase();
+      final mDesc = m.description.toLowerCase();
+      final mType = m.type.toLowerCase();
+
+      if (mName.contains(subName) || mDesc.contains(subName)) {
+        return true;
+      }
+
+      for (final kw in keywords) {
+        if (mName.contains(kw) || mDesc.contains(kw) || mType.contains(kw)) {
+          return true;
+        }
+      }
+
+      return false;
+    }).toList();
+
+    emit(
+      currentState.copyWith(
+        filteredMerchants: filtered,
+        searchQuery: '',
+      ),
+    );
+  }
+
 
   /// Filters loaded merchants by search [query] in real time.
   void searchMerchants(String query) {

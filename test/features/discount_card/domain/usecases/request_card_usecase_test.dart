@@ -12,8 +12,14 @@ import 'package:market/features/discount_card/domain/usecases/request_card_useca
 import 'package:market/features/profile/domain/entities/profile_entity.dart'
     show UserCardEntity;
 
+import 'package:market/features/discount_card/domain/entities/subscription_plans_data_entity.dart';
+
 class MockDiscountCardRepository implements DiscountCardRepository {
   Either<String, CardRequestResultEntity>? mockRequestCardResult;
+
+  @override
+  Future<Either<String, SubscriptionPlansDataEntity>> getSubscriptionPlans() async =>
+      const Right(SubscriptionPlansDataEntity(plans: [], paymentMethods: []));
 
   @override
   Future<Either<String, CardRequestResultEntity>> requestCard(
@@ -65,9 +71,10 @@ void main() {
   });
 
   const validRequest = CardRequestModel(
+    planType: 'yearly',
+    paymentMethod: 'cash_wallet',
     deliveryAddress: 'المنصورة - شارع المشاية',
     phone: '01012345678',
-    paymentMethod: 'cash',
   );
 
   test('successful card request returns Right(status: true)', () async {

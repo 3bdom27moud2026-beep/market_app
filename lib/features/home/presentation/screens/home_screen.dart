@@ -225,6 +225,7 @@ class _HomeContent extends StatelessWidget {
               CacheHelper.setSelectedCategoryId(category.id);
               context.push(
                 '${AppRoutes.merchants}?categoryId=${category.id}&name=${Uri.encodeComponent(category.name)}',
+                extra: category,
               );
             },
             onViewAllTap: () => context.go(AppRoutes.categories),
@@ -233,6 +234,7 @@ class _HomeContent extends StatelessWidget {
 
           // Best Sellers
           BestSellerSection(
+            
             products: sortedBestSellers,
             onProductTap: (id) => _navigateToProductDetails(context, id),
             onAddToCart: (id, title) => _navigateToProductDetails(context, id),

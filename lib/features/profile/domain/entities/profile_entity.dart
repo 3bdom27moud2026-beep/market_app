@@ -12,6 +12,9 @@ class UserCardEntity extends Equatable {
   final String? expiresAt;
   final String? createdAt;
   final String? updatedAt;
+  final String? paymentMethod;
+  final String? paymentReceipt;
+  final double? pricePaid;
 
   const UserCardEntity({
     required this.id,
@@ -24,10 +27,14 @@ class UserCardEntity extends Equatable {
     this.expiresAt,
     this.createdAt,
     this.updatedAt,
+    this.paymentMethod,
+    this.paymentReceipt,
+    this.pricePaid,
   });
 
   bool get isActive => status.toLowerCase() == 'active';
   bool get isPending => status.toLowerCase() == 'pending';
+  bool get isExpired => status.toLowerCase() == 'expired';
 
   int get daysRemaining {
     if (expiresAt == null) return 0;
@@ -49,6 +56,9 @@ class UserCardEntity extends Equatable {
     expiresAt,
     createdAt,
     updatedAt,
+    paymentMethod,
+    paymentReceipt,
+    pricePaid,
   ];
 }
 

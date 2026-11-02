@@ -18,10 +18,16 @@ import 'package:market/features/auth/domain/usecases/check_auth_usecase.dart';
 import 'package:market/features/discount_card/data/models/card_request_model.dart';
 import 'package:market/features/discount_card/domain/entities/card_request_result_entity.dart';
 import 'package:market/features/discount_card/domain/usecases/request_card_usecase.dart';
+import 'package:market/features/discount_card/domain/usecases/get_subscription_plans_usecase.dart';
+import 'package:market/features/discount_card/domain/entities/subscription_plans_data_entity.dart';
 
 class MockDiscountCardRepository implements DiscountCardRepository {
   Either<String, DiscountCardDataEntity>? mockResult;
   Either<String, CardRequestResultEntity>? mockRequestCardResult;
+
+  @override
+  Future<Either<String, SubscriptionPlansDataEntity>> getSubscriptionPlans() async =>
+      const Right(SubscriptionPlansDataEntity(plans: [], paymentMethods: []));
 
   @override
   Future<Either<String, DiscountCardDataEntity>> getDiscountCardData() async {
@@ -153,7 +159,13 @@ void main() {
       mockRepository = MockDiscountCardRepository();
       useCase = GetDiscountCardDataUseCase(mockRepository);
       requestCardUseCase = RequestCardUseCase(mockRepository);
-      cubit = DiscountCardCubit(useCase, requestCardUseCase);
+      final getSubscriptionPlansUseCase =
+          GetSubscriptionPlansUseCase(mockRepository);
+      cubit = DiscountCardCubit(
+        useCase,
+        requestCardUseCase,
+        getSubscriptionPlansUseCase,
+      );
     });
 
     tearDown(() {
@@ -297,6 +309,9 @@ void main() {
         );
 
         final result = await cubit.submitCardRequest(
+          planType: 'yearly',
+          paymentMethod: 'cash_wallet',
+          receiptImagePath: 'dummy_receipt.jpg',
           deliveryAddress: 'المنصورة',
           phone: '01012345678',
         );
@@ -319,6 +334,9 @@ void main() {
         mockRepository.mockRequestCardResult = const Right(rejectionResult);
 
         final result = await cubit.submitCardRequest(
+          planType: 'yearly',
+          paymentMethod: 'cash_wallet',
+          receiptImagePath: 'dummy_receipt.jpg',
           deliveryAddress: 'المنصورة',
           phone: '01012345678',
         );
@@ -336,9 +354,11 @@ void main() {
       () async {
         final fakeRepo = _FakeAuthRepo(loggedIn: false);
         final checkAuth = CheckAuthUseCase(fakeRepo);
+        final getPlans = GetSubscriptionPlansUseCase(mockRepository);
         final unauthCubit = DiscountCardCubit(
           useCase,
           requestCardUseCase,
+          getPlans,
           checkAuth,
         );
 

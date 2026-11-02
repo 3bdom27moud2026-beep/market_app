@@ -32,12 +32,20 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    _identifierController = TextEditingController();
-    _passwordController = TextEditingController();
+    _identifierController = TextEditingController()..addListener(_onFieldChanged);
+    _passwordController = TextEditingController()..addListener(_onFieldChanged);
+  }
+
+  void _onFieldChanged() {
+    if (mounted && context.read<AuthCubit>().state is AuthError) {
+      context.read<AuthCubit>().clearError();
+    }
   }
 
   @override
   void dispose() {
+    _identifierController.removeListener(_onFieldChanged);
+    _passwordController.removeListener(_onFieldChanged);
     _identifierController.dispose();
     _passwordController.dispose();
     super.dispose();

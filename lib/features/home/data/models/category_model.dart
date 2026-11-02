@@ -48,6 +48,7 @@ class CategoryModel extends Equatable {
       id: json['id']?.toString() ?? '',
       title: json['name']?.toString() ?? json['title']?.toString() ?? '',
       icon:
+          ImageUrlFormatter.format(json['custom_icon_url']?.toString()) ??
           ImageUrlFormatter.format(json['icon']?.toString()) ??
           (json['icon']?.toString() ?? ''),
       color: json['color']?.toString() ?? '',

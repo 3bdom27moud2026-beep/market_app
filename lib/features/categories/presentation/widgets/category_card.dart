@@ -53,7 +53,7 @@ class CategoryCard extends StatelessWidget {
               child: Center(
                 child: CategoryVisualHelper.buildIconWidget(
                   visualData: visualData,
-                  networkIconUrl: category.icon,
+                  networkIconUrl: category.customIconUrl ?? category.icon,
                   size: 30.r,
                 ),
               ),

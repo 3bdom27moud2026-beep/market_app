@@ -258,6 +258,24 @@ abstract final class AppStrings {
   static const String passwordMinLength =
       'كلمة المرور يجب أن تكون 6 أحرف على الأقل';
   static const String selectAreaPrompt = 'يرجى اختيار المنطقة / القرية';
+  static const String invalidCredentials =
+      'رقم الهاتف أو كلمة المرور غير صحيحة، يرجى التأكد من البيانات والمحاولة مجدداً';
+  static const String phoneAlreadyRegistered =
+      'رقم الهاتف مسجل بالفعل، يرجى تسجيل الدخول أو استخدام رقم آخر';
+  static const String emailAlreadyRegistered =
+      'البريد الإلكتروني مسجل بالفعل، يرجى استخدام بريد آخر';
+  static const String userNotFound =
+      'الحساب غير مسجل لدينا، يرجى التأكد من رقم الهاتف أو إنشاء حساب جديد';
+  static const String accountInactive =
+      'هذا الحساب معطل أو موقوف، يرجى التواصل مع الدعم الفني';
+  static const String tooManyAttempts =
+      'تم تجاوز عدد محاولات الدخول، يرجى الانتظار قليلاً والمحاولة مجدداً';
+  static const String invalidReferralCode =
+      'كود الإحالة (الدعوة) غير صحيح أو غير متوفر حالياً';
+  static const String currentPasswordIncorrect =
+      'كلمة المرور الحالية غير صحيحة، يرجى التأكد منها';
+  static const String passwordMismatch =
+      'تأكيد كلمة المرور غير متطابق مع كلمة المرور الجديدة';
   static const String genericError = 'حدث خطأ، يرجى المحاولة لاحقاً';
   static const String serverError = 'حدث خطأ في الخادم. يرجى المحاولة لاحقاً.';
   static const String networkError =

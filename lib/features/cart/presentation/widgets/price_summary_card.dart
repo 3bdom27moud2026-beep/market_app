@@ -9,8 +9,12 @@ class PriceSummaryCard extends StatelessWidget {
   final num savings;
   final int count;
   final bool isMember;
+  final num? totalWithoutCard;
+  final num? totalWithCard;
+  final num? potentialSavings;
   final CartSummaryEntity? summary;
   final VoidCallback? onCheckout;
+  final VoidCallback? onSubscribe;
   final bool isLoading;
   final bool showCheckoutButton;
 
@@ -20,8 +24,12 @@ class PriceSummaryCard extends StatelessWidget {
     this.savings = 0,
     this.count = 1,
     this.isMember = false,
+    this.totalWithoutCard,
+    this.totalWithCard,
+    this.potentialSavings,
     this.summary,
     this.onCheckout,
+    this.onSubscribe,
     this.isLoading = false,
     this.showCheckoutButton = true,
   });
@@ -158,8 +166,8 @@ class PriceSummaryCard extends StatelessWidget {
             ],
           ),
 
-          // 6. Member Savings Pill (ONLY if savings > 0)
-          if (displaySavings > 0) ...[
+          // 6. Member Savings Pill or Potential Savings for non-members
+          if (isMember && displaySavings > 0) ...[
             SizedBox(height: 12.h),
             Container(
               padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
@@ -178,6 +186,37 @@ class PriceSummaryCard extends StatelessWidget {
                   color: isDark
                       ? const Color(0xFF2DD4BF)
                       : const Color(0xFF0D9488),
+                ),
+              ),
+            ),
+          ] else if (!isMember && (potentialSavings != null && potentialSavings! > 0)) ...[
+            SizedBox(height: 12.h),
+            InkWell(
+              onTap: onSubscribe,
+              borderRadius: BorderRadius.circular(10.r),
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEF3C7).withValues(alpha: isDark ? 0.2 : 0.6),
+                  borderRadius: BorderRadius.circular(10.r),
+                  border: Border.all(
+                    color: const Color(0xFFF59E0B),
+                    width: 0.8,
+                  ),
+                ),
+                alignment: Alignment.center,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      '💳 مع كارت التوفير ستدفع ${(totalWithCard ?? (displayTotal - potentialSavings!)).toStringAsFixed(0)} ج.م (وفر ${potentialSavings!.toStringAsFixed(0)} ج.م)',
+                      style: TextStyle(
+                        fontSize: 11.5.sp,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? const Color(0xFFFDE68A) : const Color(0xFF92400E),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

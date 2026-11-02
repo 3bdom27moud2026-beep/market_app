@@ -23,9 +23,16 @@ import 'package:market/features/discount_card/data/models/card_request_model.dar
 import 'package:market/features/discount_card/domain/entities/card_request_result_entity.dart';
 import 'package:market/features/discount_card/domain/usecases/request_card_usecase.dart';
 
+import 'package:market/features/discount_card/domain/usecases/get_subscription_plans_usecase.dart';
+import 'package:market/features/discount_card/domain/entities/subscription_plans_data_entity.dart';
+
 class MockDiscountCardRepo implements DiscountCardRepository {
   final DiscountCardDataEntity data;
   MockDiscountCardRepo(this.data);
+
+  @override
+  Future<Either<String, SubscriptionPlansDataEntity>> getSubscriptionPlans() async =>
+      const Right(SubscriptionPlansDataEntity(plans: [], paymentMethods: []));
 
   @override
   Future<Either<String, DiscountCardDataEntity>> getDiscountCardData() async =>
@@ -70,7 +77,8 @@ Widget buildTestableWidget({required DiscountCardDataEntity data}) {
   final repo = MockDiscountCardRepo(data);
   final usecase = GetDiscountCardDataUseCase(repo);
   final requestUseCase = RequestCardUseCase(repo);
-  final cubit = DiscountCardCubit(usecase, requestUseCase);
+  final plansUseCase = GetSubscriptionPlansUseCase(repo);
+  final cubit = DiscountCardCubit(usecase, requestUseCase, plansUseCase);
 
   return MaterialApp(
     home: BlocProvider<DiscountCardCubit>.value(
@@ -221,7 +229,8 @@ void main() {
       );
       final usecase = GetDiscountCardDataUseCase(repo);
       final reqUsecase = RequestCardUseCase(repo);
-      final cubit = DiscountCardCubit(usecase, reqUsecase);
+      final plansUseCase = GetSubscriptionPlansUseCase(repo);
+      final cubit = DiscountCardCubit(usecase, reqUsecase, plansUseCase);
 
       await tester.pumpWidget(
         MaterialApp(
@@ -253,7 +262,8 @@ void main() {
         );
         final usecase = GetDiscountCardDataUseCase(repo);
         final reqUsecase = RequestCardUseCase(repo);
-        final cubit = DiscountCardCubit(usecase, reqUsecase);
+        final plansUseCase = GetSubscriptionPlansUseCase(repo);
+        final cubit = DiscountCardCubit(usecase, reqUsecase, plansUseCase);
 
         await tester.pumpWidget(
           MaterialApp(

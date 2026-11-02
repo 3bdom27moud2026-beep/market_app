@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:market/features/categories/domain/entities/category_entity.dart';
 
 /// Visual metadata for a category, including exact vector SVG icon, pastel colors,
 /// and fallback store count.
@@ -135,6 +136,12 @@ class CategoryVisualHelper {
       '<rect width="20" height="12" x="2" y="6" rx="6"/>'
       '</svg>';
 
+  /// عروض / فليم: Flame / Hot offers
+  static const String _svgFlame =
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'
+      '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>'
+      '</svg>';
+
   /// Fallback: Grid view
   static const String _svgDefault =
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'
@@ -147,7 +154,7 @@ class CategoryVisualHelper {
   // ---------------------------------------------------------------------------
 
   /// Determines the visual styling (pastel colors, SVG icon, and fallback store count)
-  /// based on category name, slug, or icon identifier.
+  /// based on category name, slug, or icon identifier, respecting server colors if provided.
   static CategoryVisualData getVisualData({
     required String name,
     String? slug,
@@ -159,6 +166,44 @@ class CategoryVisualHelper {
     final slugKey = (slug ?? '').toLowerCase().trim();
     final iconKey = (icon ?? '').toLowerCase().trim();
 
+    final parsedBg = _parseColor(customColor);
+    final parsedIcon = _parseColor(customIconColor);
+
+    CategoryVisualData makeData({
+      required String svg,
+      required Color defaultLightBg,
+      required Color defaultDarkBg,
+      required Color defaultIconColor,
+      required int fallbackStoresCount,
+    }) {
+      final lightBg = parsedBg ?? defaultLightBg;
+      final iconColor = parsedIcon ?? defaultIconColor;
+      final darkBg = parsedBg != null
+          ? Color.alphaBlend(
+              parsedBg.withValues(alpha: 0.15),
+              const Color(0xFF1E293B),
+            )
+          : defaultDarkBg;
+      return CategoryVisualData(
+        svgContent: svg,
+        lightBgColor: lightBg,
+        darkBgColor: darkBg,
+        iconColor: iconColor,
+        fallbackStoresCount: fallbackStoresCount,
+      );
+    }
+
+    // Flame / Hot offers
+    if (iconKey == 'flame' || slugKey == 'offers' || nameKey.contains('عروض')) {
+      return makeData(
+        svg: _svgFlame,
+        defaultLightBg: const Color(0xFFFFF0F0),
+        defaultDarkBg: const Color(0xFF2C1518),
+        defaultIconColor: const Color(0xFFE24C4C),
+        fallbackStoresCount: 150,
+      );
+    }
+
     // 1. مطاعم (Restaurants) -> 128 متجر
     if (nameKey.contains('مطاعم') ||
         nameKey.contains('أكل') ||
@@ -167,11 +212,11 @@ class CategoryVisualHelper {
         slugKey == 'restaurants' ||
         iconKey == 'utensils' ||
         iconKey == 'restaurant') {
-      return const CategoryVisualData(
-        svgContent: _svgForkAndKnife,
-        lightBgColor: Color(0xFFFFF0F0),
-        darkBgColor: Color(0xFF2C1518),
-        iconColor: Color(0xFFE24C4C),
+      return makeData(
+        svg: _svgForkAndKnife,
+        defaultLightBg: const Color(0xFFFFF0F0),
+        defaultDarkBg: const Color(0xFF2C1518),
+        defaultIconColor: const Color(0xFFE24C4C),
         fallbackStoresCount: 128,
       );
     }
@@ -184,11 +229,11 @@ class CategoryVisualHelper {
         slugKey == 'coffee' ||
         iconKey == 'coffee' ||
         iconKey == 'cafe') {
-      return const CategoryVisualData(
-        svgContent: _svgCoffee,
-        lightBgColor: Color(0xFFFFF7ED),
-        darkBgColor: Color(0xFF2B1D12),
-        iconColor: Color(0xFFD97706),
+      return makeData(
+        svg: _svgCoffee,
+        defaultLightBg: const Color(0xFFFFF7ED),
+        defaultDarkBg: const Color(0xFF2B1D12),
+        defaultIconColor: const Color(0xFFD97706),
         fallbackStoresCount: 96,
       );
     }
@@ -202,11 +247,11 @@ class CategoryVisualHelper {
         slugKey == 'clothes' ||
         iconKey == 'shirt' ||
         iconKey == 'checkroom') {
-      return const CategoryVisualData(
-        svgContent: _svgShirt,
-        lightBgColor: Color(0xFFEEF2FF),
-        darkBgColor: Color(0xFF171A33),
-        iconColor: Color(0xFF4F46E5),
+      return makeData(
+        svg: _svgShirt,
+        defaultLightBg: const Color(0xFFEEF2FF),
+        defaultDarkBg: const Color(0xFF171A33),
+        defaultIconColor: const Color(0xFF4F46E5),
         fallbackStoresCount: 342,
       );
     }
@@ -218,11 +263,11 @@ class CategoryVisualHelper {
         slugKey == 'home_services' ||
         iconKey == 'home' ||
         iconKey == 'homeicon') {
-      return const CategoryVisualData(
-        svgContent: _svgHome,
-        lightBgColor: Color(0xFFECFDF5),
-        darkBgColor: Color(0xFF10281E),
-        iconColor: Color(0xFF10B981),
+      return makeData(
+        svg: _svgHome,
+        defaultLightBg: const Color(0xFFECFDF5),
+        defaultDarkBg: const Color(0xFF10281E),
+        defaultIconColor: const Color(0xFF10B981),
         fallbackStoresCount: 215,
       );
     }
@@ -236,11 +281,11 @@ class CategoryVisualHelper {
         slugKey == 'medicine' ||
         iconKey == 'stethoscope' ||
         iconKey == 'pharmacy') {
-      return const CategoryVisualData(
-        svgContent: _svgStethoscope,
-        lightBgColor: Color(0xFFFDF2F8),
-        darkBgColor: Color(0xFF2E1220),
-        iconColor: Color(0xFFDB2777),
+      return makeData(
+        svg: _svgStethoscope,
+        defaultLightBg: const Color(0xFFFDF2F8),
+        defaultDarkBg: const Color(0xFF2E1220),
+        defaultIconColor: const Color(0xFFDB2777),
         fallbackStoresCount: 178,
       );
     }
@@ -254,11 +299,11 @@ class CategoryVisualHelper {
         slugKey == 'sports' ||
         iconKey == 'dumbbell' ||
         iconKey == 'fitness') {
-      return const CategoryVisualData(
-        svgContent: _svgDumbbell,
-        lightBgColor: Color(0xFFF5F3FF),
-        darkBgColor: Color(0xFF1F1633),
-        iconColor: Color(0xFF7C3AED),
+      return makeData(
+        svg: _svgDumbbell,
+        defaultLightBg: const Color(0xFFF5F3FF),
+        defaultDarkBg: const Color(0xFF1F1633),
+        defaultIconColor: const Color(0xFF7C3AED),
         fallbackStoresCount: 86,
       );
     }
@@ -272,11 +317,11 @@ class CategoryVisualHelper {
         slugKey == 'electronics' ||
         slugKey == 'phones' ||
         iconKey == 'smartphone') {
-      return const CategoryVisualData(
-        svgContent: _svgElectronics,
-        lightBgColor: Color(0xFFE0F2FE),
-        darkBgColor: Color(0xFF112536),
-        iconColor: Color(0xFF0284C7),
+      return makeData(
+        svg: _svgElectronics,
+        defaultLightBg: const Color(0xFFE0F2FE),
+        defaultDarkBg: const Color(0xFF112536),
+        defaultIconColor: const Color(0xFF0284C7),
         fallbackStoresCount: 95,
       );
     }
@@ -287,11 +332,11 @@ class CategoryVisualHelper {
         slugKey == 'maintenance' ||
         slugKey == 'repair' ||
         iconKey == 'wrench') {
-      return const CategoryVisualData(
-        svgContent: _svgWrench,
-        lightBgColor: Color(0xFFEFF6FF),
-        darkBgColor: Color(0xFF142036),
-        iconColor: Color(0xFF2563EB),
+      return makeData(
+        svg: _svgWrench,
+        defaultLightBg: const Color(0xFFEFF6FF),
+        defaultDarkBg: const Color(0xFF142036),
+        defaultIconColor: const Color(0xFF2563EB),
         fallbackStoresCount: 44,
       );
     }
@@ -301,11 +346,11 @@ class CategoryVisualHelper {
         nameKey.contains('بقالة') ||
         slugKey == 'supermarket' ||
         iconKey == 'shoppingbag') {
-      return const CategoryVisualData(
-        svgContent: _svgSupermarket,
-        lightBgColor: Color(0xFFFEF9C3),
-        darkBgColor: Color(0xFF2E2710),
-        iconColor: Color(0xFFCA8A04),
+      return makeData(
+        svg: _svgSupermarket,
+        defaultLightBg: const Color(0xFFFEF9C3),
+        defaultDarkBg: const Color(0xFF2E2710),
+        defaultIconColor: const Color(0xFFCA8A04),
         fallbackStoresCount: 140,
       );
     }
@@ -315,11 +360,11 @@ class CategoryVisualHelper {
         nameKey.contains('ديكور') ||
         slugKey == 'furniture' ||
         iconKey == 'sofa') {
-      return const CategoryVisualData(
-        svgContent: _svgFurniture,
-        lightBgColor: Color(0xFFF3E8FF),
-        darkBgColor: Color(0xFF261536),
-        iconColor: Color(0xFF9333EA),
+      return makeData(
+        svg: _svgFurniture,
+        defaultLightBg: const Color(0xFFF3E8FF),
+        defaultDarkBg: const Color(0xFF261536),
+        defaultIconColor: const Color(0xFF9333EA),
         fallbackStoresCount: 62,
       );
     }
@@ -328,48 +373,50 @@ class CategoryVisualHelper {
     if (nameKey.contains('تجميل') ||
         nameKey.contains('عناية') ||
         slugKey == 'beauty') {
-      return const CategoryVisualData(
-        svgContent: _svgBeauty,
-        lightBgColor: Color(0xFFFFF1F2),
-        darkBgColor: Color(0xFF2D1216),
-        iconColor: Color(0xFFF43F5E),
+      return makeData(
+        svg: _svgBeauty,
+        defaultLightBg: const Color(0xFFFFF1F2),
+        defaultDarkBg: const Color(0xFF2D1216),
+        defaultIconColor: const Color(0xFFF43F5E),
         fallbackStoresCount: 78,
       );
     }
 
     // 12. سيارات -> 51 متجر
     if (nameKey.contains('سيارات') || slugKey == 'cars') {
-      return const CategoryVisualData(
-        svgContent: _svgCar,
-        lightBgColor: Color(0xFFEFF6FF),
-        darkBgColor: Color(0xFF142036),
-        iconColor: Color(0xFF2563EB),
+      return makeData(
+        svg: _svgCar,
+        defaultLightBg: const Color(0xFFEFF6FF),
+        defaultDarkBg: const Color(0xFF142036),
+        defaultIconColor: const Color(0xFF2563EB),
         fallbackStoresCount: 51,
       );
     }
 
     // 13. ألعاب وترفيه -> 35 متجر
     if (nameKey.contains('ألعاب') || slugKey == 'games') {
-      return const CategoryVisualData(
-        svgContent: _svgGames,
-        lightBgColor: Color(0xFFFDF4FF),
-        darkBgColor: Color(0xFF26122E),
-        iconColor: Color(0xFFC026D3),
+      return makeData(
+        svg: _svgGames,
+        defaultLightBg: const Color(0xFFFDF4FF),
+        defaultDarkBg: const Color(0xFF26122E),
+        defaultIconColor: const Color(0xFFC026D3),
         fallbackStoresCount: 35,
       );
     }
 
     // Generic fallback with gentle pastel tint (never solid dark or white icon)
-    final parsedBase = _parseColor(customColor);
-    final safeBg = parsedBase != null
-        ? Color.alphaBlend(parsedBase.withValues(alpha: 0.12), Colors.white)
+    final safeBg = parsedBg != null
+        ? Color.alphaBlend(parsedBg.withValues(alpha: 0.12), Colors.white)
         : const Color(0xFFF8FAFC);
-    final safeIcon =
-        (parsedBase != null &&
-            parsedBase != Colors.white &&
-            parsedBase != Colors.transparent)
-        ? parsedBase
-        : const Color(0xFF64748B);
+    final safeIcon = (parsedIcon != null &&
+            parsedIcon != Colors.white &&
+            parsedIcon != Colors.transparent)
+        ? parsedIcon
+        : (parsedBg != null &&
+                parsedBg != Colors.white &&
+                parsedBg != Colors.transparent)
+            ? parsedBg
+            : const Color(0xFF64748B);
 
     return CategoryVisualData(
       svgContent: _svgDefault,
@@ -437,6 +484,58 @@ class CategoryVisualHelper {
     );
   }
 
+  /// Returns contextual default subcategories when the backend API returns empty subcategories.
+  static List<CategoryEntity> getDefaultSubcategories({
+    required String id,
+    required String name,
+    String? slug,
+  }) {
+    final nameKey = name.trim().toLowerCase();
+    final slugKey = (slug ?? '').trim().toLowerCase();
+
+    List<String> subNames = [];
+
+    if (nameKey.contains('مطاعم') || slugKey == 'restaurants' || id == '1') {
+      subNames = ['وجبات سريعة', 'مشويات وشاورما', 'بيتزا وفطائر', 'كافيه ومشروبات', 'مأكولات بحرية'];
+    } else if (nameKey.contains('كافيه') || nameKey.contains('مقهى') || slugKey == 'cafe' || id == '2') {
+      subNames = ['عصائر ومشروبات', 'قهوة مختصة', 'حلويات وكافيه', 'مخبوزات وفطائر'];
+    } else if (nameKey.contains('ملابس') || nameKey.contains('أزياء') || slugKey == 'fashion' || id == '3') {
+      subNames = ['رجالي', 'حريمي وأتيليه', 'أطفال', 'أحذية وحقائب', 'إكسسوارات'];
+    } else if (nameKey.contains('خدمات منزلية') || slugKey == 'home-services' || id == '4') {
+      subNames = ['رعاية أطفال ومسنين', 'نظافة منزلية', 'سباكة وكهرباء', 'نقل عفش'];
+    } else if (nameKey.contains('صيدلي') || nameKey.contains('صحة') || slugKey == 'pharmacy' || id == '5') {
+      subNames = ['أدوية وعلاج', 'عناية بالبشرة', 'مكملات غذائية', 'مستلزمات طبية'];
+    } else if (nameKey.contains('جيم') || nameKey.contains('رياض') || slugKey == 'gym' || id == '6') {
+      subNames = ['اشتراكات جيم', 'لياقة وبناء أجسام', 'مكملات وفيتامينات', 'أدوات رياضية'];
+    } else if (nameKey.contains('سوبر ماركت') || nameKey.contains('بقالة') || slugKey == 'supermarket' || id == '7') {
+      subNames = ['بقالة وتموين', 'ألبان وأجبان', 'لحوم ودواجن', 'منظفات وعناية'];
+    } else if (nameKey.contains('إلكترون') || nameKey.contains('موبايل') || slugKey == 'electronics' || id == '8') {
+      subNames = ['هواتف ذكية', 'شواحن وإكسسوارات', 'صيانة وشاشات', 'كمبيوتر ولابتوب'];
+    } else if (nameKey.contains('أثاث') || nameKey.contains('ديكور') || slugKey == 'furniture' || id == '9') {
+      subNames = ['غرف نوم ومعيشة', 'مطابخ ودواليب', 'نجارة وديكور', 'مفروشات'];
+    } else if (nameKey.contains('صيانة') || nameKey.contains('ورش') || slugKey == 'maintenance' || id == '10') {
+      subNames = ['سباكة', 'نجارة وحدادة', 'كهرباء وتكييف', 'صيانة أجهزة'];
+    } else if (nameKey.contains('سيارات') || slugKey == 'cars') {
+      subNames = ['صيانة وميكانيكا', 'مغاسل وتلميع', 'قطع غيار وزيوت', 'إطارات وبطاريات'];
+    } else if (nameKey.contains('جمال') || nameKey.contains('كوافير') || slugKey == 'beauty') {
+      subNames = ['صالونات وكوافير', 'عناية شخصية', 'ميك اب وعطور'];
+    } else if (nameKey.contains('ألعاب') || nameKey.contains('ترفيه') || slugKey == 'games') {
+      subNames = ['ألعاب أطفال', 'بلاي ستيشن وبادل', 'ترفيه ورحلات'];
+    } else {
+      subNames = ['عروض حصرية', 'الأفضل تقييماً', 'الأكثر طلباً', 'الخدمات المعتمدة'];
+    }
+
+    return List.generate(subNames.length, (index) {
+      return CategoryEntity(
+        id: '${id}_sub_${index + 1}',
+        parentId: id,
+        name: subNames[index],
+        icon: '',
+        storesCount: 0,
+      );
+    });
+  }
+
   static Color? _parseColor(String? hexString) {
     if (hexString == null || hexString.isEmpty) return null;
     try {
@@ -452,3 +551,4 @@ class CategoryVisualHelper {
     }
   }
 }
+

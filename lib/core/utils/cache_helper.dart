@@ -13,6 +13,7 @@ abstract final class CacheKeys {
   static const String appThemeMode = 'app_theme_mode';
   static const String fcmToken = 'fcm_token';
   static const String reviewedEndpoints = 'reviewed_endpoints';
+  static const String hasSeenOnboarding = 'has_seen_onboarding';
 }
 
 /// Helper class for managing local storage using SharedPreferences.
@@ -215,8 +216,23 @@ abstract final class CacheHelper {
     await _prefs?.setStringList('cart_product_ids', list);
   }
 
+  /// Check if the user has completed or skipped the onboarding flow.
+  static bool get hasSeenOnboarding {
+    return _prefs?.getBool(CacheKeys.hasSeenOnboarding) ?? false;
+  }
+
+  /// Mark onboarding flow as seen/completed.
+  static Future<void> setHasSeenOnboarding(bool value) async {
+    await _prefs?.setBool(CacheKeys.hasSeenOnboarding, value);
+  }
+
   /// Clear all cached data (for logout).
   static Future<void> clear() async {
+    final seenOnboarding = hasSeenOnboarding;
     await _prefs?.clear();
+    // Preserve onboarding state across logouts so the user is not shown onboarding again on logout
+    if (seenOnboarding) {
+      await setHasSeenOnboarding(true);
+    }
   }
 }

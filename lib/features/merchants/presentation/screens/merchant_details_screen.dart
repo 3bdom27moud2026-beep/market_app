@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:market/core/extensions/context_extensions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -570,7 +569,7 @@ class _MerchantHeaderBanner extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Top Controls: Back Button on right, Share & Favorite on left
+            // Top Controls: Back Button on right, Favorite on left
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -600,49 +599,9 @@ class _MerchantHeaderBanner extends StatelessWidget {
                   ),
                 ),
 
-                // Share & Favorite Buttons
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Share Button (White Circle)
-                    Container(
-                      width: 38.r,
-                      height: 38.r,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.08),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: IconButton(
-                        padding: EdgeInsets.zero,
-                        icon: Icon(
-                          Icons.share_outlined,
-                          color: const Color(0xFF1B4270),
-                          size: 19.r,
-                        ),
-                        onPressed: () {
-                          Clipboard.setData(ClipboardData(text: merchant.name));
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('تم نسخ رابط المتجر'),
-                              duration: Duration(seconds: 1),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    SizedBox(width: 8.w),
+                // Favorite Button (White Circle)
+                _MerchantFavoriteCircleButton(merchantId: merchant.id),
 
-                    // Favorite Button (White Circle)
-                    _MerchantFavoriteCircleButton(merchantId: merchant.id),
-                  ],
-                ),
               ],
             ),
 

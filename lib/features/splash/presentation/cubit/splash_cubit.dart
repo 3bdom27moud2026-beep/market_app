@@ -33,8 +33,13 @@ class SplashCubit extends Cubit<SplashState> {
     }
   }
 
-  /// Navigates to the main home screen, or pushes pending notification deep link.
+  /// Navigates to onboarding (if first launch), or the main home screen (with any pending notification).
   void navigateToNext(GoRouter router) {
+    if (!CacheHelper.hasSeenOnboarding) {
+      router.goNamed(AppRoutes.onboardingNamed);
+      return;
+    }
+
     final pending = FCMService.consumePendingRoute();
     if (pending != null &&
         pending.isNotEmpty &&

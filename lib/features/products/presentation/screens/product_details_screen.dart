@@ -122,13 +122,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                   const Spacer(),
-                  // Share button
-                  CustomIcon(
-                    icon: Icons.share_outlined,
-                    onPressed: () =>
-                        context.read<ProductDetailsCubit>().shareProduct(),
-                  ),
-                  SizedBox(width: 10.w),
                   // Favorite button (in RTL: leftmost)
                   BlocBuilder<ProductDetailsCubit, ProductDetailsState>(
                     builder: (context, state) {

@@ -38,6 +38,7 @@ import 'package:market/features/orders/presentation/cubit/orders_cubit.dart';
 import 'package:market/features/orders/presentation/pages/orders_screen.dart';
 import 'package:market/features/orders/presentation/pages/order_details_screen.dart';
 import 'package:market/features/splash/presentation/screens/splash_screen.dart';
+import 'package:market/features/onboarding/presentation/screens/onboarding_screen.dart';
 import 'package:market/features/merchants/dependency_injection.dart';
 import 'package:market/features/merchants/presentation/cubit/merchant_details_cubit.dart';
 import 'package:market/features/merchants/presentation/cubit/merchants_cubit.dart';
@@ -110,6 +111,14 @@ abstract final class AppRouter {
           name: AppRoutes.splashNamed,
           parentNavigatorKey: rootNavigatorKey,
           builder: (context, state) => const SplashScreen(),
+        ),
+
+        // Onboarding (no bottom nav)
+        GoRoute(
+          path: AppRoutes.onboarding,
+          name: AppRoutes.onboardingNamed,
+          parentNavigatorKey: rootNavigatorKey,
+          builder: (context, state) => const OnboardingScreen(),
         ),
 
         // Login (no bottom nav)

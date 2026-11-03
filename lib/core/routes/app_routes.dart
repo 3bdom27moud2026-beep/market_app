@@ -73,8 +73,12 @@ abstract final class AppRoutes {
   /// Notifications screen route.
   static const String notifications = '/notifications';
 
+  /// Onboarding walkthrough screen route.
+  static const String onboarding = '/onboarding';
+
   /// Named routes for GoRouter.
   static const String splashNamed = 'splash';
+  static const String onboardingNamed = 'onboarding';
   static const String homeNamed = 'home';
   static const String loginNamed = 'login';
   static const String productDetailsNamed = 'product-details';

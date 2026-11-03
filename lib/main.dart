@@ -11,14 +11,17 @@ import 'core/theme/app_theme.dart';
 import 'core/theme/theme_cubit.dart';
 import 'core/routes/app_router.dart';
 import 'core/di/dependency_injection.dart';
-import 'core/utils/end_points.dart';
+import 'core/config/app_config.dart';
 import 'features/notifications/dependency_injection.dart';
 import 'features/notifications/presentation/cubit/notifications_cubit.dart';
 import 'features/cart/presentation/cubit/cart_cubit.dart';
 import 'features/cart/dependency_injection.dart';
 
-void main() async {
+/// Common application bootstrap logic shared across all environment flavors.
+Future<void> bootstrap(AppConfig config) async {
   WidgetsFlutterBinding.ensureInitialized();
+  AppConfig.initialize(config);
+
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
@@ -26,7 +29,7 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  await CoreDI.init(baseUrl: EndPoints.baseUrl);
+  await CoreDI.init(baseUrl: config.apiBaseUrl);
 
   // Initialize FCM service
   try {
@@ -36,6 +39,10 @@ void main() async {
   }
 
   runApp(const MarketApp());
+}
+
+void main() async {
+  await bootstrap(AppConfig.current);
 }
 
 class MarketApp extends StatelessWidget {

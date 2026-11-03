@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:market/core/extensions/context_extensions.dart';
 import 'package:flutter/services.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:market/core/constants/app_spacing.dart';
 
 /// Composite widget displaying both Points Card and Referral Card as separate cards.
@@ -334,26 +333,6 @@ class ReferralCodeCard extends StatelessWidget {
     );
   }
 
-  void _shareReferralLink(BuildContext context) async {
-    if (referralCode.isEmpty) return;
-    final shareText =
-        'سجل في تطبيق شوب جايد واستخدم كود الخصم الخاص بي: $referralCode للاستمتاع بأقوى العروض ونقاط المكافآت!\nhttps://shopguide.medguide.software/ref/$referralCode';
-    final uri = Uri.parse(
-      'whatsapp://send?text=${Uri.encodeComponent(shareText)}',
-    );
-    try {
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri);
-      } else if (context.mounted) {
-        _copyReferralCode(context);
-      }
-    } catch (_) {
-      if (context.mounted) {
-        _copyReferralCode(context);
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -422,35 +401,19 @@ class ReferralCodeCard extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.share_outlined, size: 19.r),
-                      tooltip: 'مشاركة رابط الدعوة',
-                      onPressed: () => _shareReferralLink(context),
-                      padding: EdgeInsets.zero,
-                      constraints: BoxConstraints(
-                        minWidth: 32.r,
-                        minHeight: 32.r,
-                      ),
-                    ),
-                    SizedBox(width: 4.w),
-                    IconButton(
-                      icon: Icon(
-                        Icons.copy_rounded,
-                        size: 19.r,
-                        color: context.colors.textOnPrimary,
-                      ),
-                      tooltip: 'نسخ الكود',
-                      onPressed: () => _copyReferralCode(context),
-                      padding: EdgeInsets.zero,
-                      constraints: BoxConstraints(
-                        minWidth: 32.r,
-                        minHeight: 32.r,
-                      ),
-                    ),
-                  ],
+                IconButton(
+                  icon: Icon(
+                    Icons.copy_rounded,
+                    size: 19.r,
+                    color: context.colors.textOnPrimary,
+                  ),
+                  tooltip: 'نسخ الكود',
+                  onPressed: () => _copyReferralCode(context),
+                  padding: EdgeInsets.zero,
+                  constraints: BoxConstraints(
+                    minWidth: 32.r,
+                    minHeight: 32.r,
+                  ),
                 ),
                 const Spacer(),
                 InkWell(

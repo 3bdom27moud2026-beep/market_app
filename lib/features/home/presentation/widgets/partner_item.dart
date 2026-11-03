@@ -72,31 +72,37 @@ class PartnerItem extends StatelessWidget {
             SizedBox(height: AppSpacing.xs.h),
             Container(
               height: 20.h,
-              width: 80.w,
+              constraints: BoxConstraints(maxWidth: 80.w),
+              padding: EdgeInsets.symmetric(horizontal: 4.w),
               margin: EdgeInsets.only(left: AppSpacing.lg.w),
               decoration: BoxDecoration(
                 color: context.colors.accentOrange.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(4.r),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "خصم",
-                    style: AppTextStyles.discountBadge.copyWith(
-                      color: context.colors.accentOrange,
-                      fontSize: 10.sp,
+              alignment: Alignment.center,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "خصم",
+                      style: AppTextStyles.discountBadge.copyWith(
+                        color: context.colors.accentOrange,
+                        fontSize: 10.sp,
+                      ),
                     ),
-                  ),
-                  SizedBox(width: 4.w),
-                  Text(
-                    partner.discount,
-                    style: AppTextStyles.discountBadge.copyWith(
-                      color: context.colors.accentOrange,
-                      fontSize: 10.sp,
+                    SizedBox(width: 3.w),
+                    Text(
+                      partner.discount,
+                      style: AppTextStyles.discountBadge.copyWith(
+                        color: context.colors.accentOrange,
+                        fontSize: 10.sp,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],

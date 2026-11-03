@@ -1,5 +1,7 @@
+import '../config/app_config.dart';
+
 class EndPoints {
-  static const String baseUrl = 'https://shopguide.medguide.software/api';
+  static String get baseUrl => AppConfig.current.apiBaseUrl;
   static const String register = '/v1/auth/register';
   static const String login = '/v1/auth/login';
   static const String logout = '/v1/auth/logout';

@@ -36,6 +36,8 @@ Future<void> bootstrap(AppConfig config) async {
     await NotificationsDI.fcmService.init();
   } catch (e) {
     debugPrint('FCM init error: $e');
+    debugPrint('FCM init error: $e');
+  
   }
 
   runApp(const MarketApp());

@@ -222,9 +222,9 @@ class CartCubit extends Cubit<CartState> {
         (failure) {
           return false;
         },
-        (_) {
+        (_) async {
           CacheHelper.addCartProductId(productId);
-          loadCart();
+          await loadCart();
           CartEventBus.instance.notifyCartUpdated();
           return true;
         },
@@ -264,8 +264,8 @@ class CartCubit extends Cubit<CartState> {
           }
           return false;
         },
-        (_) {
-          loadCart();
+        (_) async {
+          await loadCart();
           return true;
         },
       );
@@ -303,8 +303,8 @@ class CartCubit extends Cubit<CartState> {
           }
           return false;
         },
-        (_) {
-          loadCart();
+        (_) async {
+          await loadCart();
           CartEventBus.instance.notifyCartUpdated();
           return true;
         },
@@ -338,9 +338,9 @@ class CartCubit extends Cubit<CartState> {
           }
           return false;
         },
-        (_) {
+        (_) async {
           CacheHelper.setCartProductIds([]);
-          loadCart();
+          await loadCart();
           CartEventBus.instance.notifyCartUpdated();
           return true;
         },

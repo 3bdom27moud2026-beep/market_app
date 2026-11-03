@@ -142,13 +142,15 @@ jobs:
         run: npm install -g firebase-tools
 
       - name: Distribute Dev APK via Firebase App Distribution
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: /tmp/firebase-service-account.json
         run: |
+          echo '${{ secrets.FIREBASE_TOKEN }}' > /tmp/firebase-service-account.json
           firebase appdistribution:distribute \
             build/app/outputs/flutter-apk/app-dev-release.apk \
-            --app ${{ secrets.FIREBASE_APP_ID_DEV }} \
+            --app ${{ secrets.FIREBASE_APP_ID_ANDROID }} \
             --groups "testGroup" \
-            --release-notes "Dev build from branch: ${{ github.ref_name }} | Commit: ${{ github.sha }}" \
-            --token ${{ secrets.FIREBASE_TOKEN }}
+            --release-notes "🔧 Dev Build | Branch: ${{ github.ref_name }} | Commit: ${{ github.sha }}"
 
   # ───────────────────────────────────────────────────────────────────────────
   # Job 3: Build & Distribute Production Flavor (APK & AAB)
@@ -211,13 +213,15 @@ jobs:
 
       - name: Distribute Prod APK via Firebase App Distribution
         if: github.event_name != 'workflow_dispatch' || inputs.build_type == 'apk' || inputs.build_type == 'both'
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: /tmp/firebase-service-account.json
         run: |
+          echo '${{ secrets.FIREBASE_TOKEN }}' > /tmp/firebase-service-account.json
           firebase appdistribution:distribute \
             build/app/outputs/flutter-apk/app-prod-release.apk \
-            --app ${{ secrets.FIREBASE_APP_ID_PROD }} \
+            --app ${{ secrets.FIREBASE_APP_ID_ANDROID }} \
             --groups "testGroup" \
-            --release-notes "Prod build from branch: ${{ github.ref_name }} | Commit: ${{ github.sha }}" \
-            --token ${{ secrets.FIREBASE_TOKEN }}
+            --release-notes "🚀 Prod Build | Branch: ${{ github.ref_name }} | Commit: ${{ github.sha }}"
 
       - name: Build Production App Bundle (AAB)
         if: github.event_name != 'workflow_dispatch' || inputs.build_type == 'appbundle' || inputs.build_type == 'both'

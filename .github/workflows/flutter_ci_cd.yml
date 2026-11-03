@@ -86,7 +86,7 @@ jobs:
         run: flutter test --no-pub || true
 
   # ───────────────────────────────────────────────────────────────────────────
-  # Job 2: Build Development Flavor (APK)
+  # Job 2: Build & Distribute Development Flavor (APK)
   # ───────────────────────────────────────────────────────────────────────────
   build_dev:
     name: Build Dev Flavor (APK)
@@ -138,8 +138,20 @@ jobs:
           path: build/app/outputs/flutter-apk/*dev*.apk
           retention-days: 14
 
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Distribute Dev APK via Firebase App Distribution
+        run: |
+          firebase appdistribution:distribute \
+            build/app/outputs/flutter-apk/app-dev-release.apk \
+            --app ${{ secrets.FIREBASE_APP_ID_DEV }} \
+            --groups "testGroup" \
+            --release-notes "Dev build from branch: ${{ github.ref_name }} | Commit: ${{ github.sha }}" \
+            --token ${{ secrets.FIREBASE_TOKEN }}
+
   # ───────────────────────────────────────────────────────────────────────────
-  # Job 3: Build Production Flavor (APK & AAB)
+  # Job 3: Build & Distribute Production Flavor (APK & AAB)
   # ───────────────────────────────────────────────────────────────────────────
   build_prod:
     name: Build Prod Flavor (APK & AAB)
@@ -192,6 +204,20 @@ jobs:
           name: ShopGuide-Prod-Release-APK
           path: build/app/outputs/flutter-apk/*prod*.apk
           retention-days: 30
+
+      - name: Install Firebase CLI
+        if: github.event_name != 'workflow_dispatch' || inputs.build_type == 'apk' || inputs.build_type == 'both'
+        run: npm install -g firebase-tools
+
+      - name: Distribute Prod APK via Firebase App Distribution
+        if: github.event_name != 'workflow_dispatch' || inputs.build_type == 'apk' || inputs.build_type == 'both'
+        run: |
+          firebase appdistribution:distribute \
+            build/app/outputs/flutter-apk/app-prod-release.apk \
+            --app ${{ secrets.FIREBASE_APP_ID_PROD }} \
+            --groups "testGroup" \
+            --release-notes "Prod build from branch: ${{ github.ref_name }} | Commit: ${{ github.sha }}" \
+            --token ${{ secrets.FIREBASE_TOKEN }}
 
       - name: Build Production App Bundle (AAB)
         if: github.event_name != 'workflow_dispatch' || inputs.build_type == 'appbundle' || inputs.build_type == 'both'

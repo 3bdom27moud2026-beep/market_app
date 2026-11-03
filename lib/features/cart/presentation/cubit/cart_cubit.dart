@@ -218,8 +218,8 @@ class CartCubit extends Cubit<CartState> {
 
       _isMutating = false;
 
-      return result.fold(
-        (failure) {
+      return await result.fold(
+        (failure) async {
           return false;
         },
         (_) async {
@@ -255,8 +255,8 @@ class CartCubit extends Cubit<CartState> {
 
       _isMutating = false;
 
-      return result.fold(
-        (failure) {
+      return await result.fold(
+        (failure) async {
           if (!isClosed && state is CartLoaded) {
             emit(
               (state as CartLoaded).copyWith(nullifyUpdatingCartItemId: true),
@@ -294,8 +294,8 @@ class CartCubit extends Cubit<CartState> {
 
       _isMutating = false;
 
-      return result.fold(
-        (failure) {
+      return await result.fold(
+        (failure) async {
           if (!isClosed && state is CartLoaded) {
             emit(
               (state as CartLoaded).copyWith(nullifyDeletingCartItemId: true),
@@ -331,8 +331,8 @@ class CartCubit extends Cubit<CartState> {
 
       _isMutating = false;
 
-      return result.fold(
-        (failure) {
+      return await result.fold(
+        (failure) async {
           if (!isClosed) {
             emit(CartError(failure));
           }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:market/core/constants/app_strings.dart';
 import 'package:market/core/routes/app_routes.dart';
 import 'package:market/core/widgets/curved_nav_bar/curved_pill_nav_bar.dart';
 import 'package:market/core/widgets/curved_nav_bar/nav_bar_custom_icons.dart';
@@ -22,27 +23,27 @@ abstract final class AppBottomNav {
   static const List<CurvedNavBarItemData> items = [
     CurvedNavBarItemData(
       iconType: NavTabType.home,
-      label: 'الرئيسية',
+      label: AppStrings.navHome,
       route: AppRoutes.home,
     ),
     CurvedNavBarItemData(
       iconType: NavTabType.categories,
-      label: 'الفئات',
+      label: AppStrings.navCategories,
       route: AppRoutes.categories,
     ),
     CurvedNavBarItemData(
       iconType: NavTabType.account,
-      label: 'الحساب',
+      label: AppStrings.navAccount,
       route: AppRoutes.profile,
     ),
     CurvedNavBarItemData(
       iconType: NavTabType.favorites,
-      label: 'المفضلة',
+      label: AppStrings.navFavorites,
       route: AppRoutes.favorites,
     ),
     CurvedNavBarItemData(
       iconType: NavTabType.cart,
-      label: 'السلة',
+      label: AppStrings.navCart,
       route: AppRoutes.basket,
     ),
   ];
@@ -52,31 +53,31 @@ abstract final class AppBottomNav {
     TabItem(
       icon: Icons.home_outlined,
       activeIcon: Icons.home_rounded,
-      label: 'الرئيسية',
+      label: AppStrings.navHome,
       route: AppRoutes.home,
     ),
     TabItem(
       icon: Icons.grid_view_outlined,
       activeIcon: Icons.grid_view_rounded,
-      label: 'الفئات',
+      label: AppStrings.navCategories,
       route: AppRoutes.categories,
     ),
     TabItem(
       icon: Icons.person_outline_rounded,
       activeIcon: Icons.person_rounded,
-      label: 'الحساب',
+      label: AppStrings.navAccount,
       route: AppRoutes.profile,
     ),
     TabItem(
       icon: Icons.favorite_border_rounded,
       activeIcon: Icons.favorite_rounded,
-      label: 'المفضلة',
+      label: AppStrings.navFavorites,
       route: AppRoutes.favorites,
     ),
     TabItem(
       icon: Icons.shopping_cart_outlined,
       activeIcon: Icons.shopping_cart_rounded,
-      label: 'السلة',
+      label: AppStrings.navCart,
       route: AppRoutes.basket,
     ),
   ];

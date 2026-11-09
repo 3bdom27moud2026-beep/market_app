@@ -405,15 +405,12 @@ class ReferralCodeCard extends StatelessWidget {
                   icon: Icon(
                     Icons.copy_rounded,
                     size: 19.r,
-                    color: context.colors.textOnPrimary,
+                    color: context.colors.textPrimary,
                   ),
                   tooltip: 'نسخ الكود',
                   onPressed: () => _copyReferralCode(context),
                   padding: EdgeInsets.zero,
-                  constraints: BoxConstraints(
-                    minWidth: 32.r,
-                    minHeight: 32.r,
-                  ),
+                  constraints: BoxConstraints(minWidth: 32.r, minHeight: 32.r),
                 ),
                 const Spacer(),
                 InkWell(
@@ -433,7 +430,7 @@ class ReferralCodeCard extends StatelessWidget {
                             fontSize: 14.5.sp,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 1.2,
-                            color: context.colors.textOnPrimary,
+                            color: context.colors.textPrimary,
                           ),
                         ),
                         SizedBox(width: 8.w),

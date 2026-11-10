@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:market/core/extensions/context_extensions.dart';
 import 'package:market/core/widgets/dashed_painters.dart';
+import 'package:market/core/constants/app_styles.dart';
 import '../../domain/entities/cart_summary_entity.dart';
 
 class PriceSummaryCard extends StatelessWidget {
@@ -156,9 +157,9 @@ class PriceSummaryCard extends StatelessWidget {
                 child: Text(
                   '${displayTotal.toStringAsFixed(0)} ج.م',
                   key: ValueKey<double>(displayTotal),
-                  style: TextStyle(
+                  style: AppStyles.priceStyle(
                     fontSize: 16.sp,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: AppStyles.semiBold,
                     color: isDark ? Colors.white : const Color(0xFF1E3A8A),
                   ),
                 ),
@@ -286,9 +287,9 @@ class PriceSummaryCard extends StatelessWidget {
         SizedBox(width: 8.w),
         Text(
           value,
-          style: TextStyle(
+          style: AppStyles.priceStyle(
             fontSize: 12.5.sp,
-            fontWeight: FontWeight.bold,
+            fontWeight: AppStyles.semiBold,
             color: isDark
                 ? context.colors.textPrimary
                 : const Color(0xFF111827),
@@ -322,9 +323,9 @@ class PriceSummaryCard extends StatelessWidget {
         SizedBox(width: 8.w),
         Text(
           value,
-          style: TextStyle(
+          style: AppStyles.priceStyle(
             fontSize: 12.5.sp,
-            fontWeight: FontWeight.bold,
+            fontWeight: AppStyles.semiBold,
             color: color,
           ),
         ),

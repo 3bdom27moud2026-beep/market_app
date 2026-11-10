@@ -159,7 +159,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
           top: false,
           bottom: true,
           child: SizedBox(
-            height: navHeight + 14.h,
+            height: navHeight,
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final maxWidth = constraints.maxWidth;
@@ -180,6 +180,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
                         painter: _CurvedNavPainter(
                           startingLoc: _pos,
                           itemsLength: items.length,
+
                           color: barBg,
                           textDirection: Directionality.of(context),
                         ),

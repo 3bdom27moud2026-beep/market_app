@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
@@ -241,9 +241,10 @@ class CategoryProductCard extends StatelessWidget {
                                   child: Text(
                                     '${product.price.toStringAsFixed(0)} ج.م',
                                     style: TextStyle(
-                                      fontFamily: AppTextStyles.fontFamily,
+                                      fontFamily: AppStyles.priceFontFamily,
+                                      fontFamilyFallback: AppStyles.priceFontFamilyFallback,
                                       fontSize: 13.sp,
-                                      fontWeight: FontWeight.w900,
+                                      fontWeight: AppStyles.semiBold,
                                       color: context.colors.primary,
                                     ),
                                   ),
@@ -255,9 +256,10 @@ class CategoryProductCard extends StatelessWidget {
                                     child: Text(
                                       '${product.oldPrice.toStringAsFixed(0)} ج.م',
                                       style: TextStyle(
-                                        fontFamily: AppTextStyles.fontFamily,
+                                        fontFamily: AppStyles.priceFontFamily,
+                                        fontFamilyFallback: AppStyles.priceFontFamilyFallback,
                                         fontSize: 10.sp,
-                                        fontWeight: FontWeight.w500,
+                                        fontWeight: AppStyles.semiBold,
                                         color: context.colors.textTertiary,
                                         decoration: TextDecoration.lineThrough,
                                         decorationColor:

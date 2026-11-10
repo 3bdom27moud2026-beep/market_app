@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:market/core/extensions/context_extensions.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:market/core/constants/app_styles.dart';
 
 import '../../domain/entities/cart_item_entity.dart';
 import 'quantity_selector.dart';
@@ -118,9 +119,9 @@ class BasketItemCard extends StatelessWidget {
                       // Current Price
                       Text(
                         '${itemTotal.toStringAsFixed(0)} ج.م',
-                        style: TextStyle(
+                        style: AppStyles.priceStyle(
                           fontSize: 13.sp,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: AppStyles.semiBold,
                           color: const Color(0xFF1E3A8A),
                         ),
                       ),
@@ -128,8 +129,9 @@ class BasketItemCard extends StatelessWidget {
                       if (hasOldPrice)
                         Text(
                           '${itemOldTotal.toStringAsFixed(0)} ج.م',
-                          style: TextStyle(
+                          style: AppStyles.priceStyle(
                             fontSize: 11.5.sp,
+                            fontWeight: AppStyles.semiBold,
                             decoration: TextDecoration.lineThrough,
                             color: const Color(0xFF9CA3AF),
                           ),

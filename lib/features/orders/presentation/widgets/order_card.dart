@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:market/core/extensions/context_extensions.dart';
+import 'package:market/core/constants/app_styles.dart';
 import 'package:intl/intl.dart';
 import '../../../cart/domain/entities/order_entity.dart';
 import 'order_status_badge.dart';
@@ -183,9 +184,9 @@ class OrderCard extends StatelessWidget {
                               Flexible(
                                 child: Text(
                                   currencyFormatter.format(order.totalPrice),
-                                  style: TextStyle(
+                                  style: AppStyles.priceStyle(
                                     fontSize: 15.sp,
-                                    fontWeight: FontWeight.bold,
+                                    fontWeight: AppStyles.semiBold,
                                     color: context.colors.textPrimary,
                                   ),
                                   overflow: TextOverflow.ellipsis,

@@ -112,20 +112,16 @@ class ProductPriceCard extends StatelessWidget {
                 children: [
                   Text(
                     '${price.toStringAsFixed(0)} ج.م',
-                    style: TextStyle(
+                    style: AppStyles.price.copyWith(
                       color: context.colors.textPrimary,
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.w900,
                     ),
                   ),
                   if (hasDiscount) ...[
                     SizedBox(width: 8.w),
                     Text(
                       '${oldPrice.toStringAsFixed(0)} ج.م',
-                      style: TextStyle(
-                        fontSize: 14.sp,
+                      style: AppStyles.oldPrice.copyWith(
                         color: context.colors.textTertiary,
-                        decoration: TextDecoration.lineThrough,
                       ),
                     ),
                   ],

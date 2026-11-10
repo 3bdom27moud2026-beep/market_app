@@ -186,11 +186,8 @@ class FlashSaleProductCard extends StatelessWidget {
                                 fit: BoxFit.scaleDown,
                                 child: Text(
                                   '${product.price.toStringAsFixed(0)} ج.م',
-                                  style: TextStyle(
-                                    fontFamily: AppTextStyles.fontFamily,
+                                  style: AppStyles.priceSmall.copyWith(
                                     color: context.colors.primary,
-                                    fontSize: 13.sp,
-                                    fontWeight: FontWeight.w900,
                                   ),
                                 ),
                               ),
@@ -200,11 +197,10 @@ class FlashSaleProductCard extends StatelessWidget {
                                   fit: BoxFit.scaleDown,
                                   child: Text(
                                     '${product.oldPrice.toStringAsFixed(0)} ج.م',
-                                    style: TextStyle(
-                                      fontFamily: AppTextStyles.fontFamily,
-                                      color: context.colors.textTertiary,
+                                    style: AppStyles.priceStyle(
                                       fontSize: 9.sp,
-                                      fontWeight: FontWeight.w500,
+                                      fontWeight: AppStyles.semiBold,
+                                      color: context.colors.textTertiary,
                                       decoration: TextDecoration.lineThrough,
                                       decorationColor:
                                           context.colors.textTertiary,

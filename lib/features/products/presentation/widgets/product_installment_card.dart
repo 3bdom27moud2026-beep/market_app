@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:market/core/constants/app_spacing.dart';
+import 'package:market/core/constants/app_styles.dart';
 import 'package:market/features/products/domain/entities/product_entity.dart';
 
 /// Card widget displaying installment options matching the design in the screenshot.
@@ -87,10 +88,10 @@ class ProductInstallmentCard extends StatelessWidget {
                   SizedBox(height: 5.h),
                   Text(
                     'يبدأ من ${monthlyPrice.toStringAsFixed(0)} ج.م / الشهر',
-                    style: TextStyle(
+                    style: AppStyles.priceStyle(
                       color: darkText,
                       fontSize: 13.sp,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: AppStyles.semiBold,
                     ),
                   ),
                 ],

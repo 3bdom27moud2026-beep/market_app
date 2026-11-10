@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:market/core/extensions/context_extensions.dart';
 import 'package:market/core/constants/app_spacing.dart';
+import 'package:market/core/constants/app_styles.dart';
 
 /// Reusable green savings card widget for profile screen matching the design.
 class SavingsCard extends StatelessWidget {
@@ -94,9 +95,9 @@ class SavingsCard extends StatelessWidget {
                   children: [
                     Text(
                       '${totalSavings.toInt()}',
-                      style: TextStyle(
+                      style: AppStyles.priceStyle(
                         fontSize: 15.sp,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: AppStyles.semiBold,
                         color: context.colors.textOnPrimary,
                       ),
                     ),

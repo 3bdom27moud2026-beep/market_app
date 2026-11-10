@@ -53,3 +53,8 @@ flutter:
     - family: Alexandria
       fonts:
         - asset: assets/fonts/Alexandria-VariableFont_wght.ttf
+    - family: Clash Display
+      fonts:
+        - asset: assets/fonts/ClashDisplay-Variable.ttf
+        - asset: assets/fonts/ClashDisplay-Semibold.otf
+          weight: 600

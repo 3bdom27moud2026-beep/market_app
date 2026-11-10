@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:market/core/constants/app_styles.dart';
 import 'package:market/core/extensions/context_extensions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -318,9 +319,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                               ),
                                               Text(
                                                 '${(item.price * item.quantity).toStringAsFixed(0)} ج.م',
-                                                style: TextStyle(
+                                                style: AppStyles.priceStyle(
                                                   fontSize: 12.sp,
-                                                  fontWeight: FontWeight.bold,
+                                                  fontWeight: AppStyles.semiBold,
                                                   color: context
                                                       .colors
                                                       .textPrimary,

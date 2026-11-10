@@ -19,8 +19,14 @@ abstract final class AppStyles {
   /// Main application font family.
   static const String fontFamily = 'Alexandria';
 
+  /// Dedicated font family for Prices as specified in the design.
+  static const String priceFontFamily = 'Clash Display';
+
   /// Fallback font family stack.
   static const List<String> fontFamilyFallback = ['sans-serif'];
+
+  /// Price fallback font family stack (Clash Display for digits, Alexandria for Arabic currency symbols).
+  static const List<String> priceFontFamilyFallback = [fontFamily, 'sans-serif'];
 
   // ── Font Weights ─────────────────────────────────────────────────────────
   static const FontWeight light = FontWeight.w300;
@@ -46,6 +52,29 @@ abstract final class AppStyles {
       TextStyle(
         fontFamily: fontFamily,
         fontFamilyFallback: fontFamilyFallback,
+        fontSize: fontSize,
+        fontWeight: fontWeight,
+        color: color,
+        decoration: decoration,
+        decorationColor: decorationColor,
+        letterSpacing: letterSpacing,
+        height: height,
+      );
+
+  /// Dedicated style builder for Prices using Clash Display (Semibold by default)
+  /// with Alexandria fallback for Arabic currency notations (e.g. 'ج.م').
+  static TextStyle priceStyle({
+    required double fontSize,
+    FontWeight fontWeight = semiBold,
+    Color? color,
+    TextDecoration? decoration,
+    Color? decorationColor,
+    double? letterSpacing,
+    double? height,
+  }) =>
+      TextStyle(
+        fontFamily: priceFontFamily,
+        fontFamilyFallback: priceFontFamilyFallback,
         fontSize: fontSize,
         fontWeight: fontWeight,
         color: color,
@@ -190,25 +219,31 @@ abstract final class AppStyles {
         color: AppColors.white60,
       );
 
-  // ── Pricing & Discount Styles ────────────────────────────────────────────
+  // ── Pricing Styles (Exclusively Clash Display Semibold) ───────────────────
   static TextStyle get price =>
-      style(fontSize: 18.sp, fontWeight: bold);
+      priceStyle(fontSize: 18.sp, fontWeight: semiBold);
 
   static TextStyle get priceLarge =>
-      style(fontSize: 20.sp, fontWeight: bold);
+      priceStyle(fontSize: 20.sp, fontWeight: semiBold);
+
+  static TextStyle get priceMedium =>
+      priceStyle(fontSize: 16.sp, fontWeight: semiBold);
 
   static TextStyle get priceSmall =>
-      style(fontSize: 13.sp, fontWeight: bold);
+      priceStyle(fontSize: 13.sp, fontWeight: semiBold);
 
-  static TextStyle get oldPrice => style(
+  static TextStyle get priceExtraSmall =>
+      priceStyle(fontSize: 11.sp, fontWeight: semiBold);
+
+  static TextStyle get oldPrice => priceStyle(
         fontSize: 14.sp,
-        fontWeight: regular,
+        fontWeight: semiBold,
         decoration: TextDecoration.lineThrough,
       );
 
-  static TextStyle get oldPriceSmall => style(
+  static TextStyle get oldPriceSmall => priceStyle(
         fontSize: 11.sp,
-        fontWeight: regular,
+        fontWeight: semiBold,
         decoration: TextDecoration.lineThrough,
       );
 

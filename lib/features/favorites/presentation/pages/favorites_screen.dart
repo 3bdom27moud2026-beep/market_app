@@ -319,7 +319,7 @@ class _FavoriteCard extends StatelessWidget {
                       '${item.price.toStringAsFixed(0)} ج.م',
                       style: AppTextStyles.price.copyWith(
                         fontSize: 14.sp,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: AppStyles.semiBold,
                         color: context.colors.primary,
                       ),
                     ),

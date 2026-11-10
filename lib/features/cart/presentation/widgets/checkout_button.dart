@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:market/core/extensions/context_extensions.dart';
+import 'package:market/core/constants/app_styles.dart';
 
 class CheckoutButton extends StatelessWidget {
   final double totalPrice;
@@ -55,9 +56,9 @@ class CheckoutButton extends StatelessWidget {
                   child: Text(
                     '${totalPrice.toStringAsFixed(0)} ج.م',
                     key: ValueKey<double>(totalPrice),
-                    style: TextStyle(
+                    style: AppStyles.priceStyle(
                       fontSize: 16.sp,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: AppStyles.semiBold,
                       color: context.colors.primaryDark,
                     ),
                   ),

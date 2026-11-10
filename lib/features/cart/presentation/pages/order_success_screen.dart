@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:market/core/extensions/context_extensions.dart';
+import 'package:market/core/constants/app_styles.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -225,9 +226,9 @@ class OrderSuccessScreen extends StatelessWidget {
                         ),
                         Text(
                           '${order!.summary.total.toStringAsFixed(0)} ج.م',
-                          style: TextStyle(
+                          style: AppStyles.priceStyle(
                             fontSize: 16.sp,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: AppStyles.semiBold,
                             color: context.colors.accentOrange,
                           ),
                         ),

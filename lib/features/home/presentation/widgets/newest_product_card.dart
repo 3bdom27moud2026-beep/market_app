@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:market/core/extensions/context_extensions.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:market/core/constants/app_shadows.dart';
+import 'package:market/core/constants/app_styles.dart';
 import 'package:market/features/home/domain/entities/newest_product_entity.dart';
 
 /// Card widget for a product in the newest products grid.
@@ -215,10 +216,8 @@ class NewestProductCard extends StatelessWidget {
                               fit: BoxFit.scaleDown,
                               child: Text(
                                 '${product.price.toStringAsFixed(0)} ج.م',
-                                style: TextStyle(
+                                style: AppStyles.priceMedium.copyWith(
                                   color: context.colors.primary,
-                                  fontSize: 16.sp,
-                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ),
@@ -228,10 +227,10 @@ class NewestProductCard extends StatelessWidget {
                                 fit: BoxFit.scaleDown,
                                 child: Text(
                                   '${product.oldPrice.toStringAsFixed(0)} ج.م',
-                                  style: TextStyle(
-                                    color: context.colors.textTertiary,
+                                  style: AppStyles.priceStyle(
                                     fontSize: 13.sp,
-                                    fontWeight: FontWeight.w500,
+                                    fontWeight: AppStyles.semiBold,
+                                    color: context.colors.textTertiary,
                                     decoration: TextDecoration.lineThrough,
                                     decorationColor:
                                         context.colors.textTertiary,

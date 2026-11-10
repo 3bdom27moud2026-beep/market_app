@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:market/core/constants/app_radius.dart';
 import 'package:market/core/constants/app_spacing.dart';
+import 'package:market/core/constants/app_styles.dart';
 import 'package:market/core/extensions/context_extensions.dart';
 import 'package:market/features/discount_card/dependency_injection.dart';
 import 'package:market/features/discount_card/domain/entities/payment_method_entity.dart';
@@ -791,9 +792,9 @@ class _RequestCardBottomSheetContentState
                   children: [
                     Text(
                       '${plan.price.toStringAsFixed(0)} ج.م',
-                      style: TextStyle(
+                      style: AppStyles.priceStyle(
                         fontSize: 15.sp,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: AppStyles.semiBold,
                         color: planColor,
                       ),
                     ),

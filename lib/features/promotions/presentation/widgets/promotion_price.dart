@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:market/core/extensions/context_extensions.dart';
+import 'package:market/core/constants/app_styles.dart';
 
 /// Price and rating widget showing current price, old strikethrough price, and rating.
 class PromotionPrice extends StatelessWidget {
@@ -32,10 +33,10 @@ class PromotionPrice extends StatelessWidget {
             // Current price in bold orange
             Text(
               '${price.toStringAsFixed(0)} ج.م',
-              style: TextStyle(
+              style: AppStyles.priceStyle(
                 color: const Color(0xFFEF8226),
                 fontSize: 26.sp,
-                fontWeight: FontWeight.w900,
+                fontWeight: AppStyles.semiBold,
                 letterSpacing: -0.5,
               ),
             ),
@@ -45,9 +46,9 @@ class PromotionPrice extends StatelessWidget {
               SizedBox(width: 8.w),
               Text(
                 '${oldPrice.toStringAsFixed(0)} ج.م',
-                style: TextStyle(
+                style: AppStyles.priceStyle(
                   fontSize: 14.sp,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: AppStyles.semiBold,
                   color: context.colors.textOnPrimary.withValues(alpha: 0.65),
                   decoration: TextDecoration.lineThrough,
                   decorationColor: context.colors.textOnPrimary.withValues(

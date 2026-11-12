@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:market/core/extensions/context_extensions.dart';
 import 'package:market/core/routes/app_routes.dart';
 import 'package:market/features/discount_card/domain/entities/category_entity.dart';
 import 'package:market/features/discount_card/domain/entities/statistics_entity.dart';
@@ -212,14 +213,15 @@ class _PartnerDiscountsSectionState extends State<PartnerDiscountsSection> {
   Widget build(BuildContext context) {
     final filtered = _filteredCategories;
     final totalMerchants = _getTotalMerchantsCount();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Padding(
       padding: widget.padding ?? EdgeInsets.symmetric(horizontal: 16.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // 1. Top Statistics Row (3 White Cards)
-          _buildStatisticsRow(),
+          // 1. Top Statistics Row
+          _buildStatisticsRow(context, isDark),
 
           SizedBox(height: 16.h),
 
@@ -227,12 +229,12 @@ class _PartnerDiscountsSectionState extends State<PartnerDiscountsSection> {
           Container(
             padding: EdgeInsets.all(16.r),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.colors.surface,
               borderRadius: BorderRadius.circular(22.r),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
+              border: Border.all(color: context.colors.borderLight),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
+                  color: context.colors.shadowLight,
                   blurRadius: 14.r,
                   offset: Offset(0, 4.h),
                 ),
@@ -247,13 +249,21 @@ class _PartnerDiscountsSectionState extends State<PartnerDiscountsSection> {
                     Container(
                       padding: EdgeInsets.all(8.r),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFFF7ED),
+                        color: isDark
+                            ? const Color(0xFF351A0E)
+                            : const Color(0xFFFFF7ED),
                         borderRadius: BorderRadius.circular(12.r),
-                        border: Border.all(color: const Color(0xFFFFEDD5)),
+                        border: Border.all(
+                          color: isDark
+                              ? const Color(0xFF63290D)
+                              : const Color(0xFFFFEDD5),
+                        ),
                       ),
                       child: Icon(
                         Icons.local_offer_outlined,
-                        color: const Color(0xFFEA580C),
+                        color: isDark
+                            ? const Color(0xFFFB923C)
+                            : const Color(0xFFEA580C),
                         size: 20.r,
                       ),
                     ),
@@ -267,7 +277,7 @@ class _PartnerDiscountsSectionState extends State<PartnerDiscountsSection> {
                             style: TextStyle(
                               fontSize: 15.sp,
                               fontWeight: FontWeight.w800,
-                              color: const Color(0xFF0F172A),
+                              color: context.colors.textPrimary,
                             ),
                           ),
                           SizedBox(height: 2.h),
@@ -276,7 +286,7 @@ class _PartnerDiscountsSectionState extends State<PartnerDiscountsSection> {
                             style: TextStyle(
                               fontSize: 11.sp,
                               fontWeight: FontWeight.w600,
-                              color: const Color(0xFF64748B),
+                              color: context.colors.textSecondary,
                             ),
                           ),
                         ],
@@ -290,12 +300,16 @@ class _PartnerDiscountsSectionState extends State<PartnerDiscountsSection> {
                 // Search Field
                 Container(
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF8FAFC),
+                    color: context.colors.backgroundSecondary,
                     borderRadius: BorderRadius.circular(12.r),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                    border: Border.all(color: context.colors.borderLight),
                   ),
                   child: TextField(
                     controller: _searchController,
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: context.colors.textPrimary,
+                    ),
                     onChanged: (val) {
                       setState(() {
                         _searchQuery = val;
@@ -305,11 +319,11 @@ class _PartnerDiscountsSectionState extends State<PartnerDiscountsSection> {
                       hintText: 'ابحث عن تاجر أو فئة...',
                       hintStyle: TextStyle(
                         fontSize: 11.sp,
-                        color: const Color(0xFF94A3B8),
+                        color: context.colors.textTertiary,
                       ),
                       prefixIcon: Icon(
                         Icons.search_rounded,
-                        color: const Color(0xFF94A3B8),
+                        color: context.colors.textTertiary,
                         size: 20.r,
                       ),
                       suffixIcon: _searchController.text.isNotEmpty
@@ -317,7 +331,7 @@ class _PartnerDiscountsSectionState extends State<PartnerDiscountsSection> {
                               icon: Icon(
                                 Icons.close_rounded,
                                 size: 18.r,
-                                color: const Color(0xFF94A3B8),
+                                color: context.colors.textTertiary,
                               ),
                               onPressed: () {
                                 _searchController.clear();
@@ -366,14 +380,17 @@ class _PartnerDiscountsSectionState extends State<PartnerDiscountsSection> {
     );
   }
 
-  Widget _buildStatisticsRow() {
+  Widget _buildStatisticsRow(BuildContext context, bool isDark) {
     return Row(
       children: [
-        // Left in RTL (خصم أقصى - Green)
+        // Left in RTL (خصم أقصى - Green/Teal)
         Expanded(
           child: _buildStatCard(
+            context: context,
             value: _getMaxDiscount(),
-            valueColor: const Color(0xFF10B981),
+            valueColor: isDark
+                ? const Color(0xFF2DD4BF)
+                : const Color(0xFF10B981),
             title: 'خصم أقصى',
           ),
         ),
@@ -381,17 +398,23 @@ class _PartnerDiscountsSectionState extends State<PartnerDiscountsSection> {
         // Middle in RTL (متوسط الخصم - Orange)
         Expanded(
           child: _buildStatCard(
+            context: context,
             value: _getAvgDiscount(),
-            valueColor: const Color(0xFFEA580C),
+            valueColor: isDark
+                ? const Color(0xFFFB923C)
+                : const Color(0xFFEA580C),
             title: 'متوسط الخصم',
           ),
         ),
         SizedBox(width: 8.w),
-        // Right in RTL (+26 تاجر شريك - Navy/Blue)
+        // Right in RTL (+26 تاجر شريك - Sky/Blue)
         Expanded(
           child: _buildStatCard(
+            context: context,
             value: _getPartnerCount(),
-            valueColor: const Color(0xFF0369A1),
+            valueColor: isDark
+                ? const Color(0xFF38BDF8)
+                : const Color(0xFF0369A1),
             title: 'تاجر شريك',
           ),
         ),
@@ -400,6 +423,7 @@ class _PartnerDiscountsSectionState extends State<PartnerDiscountsSection> {
   }
 
   Widget _buildStatCard({
+    required BuildContext context,
     required String value,
     required Color valueColor,
     required String title,
@@ -407,12 +431,12 @@ class _PartnerDiscountsSectionState extends State<PartnerDiscountsSection> {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 6.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: context.colors.borderLight),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: context.colors.shadowLight,
             blurRadius: 10.r,
             offset: Offset(0, 3.h),
           ),
@@ -438,7 +462,7 @@ class _PartnerDiscountsSectionState extends State<PartnerDiscountsSection> {
             style: TextStyle(
               fontSize: 10.sp,
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF64748B),
+              color: context.colors.textSecondary,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -452,13 +476,14 @@ class _PartnerDiscountsSectionState extends State<PartnerDiscountsSection> {
     final iconData = _getCategoryIcon(category.name);
     final iconColor = _getCategoryColor(category.name);
     final iconBgColor = _getCategoryBgColor(category.name);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       margin: EdgeInsets.only(bottom: 10.h),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? context.colors.backgroundSecondary : Colors.white,
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: context.colors.borderLight),
       ),
       child: Column(
         children: [
@@ -483,7 +508,7 @@ class _PartnerDiscountsSectionState extends State<PartnerDiscountsSection> {
                     duration: const Duration(milliseconds: 200),
                     child: Icon(
                       Icons.keyboard_arrow_down_rounded,
-                      color: const Color(0xFF94A3B8),
+                      color: context.colors.textTertiary,
                       size: 22.r,
                     ),
                   ),
@@ -495,16 +520,24 @@ class _PartnerDiscountsSectionState extends State<PartnerDiscountsSection> {
                       vertical: 4.h,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFF7ED),
+                      color: isDark
+                          ? const Color(0xFF351A0E)
+                          : const Color(0xFFFFF7ED),
                       borderRadius: BorderRadius.circular(20.r),
-                      border: Border.all(color: const Color(0xFFFFEDD5)),
+                      border: Border.all(
+                        color: isDark
+                            ? const Color(0xFF63290D)
+                            : const Color(0xFFFFEDD5),
+                      ),
                     ),
                     child: Text(
                       'حتى ${category.maxDiscount.toInt()}%',
                       style: TextStyle(
                         fontSize: 10.sp,
                         fontWeight: FontWeight.w800,
-                        color: const Color(0xFFEA580C),
+                        color: isDark
+                            ? const Color(0xFFFB923C)
+                            : const Color(0xFFEA580C),
                       ),
                     ),
                   ),
@@ -519,7 +552,7 @@ class _PartnerDiscountsSectionState extends State<PartnerDiscountsSection> {
                           style: TextStyle(
                             fontSize: 13.sp,
                             fontWeight: FontWeight.w800,
-                            color: const Color(0xFF0F172A),
+                            color: context.colors.textPrimary,
                           ),
                           textAlign: TextAlign.right,
                         ),
@@ -529,7 +562,7 @@ class _PartnerDiscountsSectionState extends State<PartnerDiscountsSection> {
                           style: TextStyle(
                             fontSize: 10.sp,
                             fontWeight: FontWeight.w600,
-                            color: const Color(0xFF64748B),
+                            color: context.colors.textSecondary,
                           ),
                           textAlign: TextAlign.right,
                         ),
@@ -542,7 +575,9 @@ class _PartnerDiscountsSectionState extends State<PartnerDiscountsSection> {
                     width: 42.r,
                     height: 42.r,
                     decoration: BoxDecoration(
-                      color: iconBgColor,
+                      color: isDark
+                          ? iconColor.withValues(alpha: 0.18)
+                          : iconBgColor,
                       borderRadius: BorderRadius.circular(12.r),
                     ),
                     child: Center(
@@ -560,14 +595,17 @@ class _PartnerDiscountsSectionState extends State<PartnerDiscountsSection> {
             child: isExpanded
                 ? Column(
                     children: [
-                      const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                      Divider(height: 1, color: context.colors.divider),
                       if (category.merchants.isNotEmpty) ...[
                         ...category.merchants.map(
                           (merchant) => InkWell(
                             onTap: () {
                               if (merchant.id.isNotEmpty) {
                                 context.push(
-                                  '${AppRoutes.merchants}/${merchant.id}',
+                                  AppRoutes.merchantDetails.replaceFirst(
+                                    ':merchantId',
+                                    merchant.id,
+                                  ),
                                 );
                               }
                             },
@@ -586,14 +624,14 @@ class _PartnerDiscountsSectionState extends State<PartnerDiscountsSection> {
                               Icon(
                                 Icons.storefront_outlined,
                                 size: 16.r,
-                                color: const Color(0xFF94A3B8),
+                                color: context.colors.textTertiary,
                               ),
                               SizedBox(width: 6.w),
                               Text(
                                 'خصومات ${category.name} متاحة لدى التجار الشركاء',
                                 style: TextStyle(
                                   fontSize: 10.sp,
-                                  color: const Color(0xFF64748B),
+                                  color: context.colors.textSecondary,
                                 ),
                               ),
                             ],

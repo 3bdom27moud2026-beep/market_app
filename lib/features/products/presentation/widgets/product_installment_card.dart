@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:market/core/constants/app_spacing.dart';
 import 'package:market/core/constants/app_styles.dart';
+import 'package:market/core/extensions/context_extensions.dart';
 import 'package:market/features/products/domain/entities/product_entity.dart';
 
 /// Card widget displaying installment options matching the design in the screenshot.
@@ -29,10 +30,11 @@ class ProductInstallmentCard extends StatelessWidget {
         ? product.installmentPartner
         : 'مايلو';
 
-    const Color roseBg = Color(0xFFFFF0F5);
-    const Color roseBorder = Color(0xFFFCE7EC);
-    const Color berryPrimary = Color(0xFFC2185B);
-    const Color darkText = Color(0xFF101828);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color roseBg = isDark ? const Color(0xFF24151C) : const Color(0xFFFFF0F5);
+    final Color roseBorder = isDark ? const Color(0xFF4A1F31) : const Color(0xFFFCE7EC);
+    final Color berryPrimary = isDark ? const Color(0xFFF472B6) : const Color(0xFFC2185B);
+    final Color darkText = isDark ? context.colors.textPrimary : const Color(0xFF101828);
 
     return InkWell(
       onTap: onPlansTap ?? () => _showInstallmentPlansBottomSheet(context, partner, monthlyPrice),
@@ -134,7 +136,7 @@ class ProductInstallmentCard extends StatelessWidget {
       builder: (ctx) => Container(
         padding: EdgeInsets.all(AppSpacing.lg.r),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.colors.surface,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
         ),
         child: Column(
@@ -149,11 +151,11 @@ class ProductInstallmentCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.bold,
-                    color: const Color(0xFF101828),
+                    color: context.colors.textPrimary,
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close),
+                  icon: Icon(Icons.close, color: context.colors.textPrimary),
                   onPressed: () => Navigator.pop(ctx),
                 ),
               ],
@@ -163,7 +165,7 @@ class ProductInstallmentCard extends StatelessWidget {
               'يمكنك تقسيط مشترياتك عبر $partner بخطط ميسرة تبدأ من ${minMonthly.toStringAsFixed(0)} ج.م شهرياً وبدون فوائد لفترات مختارة.',
               style: TextStyle(
                 fontSize: 13.sp,
-                color: const Color(0xFF475467),
+                color: context.colors.textSecondary,
                 height: 1.5,
               ),
             ),

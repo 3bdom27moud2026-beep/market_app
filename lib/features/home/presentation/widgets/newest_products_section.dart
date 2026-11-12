@@ -20,6 +20,8 @@ class NewestProductsSection extends StatelessWidget {
   final Function(NewestFilter) onFilterChanged;
   final void Function(String productId)? onProductTap;
   final void Function(String productId, String title)? onAddToCart;
+  final void Function(String productId)? onFavoriteTap;
+  final Set<String> favoriteProductIds;
   final VoidCallback? onViewAllTap;
 
   const NewestProductsSection({
@@ -29,6 +31,8 @@ class NewestProductsSection extends StatelessWidget {
     required this.onFilterChanged,
     this.onProductTap,
     this.onAddToCart,
+    this.onFavoriteTap,
+    this.favoriteProductIds = const {},
     this.onViewAllTap,
   });
 
@@ -92,17 +96,20 @@ class NewestProductsSection extends StatelessWidget {
               physics: const NeverScrollableScrollPhysics(),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                childAspectRatio: 0.65,
+                childAspectRatio: 0.62,
                 crossAxisSpacing: AppSpacing.md.w,
                 mainAxisSpacing: AppSpacing.md.h,
               ),
               itemCount: products.length,
               itemBuilder: (context, index) {
                 final product = products[index];
+                final isFav = favoriteProductIds.contains(product.id) ||
+                    product.isFavorite;
                 return NewestProductCard(
                   product: product,
+                  isFavorite: isFav,
                   onCartTap: () => onProductTap?.call(product.id),
-                  onFavoriteTap: () {},
+                  onFavoriteTap: () => onFavoriteTap?.call(product.id),
                   onDetailsTap: () => onProductTap?.call(product.id),
                 );
               },

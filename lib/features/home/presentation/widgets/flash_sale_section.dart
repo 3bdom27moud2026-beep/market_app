@@ -15,6 +15,8 @@ class FlashSaleSection extends StatelessWidget {
   final Duration timerDuration;
   final void Function(String productId)? onProductTap;
   final void Function(String productId, String title)? onAddToCart;
+  final void Function(String productId)? onFavoriteTap;
+  final Set<String> favoriteProductIds;
   final VoidCallback? onViewAllTap;
 
   const FlashSaleSection({
@@ -23,6 +25,8 @@ class FlashSaleSection extends StatelessWidget {
     required this.timerDuration,
     this.onProductTap,
     this.onAddToCart,
+    this.onFavoriteTap,
+    this.favoriteProductIds = const {},
     this.onViewAllTap,
   });
 
@@ -185,7 +189,7 @@ class FlashSaleSection extends StatelessWidget {
                     const _EmptyState()
                   else
                     SizedBox(
-                      height: 300.h,
+                      height: 295.h,
 
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
@@ -195,8 +199,11 @@ class FlashSaleSection extends StatelessWidget {
                           final product = products[index];
                           return FlashSaleProductCard(
                             product: product,
+                            isFavorite:
+                                favoriteProductIds.contains(product.id),
                             onCartTap: () => onProductTap?.call(product.id),
-                            onFavoriteTap: () {},
+                            onFavoriteTap: () =>
+                                onFavoriteTap?.call(product.id),
                             onDetailsTap: () => onProductTap?.call(product.id),
                           );
                         },

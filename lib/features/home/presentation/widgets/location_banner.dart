@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:market/core/constants/app_colors.dart';
 import 'package:market/core/extensions/context_extensions.dart';
 import 'package:market/core/constants/app_spacing.dart';
 import 'package:market/core/constants/app_text_styles.dart';
@@ -15,6 +16,8 @@ class LocationBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Padding(
       padding: EdgeInsets.symmetric(vertical: AppSpacing.lg.h),
       child: InkWell(
@@ -55,7 +58,7 @@ class LocationBanner extends StatelessWidget {
                     selectedLocation ?? 'حدد موقعك لتصفية العروض...',
                     style: AppTextStyles.locationText.copyWith(
                       fontSize: 12.sp,
-                      color: context.colors.primary,
+                      color: isDark ? AppColors.white : AppColors.darkCard,
                     ),
                   ),
                 ],
@@ -65,7 +68,7 @@ class LocationBanner extends StatelessWidget {
                 Icons.arrow_forward_ios,
                 color: context.colors.textTertiary,
                 size: 12.r,
-              ),
+              ),  
             ],
           ),
         ),

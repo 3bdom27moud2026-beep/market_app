@@ -1,50 +1,91 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:market/core/extensions/context_extensions.dart';
-import 'package:market/core/constants/app_spacing.dart';
 import 'package:market/core/constants/app_text_styles.dart';
 
-/// Search bar widget for the home screen.
-///
-/// Tapping navigates to the search screen.
+/// Search bar widget matching the brand design mockup:
+/// - Pill-shaped white container
+/// - Magnifying glass search icon on the left
+/// - Arabic placeholder text in the middle
+/// - Vertical divider and filter sliders icon on the right
 class HomeSearchBar extends StatelessWidget {
   final VoidCallback? onTap;
+  final VoidCallback? onFilterTap;
 
-  const HomeSearchBar({super.key, this.onTap});
+  const HomeSearchBar({
+    super.key,
+    this.onTap,
+    this.onFilterTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg.w,
-        vertical: AppSpacing.sm.h,
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppSpacing.sm.r),
-        child: Container(
-          height: 48.h,
-          decoration: BoxDecoration(
-            color: context.colors.backgroundSecondary,
-            borderRadius: BorderRadius.circular(AppSpacing.sm.r),
-          ),
-          padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg.w),
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        height: 48.h,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 8.r,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        padding: EdgeInsets.symmetric(horizontal: 14.w),
+        child: Directionality(
+          textDirection: TextDirection.ltr,
           child: Row(
             children: [
+              // Search icon on the left
               Icon(
                 Icons.search,
-                color: context.colors.textQuaternary,
+                color: const Color(0xFF9CA3AF),
                 size: 22.r,
               ),
-              SizedBox(width: AppSpacing.sm.w),
+              SizedBox(width: 8.w),
+
+              // Placeholder text (Arabic RTL)
               Expanded(
-                child: Text(
-                  'ابحث عن المنتجات، الخدمات، أو المتاجر...',
-                  style: AppTextStyles.searchHint.copyWith(
-                    fontSize: 12.sp,
-                    color: context.colors.textQuaternary,
+                child: Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: Text(
+                    'ابحث عن منتج، خدمة، عقار أو أي شيء تحتاجه...',
+                    style: TextStyle(
+                      fontFamily: AppTextStyles.fontFamily,
+                      fontSize: 11.5.sp,
+                      color: const Color(0xFF6B7280),
+                      fontWeight: FontWeight.w400,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
-                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              SizedBox(width: 8.w),
+
+              // Thin vertical divider line
+              Container(
+                height: 18.h,
+                width: 1.w,
+                color: const Color(0xFFE5E7EB),
+              ),
+              SizedBox(width: 8.w),
+
+              // Filter sliders icon on the right
+              GestureDetector(
+                onTap: onFilterTap ?? onTap,
+                behavior: HitTestBehavior.opaque,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
+                  child: Icon(
+                    Icons.tune_rounded,
+                    color: const Color(0xFF0F2B48),
+                    size: 20.r,
+                  ),
                 ),
               ),
             ],

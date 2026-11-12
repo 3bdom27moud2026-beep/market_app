@@ -264,6 +264,19 @@ abstract final class AppRouter {
           },
         ),
 
+        // Alias for Merchant Details (/merchants/:merchantId)
+        GoRoute(
+          path: '/merchants/:merchantId',
+          parentNavigatorKey: rootNavigatorKey,
+          builder: (context, state) {
+            final merchantId = state.pathParameters['merchantId'] ?? '';
+            return BlocProvider<MerchantDetailsCubit>(
+              create: (_) => MerchantsDI.createMerchantDetailsCubit(),
+              child: MerchantDetailsScreen(merchantId: merchantId),
+            );
+          },
+        ),
+
         // Category Products Screen (no bottom nav)
         GoRoute(
           path: AppRoutes.categoryProducts,

@@ -19,6 +19,8 @@ class CheckoutButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
       decoration: BoxDecoration(
@@ -59,7 +61,9 @@ class CheckoutButton extends StatelessWidget {
                     style: AppStyles.priceStyle(
                       fontSize: 16.sp,
                       fontWeight: AppStyles.semiBold,
-                      color: context.colors.primaryDark,
+                      color: isDark
+                          ? context.colors.textPrimary
+                          : context.colors.primaryDark,
                     ),
                   ),
                 ),

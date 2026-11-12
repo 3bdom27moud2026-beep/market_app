@@ -183,17 +183,18 @@ class _ReviewsSectionWidgetState extends State<ReviewsSectionWidget> {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
       padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: const Color(0xFFEAECF0)),
+        border: Border.all(color: colors.borderLight),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: colors.shadowLight,
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -215,7 +216,7 @@ class _ReviewsSectionWidgetState extends State<ReviewsSectionWidget> {
                         style: TextStyle(
                           fontSize: 14.5.sp,
                           fontWeight: FontWeight.bold,
-                          color: const Color(0xFF101828),
+                          color: colors.textPrimary,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -229,7 +230,7 @@ class _ReviewsSectionWidgetState extends State<ReviewsSectionWidget> {
                           vertical: 2.h,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFEF0C7),
+                          color: isDark ? const Color(0xFF38260F) : const Color(0xFFFEF0C7),
                           borderRadius: BorderRadius.circular(12.r),
                         ),
                         child: Text(
@@ -237,7 +238,7 @@ class _ReviewsSectionWidgetState extends State<ReviewsSectionWidget> {
                           style: TextStyle(
                             fontSize: 11.sp,
                             fontWeight: FontWeight.bold,
-                            color: const Color(0xFFB54708),
+                            color: isDark ? const Color(0xFFFDBA74) : const Color(0xFFB54708),
                           ),
                         ),
                       ),
@@ -268,10 +269,10 @@ class _ReviewsSectionWidgetState extends State<ReviewsSectionWidget> {
                         vertical: 5.h,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFE8F5E9),
+                        color: isDark ? const Color(0xFF14301B) : const Color(0xFFE8F5E9),
                         borderRadius: BorderRadius.circular(20.r),
                         border: Border.all(
-                          color: const Color(0xFFA5D6A7),
+                          color: isDark ? const Color(0xFF1E4D2B) : const Color(0xFFA5D6A7),
                         ),
                       ),
                       child: Row(
@@ -280,7 +281,7 @@ class _ReviewsSectionWidgetState extends State<ReviewsSectionWidget> {
                           Icon(
                             Icons.check_circle_rounded,
                             size: 13.r,
-                            color: const Color(0xFF2E7D32),
+                            color: isDark ? const Color(0xFF4ADE80) : const Color(0xFF2E7D32),
                           ),
                           SizedBox(width: 4.w),
                           Text(
@@ -288,7 +289,7 @@ class _ReviewsSectionWidgetState extends State<ReviewsSectionWidget> {
                             style: TextStyle(
                               fontSize: 11.5.sp,
                               fontWeight: FontWeight.bold,
-                              color: const Color(0xFF2E7D32),
+                              color: isDark ? const Color(0xFF4ADE80) : const Color(0xFF2E7D32),
                             ),
                           ),
                         ],
@@ -306,7 +307,7 @@ class _ReviewsSectionWidgetState extends State<ReviewsSectionWidget> {
                       vertical: 6.h,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF0F4F8),
+                      color: isDark ? colors.backgroundSecondary : const Color(0xFFF0F4F8),
                       borderRadius: BorderRadius.circular(20.r),
                     ),
                     child: Row(
@@ -315,7 +316,7 @@ class _ReviewsSectionWidgetState extends State<ReviewsSectionWidget> {
                         Icon(
                           Icons.rate_review_outlined,
                           size: 14.r,
-                          color: colors.primary,
+                          color: isDark ? const Color(0xFF60A5FA) : colors.primary,
                         ),
                         SizedBox(width: 4.w),
                         Text(
@@ -323,7 +324,7 @@ class _ReviewsSectionWidgetState extends State<ReviewsSectionWidget> {
                           style: TextStyle(
                             fontSize: 12.sp,
                             fontWeight: FontWeight.bold,
-                            color: colors.primary,
+                            color: isDark ? const Color(0xFF60A5FA) : colors.primary,
                           ),
                         ),
                       ],
@@ -339,7 +340,7 @@ class _ReviewsSectionWidgetState extends State<ReviewsSectionWidget> {
               child: Padding(
                 padding: const EdgeInsets.all(AppSpacing.lg),
                 child: CircularProgressIndicator(
-                  color: colors.primary,
+                  color: isDark ? const Color(0xFF60A5FA) : colors.primary,
                   strokeWidth: 2,
                 ),
               ),
@@ -358,7 +359,7 @@ class _ReviewsSectionWidgetState extends State<ReviewsSectionWidget> {
               // Clean simplified rating summary
               _buildRatingSummary(_reviewsData!),
               SizedBox(height: 14.h),
-              Divider(color: const Color(0xFFEAECF0), height: 1),
+              Divider(color: colors.divider, height: 1),
               SizedBox(height: 10.h),
               // Reviews List
               ListView.separated(
@@ -366,7 +367,7 @@ class _ReviewsSectionWidgetState extends State<ReviewsSectionWidget> {
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: _reviewsData!.reviews.length,
                 separatorBuilder: (_, _) =>
-                    Divider(color: const Color(0xFFF2F4F7), height: 16.h),
+                    Divider(color: colors.divider, height: 16.h),
                 itemBuilder: (context, index) {
                   return _buildReviewTile(_reviewsData!.reviews[index]);
                 },
@@ -379,13 +380,16 @@ class _ReviewsSectionWidgetState extends State<ReviewsSectionWidget> {
   }
 
   Widget _buildEmptyState() {
+    final colors = context.colors;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: 22.h, horizontal: 16.w),
       decoration: BoxDecoration(
-        color: const Color(0xFFFAFAFA),
+        color: isDark ? colors.backgroundSecondary : const Color(0xFFFAFAFA),
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: const Color(0xFFF2F4F7)),
+        border: Border.all(color: colors.borderLight),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -393,13 +397,13 @@ class _ReviewsSectionWidgetState extends State<ReviewsSectionWidget> {
           Container(
             width: 44.r,
             height: 44.r,
-            decoration: const BoxDecoration(
-              color: Color(0xFFFEF0C7),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF38260F) : const Color(0xFFFEF0C7),
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.star_rounded,
-              color: const Color(0xFFF59E0B),
+              color: isDark ? const Color(0xFFFDBA74) : const Color(0xFFF59E0B),
               size: 24.r,
             ),
           ),
@@ -409,7 +413,7 @@ class _ReviewsSectionWidgetState extends State<ReviewsSectionWidget> {
             style: TextStyle(
               fontSize: 13.5.sp,
               fontWeight: FontWeight.bold,
-              color: const Color(0xFF101828),
+              color: colors.textPrimary,
             ),
           ),
           SizedBox(height: 4.h),
@@ -417,7 +421,7 @@ class _ReviewsSectionWidgetState extends State<ReviewsSectionWidget> {
             'كن أول من يشارك رأيه وتجربته مع هذا المنتج!',
             style: TextStyle(
               fontSize: 12.sp,
-              color: const Color(0xFF667085),
+              color: colors.textSecondary,
             ),
             textAlign: TextAlign.center,
           ),
@@ -434,7 +438,7 @@ class _ReviewsSectionWidgetState extends State<ReviewsSectionWidget> {
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: context.colors.primary,
+                backgroundColor: isDark ? const Color(0xFF1D4ED8) : context.colors.primary,
                 foregroundColor: Colors.white,
                 padding: EdgeInsets.symmetric(
                   horizontal: 16.w,
@@ -453,12 +457,15 @@ class _ReviewsSectionWidgetState extends State<ReviewsSectionWidget> {
   }
 
   Widget _buildRatingSummary(ReviewsResponseModel data) {
+    final colors = context.colors;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: EdgeInsets.all(12.r),
       decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
+        color: isDark ? colors.backgroundSecondary : const Color(0xFFF9FAFB),
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: const Color(0xFFEAECF0)),
+        border: Border.all(color: colors.borderLight),
       ),
       child: Row(
         children: [
@@ -471,7 +478,7 @@ class _ReviewsSectionWidgetState extends State<ReviewsSectionWidget> {
                 style: TextStyle(
                   fontSize: 24.sp,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF101828),
+                  color: colors.textPrimary,
                 ),
               ),
               SizedBox(width: 4.w),
@@ -486,7 +493,7 @@ class _ReviewsSectionWidgetState extends State<ReviewsSectionWidget> {
           Container(
             height: 28.h,
             width: 1,
-            color: const Color(0xFFEAECF0),
+            color: colors.divider,
           ),
           SizedBox(width: 14.w),
           Expanded(
@@ -509,7 +516,7 @@ class _ReviewsSectionWidgetState extends State<ReviewsSectionWidget> {
                   'بناءً على ${data.reviewCount} تقييم من المشترين',
                   style: TextStyle(
                     fontSize: 11.5.sp,
-                    color: const Color(0xFF667085),
+                    color: colors.textSecondary,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -525,13 +532,19 @@ class _ReviewsSectionWidgetState extends State<ReviewsSectionWidget> {
     final colors = context.colors;
     final isCurrentUser = _isCurrentUserReview(review);
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: isCurrentUser ? const EdgeInsets.all(AppSpacing.sm) : null,
       decoration: isCurrentUser
           ? BoxDecoration(
-              color: colors.primary.withValues(alpha: 0.04),
+              color: (isDark ? const Color(0xFF60A5FA) : colors.primary)
+                  .withValues(alpha: isDark ? 0.12 : 0.04),
               borderRadius: BorderRadius.circular(AppSpacing.sm),
-              border: Border.all(color: colors.primary.withValues(alpha: 0.15)),
+              border: Border.all(
+                color: (isDark ? const Color(0xFF60A5FA) : colors.primary)
+                    .withValues(alpha: isDark ? 0.25 : 0.15),
+              ),
             )
           : null,
       child: Column(
@@ -541,13 +554,14 @@ class _ReviewsSectionWidgetState extends State<ReviewsSectionWidget> {
             children: [
               CircleAvatar(
                 radius: 16.r,
-                backgroundColor: colors.primary.withValues(alpha: 0.1),
+                backgroundColor: (isDark ? const Color(0xFF60A5FA) : colors.primary)
+                    .withValues(alpha: isDark ? 0.2 : 0.1),
                 child: Text(
                   review.userName.isNotEmpty ? review.userName[0] : 'ع',
                   style: TextStyle(
                     fontSize: 13.sp,
                     fontWeight: FontWeight.bold,
-                    color: colors.primary,
+                    color: isDark ? const Color(0xFF93C5FD) : colors.primary,
                   ),
                 ),
               ),
@@ -585,7 +599,9 @@ class _ReviewsSectionWidgetState extends State<ReviewsSectionWidget> {
                               style: TextStyle(
                                 fontSize: 10.sp,
                                 fontWeight: FontWeight.bold,
-                                color: colors.primary,
+                                color: isDark
+                                    ? const Color(0xFF93C5FD)
+                                    : colors.primary,
                               ),
                             ),
                           ),

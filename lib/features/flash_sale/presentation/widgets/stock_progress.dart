@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:market/core/constants/app_colors.dart';
 
 /// Stock progress bar showing remaining quantity.
 class StockProgress extends StatelessWidget {
@@ -14,6 +15,7 @@ class StockProgress extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -33,7 +35,7 @@ class StockProgress extends StatelessWidget {
           style: TextStyle(
             fontSize: 7.5.sp,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF183B64),
+            color: isDark ? AppColors.white : AppColors.darkCard,
           ),
         ),
       ],

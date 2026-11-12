@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:market/core/extensions/context_extensions.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:market/core/constants/app_colors.dart';
 import 'package:market/core/constants/app_shadows.dart';
 import 'package:market/core/constants/app_styles.dart';
+import 'package:market/core/constants/app_text_styles.dart';
+import 'package:market/core/extensions/context_extensions.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:market/features/home/domain/entities/newest_product_entity.dart';
 
-/// Card widget for a product in the newest products grid.
+/// Card widget for a product in the newest products grid matching the new brand mockup design.
 class NewestProductCard extends StatelessWidget {
   final NewestProductEntity product;
+  final bool isFavorite;
   final VoidCallback? onCartTap;
   final VoidCallback? onFavoriteTap;
   final VoidCallback? onDetailsTap;
@@ -16,6 +19,7 @@ class NewestProductCard extends StatelessWidget {
   const NewestProductCard({
     super.key,
     required this.product,
+    this.isFavorite = false,
     this.onCartTap,
     this.onFavoriteTap,
     this.onDetailsTap,
@@ -23,246 +27,388 @@ class NewestProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Format discount text
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Format discount text (e.g. "35%")
     String? discountText;
     if (product.discount.isNotEmpty) {
-      discountText = product.discount.startsWith('-')
-          ? product.discount
-          : '-${product.discount}';
+      discountText = product.discount.replaceAll('-', '').trim();
       if (!discountText.endsWith('%')) {
         discountText = '$discountText%';
       }
     }
 
-    return GestureDetector(
-      onTap: onDetailsTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: context.colors.surface,
-          borderRadius: BorderRadius.circular(16.r),
-          boxShadow: AppShadows.productCard,
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Image
-            SizedBox(
-              height: 150.h,
-              child: Stack(
-                children: [
-                  Positioned.fill(
-                    child: CachedNetworkImage(
-                      imageUrl: product.image,
-                      fit: BoxFit.cover,
-                      memCacheWidth: 350,
-                      memCacheHeight: 350,
-                      maxWidthDiskCache: 600,
-                      maxHeightDiskCache: 600,
-                      placeholder: (_, _) =>
-                          Container(color: context.colors.backgroundSecondary),
-                      errorWidget: (_, _, _) => Container(
-                        color: context.colors.backgroundSecondary,
-                        child: Icon(
-                          Icons.image,
-                          color: context.colors.textQuaternary,
+    final bool hasOldPrice =
+        product.oldPrice > product.price && product.oldPrice > 0;
+    final double savings = hasOldPrice ? (product.oldPrice - product.price) : 0;
+
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: GestureDetector(
+        onTap: onDetailsTap,
+        child: Container(
+          decoration: BoxDecoration(
+            color: context.colors.surface,
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(
+              color: isDark
+                  ? context.colors.border.withValues(alpha: 0.3)
+                  : const Color(0xFFF1F5F9),
+              width: 1,
+            ),
+            boxShadow: AppShadows.productCard,
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // ── 1. Top Image Section ─────────────────────────────────────
+              SizedBox(
+                height: 120.h,
+                child: Stack(
+                  children: [
+                    // Product Image (cover with smooth rounded top corners)
+                    Positioned.fill(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(15.r),
                         ),
-                      ),
-                    ),
-                  ),
-                  // Favorite button
-                  Positioned(
-                    top: 8.h,
-                    right: 8.w,
-                    child: InkWell(
-                      onTap: onFavoriteTap,
-                      child: Container(
-                        padding: EdgeInsets.all(4.r),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.85),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          product.isFavorite
-                              ? Icons.favorite
-                              : Icons.favorite_border,
-                          color: product.isFavorite
-                              ? context.colors.heartRed
-                              : const Color(0xFF90A4AE),
-                          size: 18.r,
-                        ),
-                      ),
-                    ),
-                  ),
-                  // Discount badge
-                  if (discountText != null)
-                    Positioned(
-                      top: 8.h,
-                      left: 8.w,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 8.w,
-                          vertical: 3.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF183B64),
-                          borderRadius: BorderRadius.circular(6.r),
-                        ),
-                        child: Text(
-                          discountText,
-                          style: TextStyle(
-                            color: context.colors.textOnPrimary,
-                            fontSize: 10.sp,
-                            fontWeight: FontWeight.w900,
+                        child: CachedNetworkImage(
+                          imageUrl: product.image,
+                          fit: BoxFit.cover,
+                          memCacheWidth: 400,
+                          memCacheHeight: 400,
+                          maxWidthDiskCache: 600,
+                          maxHeightDiskCache: 600,
+                          placeholder: (_, _) => Container(
+                            color: context.colors.backgroundSecondary,
+                          ),
+                          errorWidget: (_, _, _) => Container(
+                            color: context.colors.backgroundSecondary,
+                            child: Icon(
+                              Icons.image_outlined,
+                              color: context.colors.textQuaternary,
+                              size: 28.r,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  Positioned(
-                    bottom: 4.h,
-                    left: 8.w,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: context.colors.background,
-                        borderRadius: BorderRadius.circular(6.r),
-                      ),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 8.w,
-                        vertical: 3.h,
-                      ),
-                      child: Row(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                product.rating.toStringAsFixed(1),
-                                style: TextStyle(
-                                  color: context.colors.textSecondary,
-                                  fontSize: 13.sp,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              SizedBox(width: 2.w),
-                              Icon(
-                                Icons.star_rounded,
-                                size: 14.r,
-                                color: const Color(0xFFFFB800),
+
+                    // Discount Badge (Top-Left)
+                    if (discountText != null)
+                      Positioned(
+                        top: 8.h,
+                        left: 8.w,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 7.w,
+                            vertical: 3.h,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE53935),
+                            borderRadius: BorderRadius.circular(12.r),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.15),
+                                blurRadius: 4,
+                                offset: const Offset(0, 1),
                               ),
                             ],
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            // Details
-            Padding(
-              padding: EdgeInsets.fromLTRB(10.w, 6.h, 10.w, 10.h),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Title
-                  Text(
-                    product.title,
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                      color: context.colors.textPrimary,
-                      fontSize: 10.5.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  SizedBox(height: 10.h),
-
-                  // Store
-                  if (product.store.isNotEmpty) ...[
-                    Text(
-                      product.store,
-                      textAlign: TextAlign.start,
-                      style: TextStyle(
-                        color: context.colors.textSecondary,
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: 2.h),
-                  ],
-
-                  // Rating
-                  SizedBox(height: 15.h),
-
-                  // Price & Cart Button
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      // Cart button
-
-                      // Price
-                      Flexible(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Text(
-                                '${product.price.toStringAsFixed(0)} ج.م',
-                                style: AppStyles.priceMedium.copyWith(
-                                  color: context.colors.primary,
-                                ),
-                              ),
+                          child: Text(
+                            discountText,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10.sp,
+                              fontWeight: FontWeight.w800,
                             ),
-                            if (product.oldPrice > product.price &&
-                                product.oldPrice > 0)
-                              FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: Text(
-                                  '${product.oldPrice.toStringAsFixed(0)} ج.م',
-                                  style: AppStyles.priceStyle(
-                                    fontSize: 13.sp,
-                                    fontWeight: AppStyles.semiBold,
-                                    color: context.colors.textTertiary,
-                                    decoration: TextDecoration.lineThrough,
-                                    decorationColor:
-                                        context.colors.textTertiary,
-                                  ),
-                                ),
-                              ),
-                          ],
+                          ),
                         ),
                       ),
 
+                    // Favorite Button (Top-Right)
+                    Positioned(
+                      top: 8.h,
+                      right: 8.w,
+                      child: GestureDetector(
+                        onTap: onFavoriteTap,
+                        behavior: HitTestBehavior.opaque,
+                        child: Container(
+                          width: 28.r,
+                          height: 28.r,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.08),
+                                blurRadius: 4.r,
+                                offset: const Offset(0, 1),
+                              ),
+                            ],
+                          ),
+                          child: Center(
+                            child: Icon(
+                              (isFavorite || product.isFavorite)
+                                  ? Icons.favorite_rounded
+                                  : Icons.favorite_border_rounded,
+                              color: (isFavorite || product.isFavorite)
+                                  ? const Color(0xFFE53935)
+                                  : const Color(0xFF1E293B),
+                              size: 15.r,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // Rating Badge (Bottom-Left)
+                    if (product.rating > 0)
+                      Positioned(
+                        bottom: 8.h,
+                        left: 8.w,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 6.w,
+                            vertical: 2.h,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.95),
+                            borderRadius: BorderRadius.circular(10.r),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.08),
+                                blurRadius: 3.r,
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.star_rounded,
+                                size: 12.r,
+                                color: const Color(0xFFFFB800),
+                              ),
+                              SizedBox(width: 2.w),
+                              Text(
+                                product.rating.toStringAsFixed(1),
+                                style: TextStyle(
+                                  fontFamily: AppStyles.priceFontFamily,
+                                  fontSize: 10.sp,
+                                  fontWeight: FontWeight.bold,
+                                  color: const Color(0xFF1E293B),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+
+              // ── 2. Card Content Details (Expanded) ───────────────────────
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(10.w, 6.h, 10.w, 10.h),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Upper block: Title, Store, Prices
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Title (2 lines max for consistency)
+                          SizedBox(
+                            height: 32.h,
+                            child: Text(
+                              product.title.trim(),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontFamily: AppTextStyles.fontFamily,
+                                color: isDark
+                                    ? AppColors.white
+                                    : AppColors.darkCard,
+                                fontSize: 10.sp,
+                                fontWeight: FontWeight.bold,
+                                height: 1.2,
+                              ),
+                            ),
+                          ),
+
+                          // Store Subtitle
+                          if (product.store.isNotEmpty) ...[
+                            SizedBox(height: 2.h),
+                            SizedBox(
+                              height: 20.h,
+                              child: Text(
+                                product.store.trim(),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontFamily: AppTextStyles.fontFamily,
+                                  color: context.colors.textTertiary,
+                                  fontSize: 10.sp,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ),
+                          ],
+
+                          SizedBox(height: 6.h),
+
+                          // Regular Price Row (Old Price Strike-through)
+                          SizedBox(
+                            height: 30.h,
+                            child: hasOldPrice
+                                ? FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    alignment: AlignmentDirectional.centerStart,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          product.oldPrice.toStringAsFixed(0),
+                                          style: AppStyles.priceStyle(
+                                            fontSize: 11.sp,
+                                            fontWeight: FontWeight.w600,
+                                            color: isDark
+                                                ? const Color(0xFF94A3B8)
+                                                : const Color(0xFF64748B),
+                                            decoration:
+                                                TextDecoration.lineThrough,
+                                            decorationColor: isDark
+                                                ? const Color(0xFF94A3B8)
+                                                : const Color(0xFF64748B),
+                                          ),
+                                        ),
+                                        SizedBox(width: 4.w),
+                                        Text(
+                                          'جنيه سعر عادي',
+                                          style: TextStyle(
+                                            fontFamily:
+                                                AppTextStyles.fontFamily,
+                                            fontSize: 8.5.sp,
+                                            fontWeight: FontWeight.w400,
+                                            color: context.colors.textTertiary,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                : const SizedBox.shrink(),
+                          ),
+
+                          SizedBox(height: 1.h),
+
+                          // Member / Discount Price Row
+                          SizedBox(
+                            height: 18.h,
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: AlignmentDirectional.centerStart,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    product.price.toStringAsFixed(0),
+                                    style: AppStyles.priceStyle(
+                                      fontSize: 13.sp,
+                                      fontWeight: FontWeight.bold,
+                                      color: const Color(0xFF10B981),
+                                    ),
+                                  ),
+                                  SizedBox(width: 3.w),
+                                  Text(
+                                    'جنيه سعر مشترك',
+                                    style: TextStyle(
+                                      fontFamily: AppTextStyles.fontFamily,
+                                      fontSize: 9.sp,
+                                      fontWeight: FontWeight.bold,
+                                      color: const Color(0xFF10B981),
+                                    ),
+                                  ),
+                                  SizedBox(width: 3.w),
+                                  Icon(
+                                    Icons.check_circle_rounded,
+                                    color: const Color(0xFF10B981),
+                                    size: 12.r,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          SizedBox(height: 1.h),
+
+                          // Savings Row
+                          SizedBox(
+                            height: 14.h,
+                            child: (hasOldPrice && savings > 0)
+                                ? FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    alignment: AlignmentDirectional.centerStart,
+                                    child: Text(
+                                      'وفر ${savings.toStringAsFixed(0)} جنيه بمجرد اشتراكك',
+                                      style: TextStyle(
+                                        fontFamily: AppTextStyles.fontFamily,
+                                        fontSize: 8.5.sp,
+                                        fontWeight: FontWeight.w600,
+                                        color: context.colors.textTertiary,
+                                      ),
+                                    ),
+                                  )
+                                : const SizedBox.shrink(),
+                          ),
+                        ],
+                      ),
+
+                      // ── 3. Add to Cart Full-width Button (Pinned at Bottom) ───
                       GestureDetector(
                         onTap: onCartTap,
+                        behavior: HitTestBehavior.opaque,
                         child: Container(
-                          width: 32.r,
-                          height: 32.r,
+                          width: double.infinity,
+                          height: 32.h,
                           decoration: BoxDecoration(
-                            color: context.colors.primary,
+                            color: const Color(0xFF0F2B48),
                             borderRadius: BorderRadius.circular(8.r),
                           ),
-                          child: Icon(
-                            Icons.shopping_cart_outlined,
-                            color: context.colors.textOnPrimary,
-                            size: 16.r,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.shopping_cart_outlined,
+                                color: Colors.white,
+                                size: 13.r,
+                              ),
+                              SizedBox(width: 5.w),
+                              Text(
+                                'أضف الي السلة',
+                                style: TextStyle(
+                                  fontFamily: AppTextStyles.fontFamily,
+                                  color: Colors.white,
+                                  fontSize: 10.5.sp,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

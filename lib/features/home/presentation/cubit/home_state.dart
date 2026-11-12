@@ -29,6 +29,9 @@ class HomeState extends Equatable {
   /// Whether the current user is a member (has a discount card).
   final bool isMember;
 
+  /// IDs of favorited products across the home screen.
+  final Set<String> favoriteProductIds;
+
   const HomeState({
     this.loadingStatus = LoadingStatus.initial,
     this.errorMessage = '',
@@ -42,6 +45,7 @@ class HomeState extends Equatable {
     this.currentBannerIndex = 0,
     this.flashSaleTimer = Duration.zero,
     this.isMember = false,
+    this.favoriteProductIds = const {},
   });
 
   HomeState copyWith({
@@ -57,6 +61,7 @@ class HomeState extends Equatable {
     int? currentBannerIndex,
     Duration? flashSaleTimer,
     bool? isMember,
+    Set<String>? favoriteProductIds,
   }) {
     return HomeState(
       loadingStatus: loadingStatus ?? this.loadingStatus,
@@ -71,6 +76,7 @@ class HomeState extends Equatable {
       currentBannerIndex: currentBannerIndex ?? this.currentBannerIndex,
       flashSaleTimer: flashSaleTimer ?? this.flashSaleTimer,
       isMember: isMember ?? this.isMember,
+      favoriteProductIds: favoriteProductIds ?? this.favoriteProductIds,
     );
   }
 
@@ -88,5 +94,6 @@ class HomeState extends Equatable {
     currentBannerIndex,
     flashSaleTimer,
     isMember,
+    favoriteProductIds,
   ];
 }

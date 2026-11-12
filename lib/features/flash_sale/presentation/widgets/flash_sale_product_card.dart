@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:market/core/constants/app_colors.dart';
 import 'package:market/core/extensions/context_extensions.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
@@ -187,7 +188,9 @@ class FlashSaleProductCard extends StatelessWidget {
                                 child: Text(
                                   '${product.price.toStringAsFixed(0)} ج.م',
                                   style: AppStyles.priceSmall.copyWith(
-                                    color: context.colors.primary,
+                                    color: isDark
+                                        ? AppColors.white
+                                        : AppColors.darkCard,
                                   ),
                                 ),
                               ),

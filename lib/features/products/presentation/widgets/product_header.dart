@@ -21,6 +21,7 @@ class ProductHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final displayName = brand.isNotEmpty && brand != store
         ? '$store ($brand)'
         : store;
@@ -34,7 +35,7 @@ class ProductHeader extends StatelessWidget {
             displayName,
             style: TextStyle(
               fontSize: 12.sp,
-              color: context.colors.primary,
+              color: isDark ? const Color(0xFF93C5FD) : context.colors.primary,
               fontWeight: FontWeight.w600,
             ),
           ),

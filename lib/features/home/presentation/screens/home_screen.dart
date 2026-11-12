@@ -14,7 +14,6 @@ import 'package:market/features/auth/domain/usecases/check_auth_usecase.dart';
 import 'package:market/features/home/presentation/cubit/home_cubit.dart';
 import 'package:market/features/home/presentation/cubit/home_state.dart';
 import 'package:market/features/home/presentation/widgets/home_app_bar.dart';
-import 'package:market/features/home/presentation/widgets/home_search_bar.dart';
 import 'package:market/features/home/presentation/widgets/location_banner.dart';
 import 'package:market/features/home/presentation/widgets/offer_slider.dart';
 import 'package:market/features/home/presentation/widgets/flash_sale_section.dart';
@@ -96,6 +95,9 @@ class _HomeScreenState extends State<HomeScreen> {
               backgroundColor: context.colors.background,
               appBar: HomeAppBar(
                 cartItemCount: cartState.totalItemsCount,
+                showSearchBar: true,
+                onSearchTap: () => context.push(AppRoutes.search),
+                onFilterTap: () => context.push(AppRoutes.search),
                 onCartTap: () {
                   AuthHelper.ensureAuthenticated(
                     context,
@@ -156,6 +158,37 @@ class _HomeContent extends StatelessWidget {
     context.push('/product-details/$productId');
   }
 
+  Future<void> _handleToggleFavorite(
+    BuildContext context,
+    String productId,
+  ) async {
+    final checkAuth = CoreDI.sl<CheckAuthUseCase>();
+    if (!checkAuth()) {
+      final bool? loggedIn = await showAuthBottomSheet(context);
+      if (loggedIn != true || !context.mounted) return;
+    }
+
+    final result = await context.read<HomeCubit>().toggleFavorite(productId);
+    if (result != null && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            result ? 'تمت الإضافة إلى المفضلة ❤️' : 'تمت الإزالة من المفضلة',
+          ),
+          backgroundColor: result
+              ? context.colors.heartRed
+              : context.colors.textTertiary,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppSpacing.sm),
+          ),
+          margin: const EdgeInsets.all(AppSpacing.lg),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<HomeCubit>();
@@ -176,9 +209,6 @@ class _HomeContent extends StatelessWidget {
       physics: const AlwaysScrollableScrollPhysics(),
       child: Column(
         children: [
-          // Search Bar
-          HomeSearchBar(onTap: () => context.push(AppRoutes.search)),
-
           // Location Banner
           LocationBanner(
             selectedLocation: selectedLocationName,
@@ -212,6 +242,8 @@ class _HomeContent extends StatelessWidget {
           FlashSaleSection(
             products: sortedFlashSale,
             timerDuration: state.flashSaleTimer,
+            favoriteProductIds: state.favoriteProductIds,
+            onFavoriteTap: (id) => _handleToggleFavorite(context, id),
             onProductTap: (id) => _navigateToProductDetails(context, id),
             onAddToCart: (id, title) => _navigateToProductDetails(context, id),
             onViewAllTap: () =>
@@ -234,8 +266,9 @@ class _HomeContent extends StatelessWidget {
 
           // Best Sellers
           BestSellerSection(
-            
             products: sortedBestSellers,
+            favoriteProductIds: state.favoriteProductIds,
+            onFavoriteTap: (id) => _handleToggleFavorite(context, id),
             onProductTap: (id) => _navigateToProductDetails(context, id),
             onAddToCart: (id, title) => _navigateToProductDetails(context, id),
             onViewAllTap: () =>
@@ -321,6 +354,8 @@ class _HomeContent extends StatelessWidget {
           NewestProductsSection(
             products: sortedNewest,
             selectedFilter: state.selectedFilter,
+            favoriteProductIds: state.favoriteProductIds,
+            onFavoriteTap: (id) => _handleToggleFavorite(context, id),
             onFilterChanged: (filter) => cubit.changeNewestFilter(filter),
             onProductTap: (id) => _navigateToProductDetails(context, id),
             onAddToCart: (id, title) => _navigateToProductDetails(context, id),
@@ -408,17 +443,6 @@ class _HomeShimmerLoading extends StatelessWidget {
         physics: const NeverScrollableScrollPhysics(),
         child: Column(
           children: [
-            // Search bar placeholder
-            Padding(
-              padding: EdgeInsets.all(AppSpacing.lg.r),
-              child: Container(
-                height: 48.h,
-                decoration: BoxDecoration(
-                  color: context.colors.textOnPrimary,
-                  borderRadius: BorderRadius.circular(AppSpacing.xxl.r),
-                ),
-              ),
-            ),
             SizedBox(height: AppSpacing.sm.h),
             // Location banner placeholder
             Padding(

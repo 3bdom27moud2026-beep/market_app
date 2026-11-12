@@ -34,9 +34,9 @@ class DetailsBody extends StatelessWidget {
             tag: 'product_image_${product.id}',
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: context.colors.surface,
                 borderRadius: BorderRadius.circular(16.r),
-                border: Border.all(color: const Color(0xFFEAECF0)),
+                border: Border.all(color: context.colors.borderLight),
                 boxShadow: AppShadows.card,
               ),
               padding: EdgeInsets.all(10.r),
@@ -94,7 +94,7 @@ class DetailsBody extends StatelessWidget {
               decoration: BoxDecoration(
                 color: context.colors.surface,
                 borderRadius: BorderRadius.circular(14.r),
-                border: Border.all(color: const Color(0xFFEAECF0)),
+                border: Border.all(color: context.colors.borderLight),
                 boxShadow: AppShadows.card,
               ),
               child: Column(
@@ -103,7 +103,7 @@ class DetailsBody extends StatelessWidget {
                   Text(
                     'الوصف',
                     style: TextStyle(
-                      color: const Color(0xFF101828),
+                      color: context.colors.textPrimary,
                       fontSize: 15.sp,
                       fontWeight: FontWeight.bold,
                     ),
@@ -112,7 +112,7 @@ class DetailsBody extends StatelessWidget {
                   Text(
                     product.description,
                     style: TextStyle(
-                      color: const Color(0xFF475467),
+                      color: context.colors.textSecondary,
                       fontSize: 13.sp,
                       height: 1.5,
                     ),

@@ -141,12 +141,13 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
 
   @override
   Widget build(BuildContext context) {
+    const Color headerNavy = Color(0xFF0F2B48);
     final items = AppBottomNav.items;
     final colors = context.colors;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final activeColor = AppColors.brandOrange;
     final inactiveColor = AppColors.inactiveGrey;
-    final barBg = isDark ? AppColors.darkCard : AppColors.darkCard;
+    final barBg = headerNavy;
 
     final navHeight = math.min(68.0.h, 75.0);
     final bottomPadding = MediaQuery.paddingOf(context).bottom;

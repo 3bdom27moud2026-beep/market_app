@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:market/core/constants/constants.dart';
 import 'package:market/core/extensions/context_extensions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -259,7 +260,7 @@ class _OrdersContentState extends State<_OrdersContent> {
                     style: TextStyle(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.bold,
-                      color: context.colors.textPrimary,
+                      color: AppColors.darkCard,
                     ),
                   ),
                   SizedBox(height: 8.h),

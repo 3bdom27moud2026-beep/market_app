@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:market/core/extensions/context_extensions.dart';
 import 'package:market/core/constants/app_radius.dart';
@@ -50,6 +50,7 @@ class MerchantTile extends StatelessWidget {
               merchant.name,
               style: AppTextStyles.bodyMedium.copyWith(
                 fontWeight: FontWeight.w600,
+                color: context.colors.textPrimary,
               ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,

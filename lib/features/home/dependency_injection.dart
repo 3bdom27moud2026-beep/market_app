@@ -1,6 +1,7 @@
 import 'package:market/core/di/dependency_injection.dart';
 import 'package:market/core/utils/api_client.dart';
 import 'package:market/core/utils/cache_helper.dart';
+import 'package:market/features/favorites/domain/usecases/favorites_usecases.dart';
 import 'package:market/features/home/domain/repository/home_repository.dart';
 import 'package:market/features/home/domain/usecases/get_home_data.dart';
 import 'package:market/features/home/data/datasource/remote/home_remote_datasource.dart';
@@ -35,6 +36,14 @@ abstract final class HomeDI {
             as HomeRepository;
     final useCase = GetHomeData(repository: repository);
 
-    return HomeCubit(getHomeData: useCase);
+    ToggleFavoriteUseCase? toggleFavoriteUseCase;
+    if (CoreDI.sl.isRegistered<ToggleFavoriteUseCase>()) {
+      toggleFavoriteUseCase = CoreDI.sl<ToggleFavoriteUseCase>();
+    }
+
+    return HomeCubit(
+      getHomeData: useCase,
+      toggleFavoriteUseCase: toggleFavoriteUseCase,
+    );
   }
 }

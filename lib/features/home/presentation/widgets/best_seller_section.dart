@@ -17,6 +17,8 @@ class BestSellerSection extends StatelessWidget {
   final VoidCallback? onViewAllTap;
   final void Function(String productId)? onProductTap;
   final void Function(String productId, String title)? onAddToCart;
+  final void Function(String productId)? onFavoriteTap;
+  final Set<String> favoriteProductIds;
 
   const BestSellerSection({
     super.key,
@@ -24,6 +26,8 @@ class BestSellerSection extends StatelessWidget {
     this.onViewAllTap,
     this.onProductTap,
     this.onAddToCart,
+    this.onFavoriteTap,
+    this.favoriteProductIds = const {},
   });
 
   /// Sort best seller products based on the selected filter.
@@ -129,7 +133,7 @@ class BestSellerSection extends StatelessWidget {
             _EmptyState()
           else
             SizedBox(
-              height: 260.h,
+              height: 285.h,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: products.length,
@@ -137,7 +141,9 @@ class BestSellerSection extends StatelessWidget {
                   final product = products[index];
                   return BestSellerCard(
                     product: product,
+                    isFavorite: favoriteProductIds.contains(product.id),
                     onCartTap: () => onProductTap?.call(product.id),
+                    onFavoriteTap: () => onFavoriteTap?.call(product.id),
                     onDetailsTap: () => onProductTap?.call(product.id),
                   );
                 },

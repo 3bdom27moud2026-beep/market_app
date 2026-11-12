@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_initializing_formals
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:market/features/favorites/domain/usecases/favorites_usecases.dart';
 import '../../domain/usecases/get_home_data.dart';
 import 'home_state.dart';
 
@@ -10,13 +11,17 @@ import 'home_state.dart';
 /// home screen sections.
 class HomeCubit extends Cubit<HomeState> {
   final GetHomeData _getHomeData;
+  final ToggleFavoriteUseCase? _toggleFavoriteUseCase;
   Timer? _autoPlayTimer;
   Timer? _flashSaleTimer;
   int _timerSeconds = 0;
 
-  HomeCubit({required GetHomeData getHomeData})
-    : _getHomeData = getHomeData,
-      super(const HomeState());
+  HomeCubit({
+    required GetHomeData getHomeData,
+    ToggleFavoriteUseCase? toggleFavoriteUseCase,
+  })  : _getHomeData = getHomeData,
+        _toggleFavoriteUseCase = toggleFavoriteUseCase,
+        super(const HomeState());
 
   /// Load home data from the repository.
   Future<void> loadHome() async {
@@ -39,6 +44,12 @@ class HomeCubit extends Cubit<HomeState> {
       },
       (data) {
         if (isClosed) return;
+        final initialFavorites = <String>{};
+        for (final p in data.newestProducts) {
+          if (p.isFavorite) {
+            initialFavorites.add(p.id);
+          }
+        }
         emit(
           state.copyWith(
             loadingStatus: LoadingStatus.loaded,
@@ -49,6 +60,7 @@ class HomeCubit extends Cubit<HomeState> {
             partners: data.partners,
             newestProducts: data.newestProducts,
             isMember: data.isMember,
+            favoriteProductIds: initialFavorites,
           ),
         );
         _startAutoPlay();
@@ -77,6 +89,12 @@ class HomeCubit extends Cubit<HomeState> {
         }
       },
       (data) {
+        final initialFavorites = <String>{};
+        for (final p in data.newestProducts) {
+          if (p.isFavorite) {
+            initialFavorites.add(p.id);
+          }
+        }
         emit(
           state.copyWith(
             loadingStatus: LoadingStatus.loaded,
@@ -87,10 +105,57 @@ class HomeCubit extends Cubit<HomeState> {
             partners: data.partners,
             newestProducts: data.newestProducts,
             isMember: data.isMember,
+            favoriteProductIds: initialFavorites,
           ),
         );
       },
     );
+  }
+
+  /// Optimistically toggle a product's favorite status.
+  Future<bool?> toggleFavorite(String productId) async {
+    final updatedFavorites = Set<String>.from(state.favoriteProductIds);
+    final bool wasFavorite = updatedFavorites.contains(productId);
+
+    if (wasFavorite) {
+      updatedFavorites.remove(productId);
+    } else {
+      updatedFavorites.add(productId);
+    }
+
+    emit(state.copyWith(favoriteProductIds: updatedFavorites));
+
+    if (_toggleFavoriteUseCase != null) {
+      final result = await _toggleFavoriteUseCase(productId, type: 'product');
+      return result.fold(
+        (_) {
+          // Revert on failure
+          final reverted = Set<String>.from(state.favoriteProductIds);
+          if (wasFavorite) {
+            reverted.add(productId);
+          } else {
+            reverted.remove(productId);
+          }
+          if (!isClosed) {
+            emit(state.copyWith(favoriteProductIds: reverted));
+          }
+          return null;
+        },
+        (isFav) {
+          final synced = Set<String>.from(state.favoriteProductIds);
+          if (isFav) {
+            synced.add(productId);
+          } else {
+            synced.remove(productId);
+          }
+          if (!isClosed) {
+            emit(state.copyWith(favoriteProductIds: synced));
+          }
+          return isFav;
+        },
+      );
+    }
+    return !wasFavorite;
   }
 
   /// Change the filter for the newest products section.

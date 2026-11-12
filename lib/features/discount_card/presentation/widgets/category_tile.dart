@@ -1,5 +1,6 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:market/core/extensions/context_extensions.dart';
 import 'package:market/core/constants/app_radius.dart';
 import 'package:market/core/constants/app_shadows.dart';
@@ -130,7 +131,14 @@ class _CategoryTileState extends State<CategoryTile>
                     children: [
                       Divider(height: 1, color: context.colors.divider),
                       ...widget.category.merchants.map(
-                        (merchant) => MerchantTile(merchant: merchant),
+                        (merchant) => InkWell(
+                          onTap: () {
+                            if (merchant.id.isNotEmpty) {
+                              context.push('/merchant-details/${merchant.id}');
+                            }
+                          },
+                          child: MerchantTile(merchant: merchant),
+                        ),
                       ),
                       const SizedBox(height: AppSpacing.sm),
                     ],

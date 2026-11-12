@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:market/core/constants/app_colors.dart';
 import 'package:market/core/extensions/context_extensions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:market/core/constants/app_spacing.dart';
@@ -107,8 +108,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: isDark ? AppColors.darkBackground : Color(0xFFF8F9FA),
       body: SafeArea(
         child: Column(
           children: [
@@ -118,9 +121,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               child: Row(
                 children: [
                   // Back button (in RTL: rightmost)
-                  AppBackButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
+                  AppBackButton(onPressed: () => Navigator.of(context).pop()),
                   const Spacer(),
                   // Favorite button (in RTL: leftmost)
                   BlocBuilder<ProductDetailsCubit, ProductDetailsState>(

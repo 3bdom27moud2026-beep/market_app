@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:market/core/constants/app_colors.dart';
 import 'package:market/core/extensions/context_extensions.dart';
 import 'package:market/core/constants/app_styles.dart';
 import 'package:intl/intl.dart';
@@ -62,15 +63,19 @@ class OrderCard extends StatelessWidget {
                           Container(
                             padding: EdgeInsets.all(6.r),
                             decoration: BoxDecoration(
-                              color: context.colors.primary.withValues(
-                                alpha: 0.1,
-                              ),
+                              color:
+                                  (isDark
+                                          ? const Color(0xFF60A5FA)
+                                          : context.colors.primary)
+                                      .withValues(alpha: isDark ? 0.16 : 0.1),
                               borderRadius: BorderRadius.circular(8.r),
                             ),
                             child: Icon(
                               Icons.receipt_outlined,
                               size: 18.r,
-                              color: context.colors.primary,
+                              color: isDark
+                                  ? const Color(0xFF60A5FA)
+                                  : context.colors.primary,
                             ),
                           ),
                           SizedBox(width: 8.w),
@@ -106,7 +111,9 @@ class OrderCard extends StatelessWidget {
                       Icon(
                         Icons.storefront_outlined,
                         size: 16.r,
-                        color: context.colors.textSecondary,
+                        color: isDark
+                            ? const Color(0xFF93C5FD)
+                            : AppColors.darkCard,
                       ),
                       SizedBox(width: 6.w),
                       Expanded(
@@ -115,7 +122,9 @@ class OrderCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 12.sp,
                             fontWeight: FontWeight.w600,
-                            color: context.colors.primaryDark,
+                            color: isDark
+                                ? const Color(0xFF93C5FD)
+                                : AppColors.darkCard,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -260,7 +269,9 @@ class OrderCard extends StatelessWidget {
                         ElevatedButton(
                           onPressed: onTap,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: context.colors.primary,
+                            backgroundColor: isDark
+                                ? const Color(0xFF1D4ED8)
+                                : context.colors.primary,
                             foregroundColor: Colors.white,
                             elevation: 0,
                             shape: RoundedRectangleBorder(

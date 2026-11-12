@@ -144,7 +144,6 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
     const Color headerNavy = Color(0xFF0F2B48);
     final items = AppBottomNav.items;
     final colors = context.colors;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final activeColor = AppColors.brandOrange;
     final inactiveColor = AppColors.inactiveGrey;
     final barBg = headerNavy;

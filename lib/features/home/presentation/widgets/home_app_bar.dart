@@ -21,7 +21,7 @@ import 'home_search_bar.dart';
 class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   final int? cartItemCount;
   final int? notificationCount;
-  final bool hasUnreadNotifications;
+  final bool? hasUnreadNotifications;
   final bool showBackButton;
   final String? titleText;
   final bool showSearchBar;
@@ -37,7 +37,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
     super.key,
     this.cartItemCount,
     this.notificationCount,
-    this.hasUnreadNotifications = true,
+    this.hasUnreadNotifications,
     this.showBackButton = false,
     this.titleText,
     this.showSearchBar = false,
@@ -217,16 +217,16 @@ class _ShopGuideBrandLogo extends StatelessWidget {
   }
 }
 
-/// Notification bell with red indicator dot & Profile avatar on the right side
+/// Notification bell with badge counter & Profile avatar on the right side
 class _AppBarActions extends StatelessWidget {
   final int effectiveCount;
-  final bool hasUnreadNotifications;
+  final bool? hasUnreadNotifications;
   final VoidCallback? onNotificationTap;
   final VoidCallback? onProfileTap;
 
   const _AppBarActions({
     required this.effectiveCount,
-    required this.hasUnreadNotifications,
+    this.hasUnreadNotifications,
     this.onNotificationTap,
     this.onProfileTap,
   });
@@ -243,17 +243,30 @@ class _AppBarActions extends StatelessWidget {
           .avatarUrl;
     } catch (_) {}
 
+    final bool showCountBadge = effectiveCount > 0;
+    final bool showDotBadge =
+        !showCountBadge && (hasUnreadNotifications == true);
+
     return Directionality(
       textDirection: TextDirection.ltr,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Notification Bell with red dot indicator
+          // Notification Bell with count badge indicator
           GestureDetector(
-            onTap:
-                onNotificationTap ??
-                () => context.push(AppRoutes.notifications),
+            onTap: () async {
+              if (onNotificationTap != null) {
+                onNotificationTap!();
+              } else {
+                await context.push(AppRoutes.notifications);
+                if (context.mounted) {
+                  try {
+                    context.read<NotificationsCubit>().loadNotifications();
+                  } catch (_) {}
+                }
+              }
+            },
             behavior: HitTestBehavior.opaque,
             child: SizedBox(
               width: 36.r,
@@ -267,7 +280,49 @@ class _AppBarActions extends StatelessWidget {
                     color: Colors.white,
                     size: 26.r,
                   ),
-                  if (hasUnreadNotifications || effectiveCount > 0)
+                  if (showCountBadge)
+                    Positioned(
+                      top: 1.h,
+                      right: 0,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: effectiveCount > 9 ? 4.w : 2.5.w,
+                          vertical: 1.h,
+                        ),
+                        constraints: BoxConstraints(
+                          minWidth: 16.r,
+                          minHeight: 16.r,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEF4444),
+                          borderRadius: BorderRadius.circular(10.r),
+                          border: Border.all(
+                            color: HomeAppBar.headerNavy,
+                            width: 1.5.r,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.25),
+                              blurRadius: 2.r,
+                              offset: const Offset(0, 1),
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: Text(
+                            effectiveCount > 99 ? '99+' : '$effectiveCount',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 9.sp,
+                              fontWeight: FontWeight.bold,
+                              height: 1.0,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    )
+                  else if (showDotBadge)
                     Positioned(
                       top: 3.h,
                       right: 4.w,

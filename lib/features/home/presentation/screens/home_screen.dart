@@ -26,6 +26,7 @@ import 'package:market/features/auth/presentation/widgets/auth_bottom_sheet.dart
 import 'package:market/features/discount_card/presentation/widgets/request_card_bottom_sheet.dart';
 import 'package:market/features/cart/presentation/cubit/cart_cubit.dart';
 import 'package:market/features/cart/presentation/cubit/cart_state.dart';
+import 'package:market/features/notifications/presentation/cubit/notifications_cubit.dart';
 import 'package:market/features/promotions/presentation/cubit/startup_promotion_cubit.dart';
 import 'package:market/features/promotions/presentation/widgets/startup_promotion_dialog.dart';
 import 'package:market/features/location/presentation/widgets/location_bottom_sheet.dart';
@@ -59,6 +60,9 @@ class _HomeScreenState extends State<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       context.read<HomeCubit>().loadHome();
+      try {
+        context.read<NotificationsCubit>().loadNotifications();
+      } catch (_) {}
       final promotionCubit = context.read<StartupPromotionCubit>();
       promotionCubit.loadPromotion().then((_) {
         if (mounted && promotionCubit.state.promotion != null) {
@@ -75,6 +79,9 @@ class _HomeScreenState extends State<HomeScreen> {
       } catch (_) {}
       try {
         context.read<ProfileCubit>().loadProfile();
+      } catch (_) {}
+      try {
+        context.read<NotificationsCubit>().loadNotifications();
       } catch (_) {}
     });
   }

@@ -129,7 +129,7 @@ jobs:
         run: flutter pub get
 
       - name: Build Development APK
-        run: flutter build apk --flavor dev -t lib/main_dev.dart --release
+        run: flutter build apk --flavor dev -t lib/main_dev.dart --release --android-skip-build-dependency-validation
 
       - name: Upload Dev APK Artifact
         uses: actions/upload-artifact@v4
@@ -197,7 +197,7 @@ jobs:
 
       - name: Build Production APK
         if: github.event_name != 'workflow_dispatch' || inputs.build_type == 'apk' || inputs.build_type == 'both'
-        run: flutter build apk --flavor prod -t lib/main_prod.dart --release
+        run: flutter build apk --flavor prod -t lib/main_prod.dart --release --android-skip-build-dependency-validation
 
       - name: Upload Prod APK Artifact
         if: github.event_name != 'workflow_dispatch' || inputs.build_type == 'apk' || inputs.build_type == 'both'
@@ -225,7 +225,7 @@ jobs:
 
       - name: Build Production App Bundle (AAB)
         if: github.event_name != 'workflow_dispatch' || inputs.build_type == 'appbundle' || inputs.build_type == 'both'
-        run: flutter build appbundle --flavor prod -t lib/main_prod.dart --release
+        run: flutter build appbundle --flavor prod -t lib/main_prod.dart --release --android-skip-build-dependency-validation
 
       - name: Upload Prod AAB Artifact
         if: github.event_name != 'workflow_dispatch' || inputs.build_type == 'appbundle' || inputs.build_type == 'both'

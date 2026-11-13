@@ -142,7 +142,8 @@ class BestSellerSection extends StatelessWidget {
                   return BestSellerCard(
                     product: product,
                     isFavorite: favoriteProductIds.contains(product.id),
-                    onCartTap: () => onProductTap?.call(product.id),
+                    onCartTap: () =>
+                        onAddToCart?.call(product.id, product.title),
                     onFavoriteTap: () => onFavoriteTap?.call(product.id),
                     onDetailsTap: () => onProductTap?.call(product.id),
                   );

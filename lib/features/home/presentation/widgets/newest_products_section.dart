@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:market/core/constants/app_strings.dart';
 import 'package:market/core/extensions/context_extensions.dart';
@@ -110,7 +110,8 @@ class NewestProductsSection extends StatelessWidget {
                 return NewestProductCard(
                   product: product,
                   isFavorite: isFav,
-                  onCartTap: () => onProductTap?.call(product.id),
+                  onCartTap: () =>
+                      onAddToCart?.call(product.id, product.title),
                   onFavoriteTap: () => onFavoriteTap?.call(product.id),
                   onDetailsTap: () => onProductTap?.call(product.id),
                 );

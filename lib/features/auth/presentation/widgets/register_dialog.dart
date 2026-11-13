@@ -729,7 +729,9 @@ class _RegisterDialogState extends State<RegisterDialog> {
                 )
               : DropdownButtonHideUnderline(
                   child: DropdownButton<T>(
-                    value: selectedItem,
+                    value: (selectedItem != null && items.contains(selectedItem))
+                        ? selectedItem
+                        : null,
                     isExpanded: true,
                     hint: Padding(
                       padding: EdgeInsets.symmetric(horizontal: 12.w),
@@ -742,7 +744,7 @@ class _RegisterDialogState extends State<RegisterDialog> {
                       ),
                     ),
                     onChanged: isEnabled ? onChanged : null,
-                    items: items.map((item) {
+                    items: items.toSet().map((item) {
                       return DropdownMenuItem<T>(
                         value: item,
                         child: Padding(

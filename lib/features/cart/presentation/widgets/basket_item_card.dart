@@ -122,9 +122,12 @@ class BasketItemCard extends StatelessWidget {
                         style: AppStyles.priceStyle(
                           fontSize: 13.sp,
                           fontWeight: AppStyles.semiBold,
-                          color: const Color(0xFF1E3A8A),
+                          color: isDark
+                              ? context.colors.textPrimary
+                              : const Color(0xFF0F172A),
                         ),
                       ),
+                      
                       // Strikethrough Old Price (only if exists and higher)
                       if (hasOldPrice)
                         Text(
@@ -167,7 +170,8 @@ class BasketItemCard extends StatelessWidget {
                             ],
                           ),
                         ),
-                      if (item.linePotentialSaving != null && item.linePotentialSaving! > 0)
+                      if (item.linePotentialSaving != null &&
+                          item.linePotentialSaving! > 0)
                         Container(
                           padding: EdgeInsets.symmetric(
                             horizontal: 6.w,

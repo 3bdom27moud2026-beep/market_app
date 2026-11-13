@@ -28,99 +28,105 @@ class ProfileInfoCard extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: context.colors.surface,
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(20.r),
         boxShadow: [
           BoxShadow(
-            color: context.colors.shadowLight,
-            blurRadius: 10.r,
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 14.r,
             offset: Offset(0, 4.h),
           ),
         ],
       ),
-      child: Row(
-        children: [
-          // User Avatar (on right in RTL)
-          Container(
-            width: 56.r,
-            height: 56.r,
-            decoration: BoxDecoration(
-              color: context.colors.backgroundSecondary,
-              shape: BoxShape.circle,
-            ),
-            child: ClipOval(
-              child: (avatarUrl != null && avatarUrl!.isNotEmpty)
-                  ? Image.network(
-                      avatarUrl!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, _, _) => Icon(
-                        Icons.person_outline,
-                        size: 32.r,
-                        color: context.colors.primary,
-                      ),
-                    )
-                  : Icon(
-                      Icons.person_outline,
-                      size: 32.r,
-                      color: context.colors.primary,
-                    ),
-            ),
-          ),
-
-          SizedBox(width: AppSpacing.md.w),
-
-          // User Name and Phone Number
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  fullName.isNotEmpty ? fullName : 'مستخدم تسوق',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.bold,
-                    color: context.colors.textPrimary,
-                  ),
-                ),
-                SizedBox(height: 4.h),
-                Text(
-                  (phoneNumber != null && phoneNumber!.isNotEmpty)
-                      ? phoneNumber!
-                      : 'لا يوجد رقم هاتف',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w500,
-                    color: context.colors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          SizedBox(width: AppSpacing.sm.w),
-
-          // Edit Pencil Icon Button (on left in RTL)
-          InkWell(
-            onTap: onEditTap,
-            borderRadius: BorderRadius.circular(12.r),
-            child: Container(
-              padding: EdgeInsets.all(AppSpacing.sm.r + 2.r),
+      child: Directionality(
+        textDirection: TextDirection.rtl,
+        child: Row(
+          children: [
+            // User Avatar (on right)
+            Container(
+              width: 52.r,
+              height: 52.r,
               decoration: BoxDecoration(
-                color: context.colors.backgroundSecondary,
-                borderRadius: BorderRadius.circular(12.r),
+                color: const Color(0xFFF1F5F9),
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.06),
+                    blurRadius: 6.r,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-              child: Icon(
-                Icons.edit_outlined,
-                size: 20.r,
-                color: context.colors.textPrimary,
+              child: ClipOval(
+                child: (avatarUrl != null && avatarUrl!.isNotEmpty)
+                    ? Image.network(
+                        avatarUrl!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, _, _) => Icon(
+                          Icons.person_rounded,
+                          size: 30.r,
+                          color: const Color(0xFF94A3B8),
+                        ),
+                      )
+                    : Icon(
+                        Icons.person_rounded,
+                        size: 30.r,
+                        color: const Color(0xFF94A3B8),
+                      ),
               ),
             ),
-          ),
-        ],
+
+            SizedBox(width: AppSpacing.md.w),
+
+            // User Name and Phone Number
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    fullName.isNotEmpty ? fullName : 'احمد شكرى فايد',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF1E293B),
+                    ),
+                  ),
+                  SizedBox(height: 3.h),
+                  Text(
+                    (phoneNumber != null && phoneNumber!.isNotEmpty)
+                        ? phoneNumber!
+                        : '01022365400',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFF64748B),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            SizedBox(width: AppSpacing.sm.w),
+
+            // Edit Icon Button (on left)
+            InkWell(
+              onTap: onEditTap,
+              borderRadius: BorderRadius.circular(12.r),
+              child: Padding(
+                padding: EdgeInsets.all(4.r),
+                child: Icon(
+                  Icons.assignment_outlined,
+                  size: 26.r,
+                  color: const Color(0xFFEF8025),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

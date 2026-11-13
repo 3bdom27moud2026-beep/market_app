@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:market/core/extensions/context_extensions.dart';
 import 'package:go_router/go_router.dart';
 import 'package:market/core/constants/app_spacing.dart';
 import 'package:market/core/routes/app_routes.dart';
 import 'package:market/features/discount_card/presentation/widgets/request_card_bottom_sheet.dart';
 import 'package:market/features/profile/domain/entities/profile_entity.dart';
 
-/// Card widget to display the user's discount card details or a prompt to request a new card if none exists.
+/// Card widget to display the user's discount card details or a prompt to activate/request a card.
 class UserCardInfoWidget extends StatelessWidget {
   final UserCardEntity? card;
   final VoidCallback? onRequestCardTap;
@@ -23,351 +23,431 @@ class UserCardInfoWidget extends StatelessWidget {
     return _buildActiveCardView(context, card!);
   }
 
-  /// Banner displayed when the user does NOT have an active discount card.
+  /// Banner displayed when the user does NOT have an active discount card (Image 1 design).
   Widget _buildNoCardView(BuildContext context) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: AppSpacing.lg.w),
-      child: Container(
-        padding: EdgeInsets.all(AppSpacing.lg.r),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF1E293B), Color(0xFF0F172A)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+      child: InkWell(
+        onTap: () {
+          if (card != null && card!.isPending) {
+            context.push(AppRoutes.cardDetails, extra: card);
+          } else if (onRequestCardTap != null) {
+            onRequestCardTap!();
+          } else {
+            showRequestCardBottomSheet(context);
+          }
+        },
+        borderRadius: BorderRadius.circular(28.r),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: 16.w,
+            vertical: 12.h,
           ),
-          borderRadius: BorderRadius.circular(20.r),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0x22000000),
-              blurRadius: 16.r,
-              offset: Offset(0, 6.h),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Top Row: Title + Empty Status Badge
-            Row(
+          decoration: BoxDecoration(
+            color: const Color(0xFF0F2B48),
+            borderRadius: BorderRadius.circular(28.r),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.15),
+                blurRadius: 10.r,
+                offset: Offset(0, 4.h),
+              ),
+            ],
+          ),
+          child: Directionality(
+            textDirection: TextDirection.rtl,
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.all(8.r),
-                      decoration: BoxDecoration(
-                        color: context.colors.primary.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(10.r),
-                      ),
-                      child: Icon(
-                        Icons.add_card_rounded,
-                        color: context.colors.primary,
-                        size: 22.r,
-                      ),
-                    ),
-                    SizedBox(width: AppSpacing.sm.w),
-                    Text(
-                      'كارت الخصومات',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.bold,
-                        color: context.colors.textOnPrimary,
-                      ),
-                    ),
-                  ],
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: AppSpacing.md.w,
-                    vertical: AppSpacing.xs.h,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0x2BF59E0B),
-                    borderRadius: BorderRadius.circular(20.r),
-                    border: Border.all(
-                      color: const Color(0xFFF59E0B),
-                      width: 1.w,
-                    ),
-                  ),
+                // Promo text on the right
+                Expanded(
                   child: Text(
-                    card != null && !card!.isActive ? 'قيد التفعيل' : 'غير متاح',
+                    'فعل إشتراكك واحصل على خصم على كل أوامرك',
                     style: TextStyle(
-                      fontSize: 11.sp,
+                      fontSize: 12.5.sp,
                       fontWeight: FontWeight.bold,
-                      color: const Color(0xFFF59E0B),
+                      color: Colors.white,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                SizedBox(width: 8.w),
+                // Circular orange arrow button on the left
+                Container(
+                  width: 32.r,
+                  height: 32.r,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFEF8025),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Icon(
+                      Icons.chevron_left_rounded,
+                      size: 22.r,
+                      color: const Color(0xFF0F2B48),
                     ),
                   ),
                 ),
               ],
             ),
-
-            SizedBox(height: AppSpacing.md.h),
-
-            // Description text explaining how to request a card
-            Text(
-              card != null && !card!.isActive
-                  ? 'طلب كارت الخصم الخاص بك قيد المراجعة أو غير مفعّل حالياً. سيتم إشعارك وتفعيله قريباً لتتمكن من استخدامه والاستفادة من أفضل العروض والخصومات!'
-                  : 'ليس لديك كارت خصومات حالياً. يمكنك تقديم طلب للحصول على كارت والاستفادة من أفضل العروض والخصومات!',
-              style: TextStyle(
-                fontSize: 12.sp,
-                color: context.colors.textOnPrimary.withValues(alpha: 0.8),
-                height: 1.5,
-              ),
-            ),
-
-            SizedBox(height: AppSpacing.lg.h),
-
-            // CTA Button to request a card (only if user has no card at all)
-            if (card == null || card!.cardNo.isEmpty)
-              SizedBox(
-                width: double.infinity,
-                height: 46.h,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    if (onRequestCardTap != null) {
-                      onRequestCardTap!();
-                    } else {
-                      showRequestCardBottomSheet(context);
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: context.colors.primary,
-                    foregroundColor: context.colors.textOnPrimary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
-                    elevation: 0,
-                  ),
-                  icon: Icon(Icons.card_membership_rounded, size: 20.r),
-                  label: Text(
-                    'تقديم طلب للحصول على كارت',
-                    style: TextStyle(
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  /// Banner displayed when user HAS an active card.
+  /// Card displayed when user HAS an active discount card (Image 2 design).
   Widget _buildActiveCardView(BuildContext context, UserCardEntity cardEntity) {
-    final bool isActive = cardEntity.isActive;
-    final String typeArabic = cardEntity.type.toLowerCase() == 'monthly'
-        ? 'اشتراك شهري'
-        : (cardEntity.type.toLowerCase() == 'annual' ||
-                  cardEntity.type.toLowerCase() == 'yearly'
-              ? 'اشتراك سنوي'
-              : cardEntity.type);
+    final String typeArabic = _formatTypeArabic(cardEntity.type);
+    final String activatedDate = _formatDate(cardEntity.activatedAt ?? cardEntity.createdAt);
+    final String expiresDate = _formatDate(cardEntity.expiresAt);
+    final String subscriptionNote = _getSubscriptionNote(cardEntity);
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: AppSpacing.lg.w),
-      child: Column(
-        children: [
-          InkWell(
-            onTap: () => context.push(AppRoutes.cardDetails, extra: cardEntity),
-            borderRadius: BorderRadius.circular(20.r),
-            child: Container(
-              padding: EdgeInsets.all(AppSpacing.lg.r),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF1E293B), Color(0xFF0F172A)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(20.r),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0x33000000),
-                    blurRadius: 16.r,
-                    offset: Offset(0, 6.h),
-                  ),
-                ],
+      child: InkWell(
+        onTap: () => context.push(AppRoutes.cardDetails, extra: cardEntity),
+        borderRadius: BorderRadius.circular(22.r),
+        child: Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF0F2B48),
+            borderRadius: BorderRadius.circular(22.r),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.2),
+                blurRadius: 16.r,
+                offset: Offset(0, 6.h),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Top Row: Logo/Title + Status Badge
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(22.r),
+            child: CustomPaint(
+              painter: _CardWavePatternPainter(),
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 18.w,
+                  vertical: 16.h,
+                ),
+                child: Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: EdgeInsets.all(8.r),
-                            decoration: BoxDecoration(
-                              color: context.colors.primary.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(10.r),
-                            ),
-                            child: Icon(
-                              Icons.credit_card_rounded,
-                              color: context.colors.primary,
-                              size: 22.r,
-                            ),
+                      // Top Orange Pill Badge
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 14.w,
+                            vertical: 5.h,
                           ),
-                          SizedBox(width: AppSpacing.sm.w),
-                          Text(
-                            'كارت الخصومات',
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFEF8025),
+                            borderRadius: BorderRadius.circular(16.r),
+                          ),
+                          child: Text(
+                            'كارت خصومات شوب جايد',
                             style: TextStyle(
-                              fontSize: 14.sp,
+                              fontSize: 11.5.sp,
                               fontWeight: FontWeight.bold,
-                              color: context.colors.textOnPrimary,
+                              color: Colors.white,
                             ),
                           ),
-                        ],
+                        ),
                       ),
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: AppSpacing.md.w,
-                          vertical: AppSpacing.xs.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isActive
-                              ? const Color(0x2B10B981)
-                              : (cardEntity.isPending
-                                  ? const Color(0x2BF59E0B)
-                                  : const Color(0x2BEF4444)),
-                          borderRadius: BorderRadius.circular(20.r),
-                          border: Border.all(
-                            color: isActive
-                                ? const Color(0xFF10B981)
-                                : (cardEntity.isPending
-                                    ? const Color(0xFFF59E0B)
-                                    : const Color(0xFFEF4444)),
-                            width: 1.w,
-                          ),
-                        ),
-                        child: Row(
+
+                      SizedBox(height: 12.h),
+
+                      // Row 1: رقم الكارت
+                      _buildInfoRow(
+                        context,
+                        label: 'رقم الكارت',
+                        valueWidget: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Container(
-                              width: 6.r,
-                              height: 6.r,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: isActive
-                                    ? const Color(0xFF10B981)
-                                    : (cardEntity.isPending
-                                        ? const Color(0xFFF59E0B)
-                                        : const Color(0xFFEF4444)),
+                            Text(
+                              cardEntity.cardNo.startsWith('#')
+                                  ? cardEntity.cardNo
+                                  : '#${cardEntity.cardNo}',
+                              style: TextStyle(
+                                fontSize: 13.sp,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                letterSpacing: 0.5,
                               ),
                             ),
                             SizedBox(width: 6.w),
-                            Text(
-                              isActive
-                                  ? 'مُفعل'
-                                  : (cardEntity.isPending
-                                      ? 'قيد المراجعة'
-                                      : 'غير مُفعل'),
-                              style: TextStyle(
-                                fontSize: 11.sp,
-                                fontWeight: FontWeight.bold,
-                                color: isActive
-                                    ? const Color(0xFF10B981)
-                                    : (cardEntity.isPending
-                                        ? const Color(0xFFF59E0B)
-                                        : const Color(0xFFEF4444)),
+                            GestureDetector(
+                              onTap: () {
+                                Clipboard.setData(
+                                  ClipboardData(text: cardEntity.cardNo),
+                                );
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('تم نسخ رقم الكارت بنجاح'),
+                                    backgroundColor: Color(0xFF10B981),
+                                    duration: Duration(seconds: 2),
+                                  ),
+                                );
+                              },
+                              child: Icon(
+                                Icons.copy_rounded,
+                                size: 14.r,
+                                color: Colors.white70,
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ],
-                  ),
 
-                  SizedBox(height: AppSpacing.lg.h),
+                      _buildDivider(),
 
-                  // Card Number
-                  Text(
-                    cardEntity.cardNo.isNotEmpty ? cardEntity.cardNo : '---',
-                    style: TextStyle(
-                      fontSize: 17.sp,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 2,
-                      color: context.colors.textOnPrimary,
-                      fontFamily: 'monospace',
-                    ),
-                  ),
-
-                  SizedBox(height: AppSpacing.md.h),
-
-                  // Bottom Details Row: Type & Remaining Days
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        typeArabic,
-                        style: TextStyle(
-                          fontSize: 12.sp,
-                          color: context.colors.textOnPrimary.withValues(
-                            alpha: 0.75,
-                          ),
-                          fontWeight: FontWeight.w500,
+                      // Row 2: نوع الإشتراك
+                      _buildInfoRow(
+                        context,
+                        label: 'نوع الإشتراك',
+                        valueWidget: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              typeArabic,
+                              style: TextStyle(
+                                fontSize: 13.sp,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(width: 6.w),
+                            Icon(
+                              Icons.access_time_rounded,
+                              size: 14.r,
+                              color: Colors.white70,
+                            ),
+                          ],
                         ),
                       ),
-                      if (cardEntity.daysRemaining > 0)
-                        Text(
-                          'متبقي ${cardEntity.daysRemaining} يوم',
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w600,
-                            color: const Color(0xFF38BDF8),
-                          ),
+
+                      _buildDivider(),
+
+                      // Row 3: حالة الكارت
+                      _buildInfoRow(
+                        context,
+                        label: 'حالة الكارت',
+                        valueWidget: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'مُـفـعـل',
+                              style: TextStyle(
+                                fontSize: 13.sp,
+                                fontWeight: FontWeight.bold,
+                                color: const Color(0xFF10B981),
+                              ),
+                            ),
+                            SizedBox(width: 6.w),
+                            Icon(
+                              Icons.check_circle_rounded,
+                              size: 15.r,
+                              color: const Color(0xFF10B981),
+                            ),
+                          ],
                         ),
+                      ),
+
+                      _buildDivider(),
+
+                      // Row 4: تاريخ التفعيل
+                      _buildInfoRow(
+                        context,
+                        label: 'تاريخ التفعيل',
+                        valueWidget: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              activatedDate,
+                              style: TextStyle(
+                                fontSize: 13.sp,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(width: 6.w),
+                            Icon(
+                              Icons.calendar_month_outlined,
+                              size: 14.r,
+                              color: Colors.white70,
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      _buildDivider(),
+
+                      // Row 5: تاريخ الانتهاء
+                      _buildInfoRow(
+                        context,
+                        label: 'تاريخ الانتهاء',
+                        valueWidget: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              expiresDate,
+                              style: TextStyle(
+                                fontSize: 13.sp,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(width: 6.w),
+                            Icon(
+                              Icons.calendar_month_outlined,
+                              size: 14.r,
+                              color: Colors.white70,
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      SizedBox(height: 12.h),
+
+                      // Bottom Promo Text with check icon
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.check_circle_rounded,
+                            size: 15.r,
+                            color: Colors.white,
+                          ),
+                          SizedBox(width: 6.w),
+                          Text(
+                            subscriptionNote,
+                            style: TextStyle(
+                              fontSize: 11.5.sp,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white.withValues(alpha: 0.95),
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(height: 10.h),
-          // زر تفاصيل الكارت تحت الكارت
-          SizedBox(
-            width: double.infinity,
-            height: 44.h,
-            child: ElevatedButton(
-              onPressed: () => context.push(AppRoutes.cardDetails, extra: cardEntity),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: context.colors.primary,
-                foregroundColor: Colors.white,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.r),
                 ),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.credit_card_outlined,
-                    size: 18.sp,
-                    color: Colors.white,
-                  ),
-                  SizedBox(width: 8.w),
-                  Text(
-                    'اضغط هنا لتفاصيل الكارت',
-                    style: TextStyle(
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  SizedBox(width: 6.w),
-                  Icon(
-                    Icons.arrow_forward_ios_rounded,
-                    size: 12.sp,
-                    color: Colors.white.withValues(alpha: 0.8),
-                  ),
-                ],
-              ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(
+    BuildContext context, {
+    required String label,
+    required Widget valueWidget,
+  }) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 4.h),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w500,
+              color: Colors.white.withValues(alpha: 0.8),
+            ),
+          ),
+          valueWidget,
         ],
       ),
     );
   }
+
+  Widget _buildDivider() {
+    return Divider(
+      height: 10.h,
+      thickness: 0.6,
+      color: Colors.white.withValues(alpha: 0.12),
+    );
+  }
+
+  String _formatTypeArabic(String type) {
+    final t = type.toLowerCase();
+    if (t.contains('semi') ||
+        t.contains('نصف') ||
+        t == '6_months' ||
+        t == 'semi_annual') {
+      return 'نصف سنوي';
+    } else if (t.contains('annual') ||
+        t.contains('year') ||
+        t.contains('سنوي') ||
+        t == '12_months') {
+      return 'سنوي';
+    } else if (t.contains('month') || t.contains('شهري') || t == '1_month') {
+      return 'شهري';
+    }
+    return type.isNotEmpty ? type : 'نصف سنوي';
+  }
+
+  String _formatDate(String? rawDate) {
+    if (rawDate == null || rawDate.isEmpty) return '---';
+    final dt = DateTime.tryParse(rawDate);
+    if (dt == null) return rawDate;
+    return '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}';
+  }
+
+  String _getSubscriptionNote(UserCardEntity card) {
+    final t = card.type.toLowerCase();
+    if (t.contains('semi') ||
+        t.contains('نصف') ||
+        t == '6_months' ||
+        t == 'semi_annual') {
+      return 'أنت الآن تتمتع بستة أشهر مجانية';
+    } else if (t.contains('annual') ||
+        t.contains('year') ||
+        t.contains('سنوي') ||
+        t == '12_months') {
+      return 'أنت الآن تتمتع بسنة كاملة من الخصومات';
+    } else if (t.contains('month') || t.contains('شهري')) {
+      return 'أنت الآن تتمتع بشهر كامل من الخصومات';
+    }
+    return 'أنت الآن تتمتع بكافة خصومات ومزايا شوب جايد';
+  }
+}
+
+/// Custom painter to draw subtle decorative waves across the VIP discount card.
+class _CardWavePatternPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.035)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.0;
+
+    for (int i = 0; i < 4; i++) {
+      final path = Path();
+      final startY = size.height * (0.35 + i * 0.16);
+      path.moveTo(0, startY);
+
+      double x = 0;
+      double step = size.width / 6;
+      bool up = true;
+
+      while (x < size.width) {
+        final nextX = x + step;
+        final nextY = startY + (up ? -10 : 10);
+        path.quadraticBezierTo(x + step / 2, nextY, nextX, startY);
+        x = nextX;
+        up = !up;
+      }
+      canvas.drawPath(path, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

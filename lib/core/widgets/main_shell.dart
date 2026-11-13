@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:market/core/utils/cart_event_bus.dart';
+import 'package:market/core/utils/navigation_event_bus.dart';
 import 'package:market/core/widgets/custom_bottom_nav_bar.dart';
 import 'package:market/features/cart/dependency_injection.dart';
 import 'package:market/features/cart/presentation/cubit/cart_cubit.dart';
@@ -34,12 +36,17 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   late final PageController _pageController;
   int _currentIndex = 0;
+  StreamSubscription<int>? _navSubscription;
 
   @override
   void initState() {
     super.initState();
     _currentIndex = widget.navigationShell?.currentIndex ?? 0;
     _pageController = PageController(initialPage: _currentIndex);
+    _navSubscription = NavigationEventBus.instance.stream.listen((index) {
+      if (!mounted) return;
+      _onTabSelected(index);
+    });
   }
 
   @override
@@ -61,6 +68,7 @@ class _MainShellState extends State<MainShell> {
 
   @override
   void dispose() {
+    _navSubscription?.cancel();
     _pageController.dispose();
     super.dispose();
   }
@@ -93,6 +101,11 @@ class _MainShellState extends State<MainShell> {
         curve: Curves.easeInOutCubic,
       );
     }
+    final shell = widget.navigationShell ??
+        (widget.child is StatefulNavigationShell
+            ? widget.child as StatefulNavigationShell
+            : null);
+    shell?.goBranch(index);
   }
 
   @override

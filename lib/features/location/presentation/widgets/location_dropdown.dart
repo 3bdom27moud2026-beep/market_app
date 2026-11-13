@@ -57,7 +57,9 @@ class LocationDropdown<T> extends StatelessWidget {
             child: ButtonTheme(
               alignedDropdown: true,
               child: DropdownButton<T>(
-                value: selectedItem,
+                value: (selectedItem != null && items.contains(selectedItem))
+                    ? selectedItem
+                    : null,
                 isExpanded: true,
                 hint: Padding(
                   padding: EdgeInsets.symmetric(
@@ -100,7 +102,7 @@ class LocationDropdown<T> extends StatelessWidget {
                 ),
                 dropdownColor: context.colors.background,
                 borderRadius: BorderRadius.circular(AppRadius.medium.r),
-                items: items.map((item) {
+                items: items.toSet().map((item) {
                   final label = itemLabelBuilder != null
                       ? itemLabelBuilder!(item)
                       : item.toString();

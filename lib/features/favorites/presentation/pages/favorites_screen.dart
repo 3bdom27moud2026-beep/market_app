@@ -12,7 +12,7 @@ import 'package:market/core/routes/app_routes.dart';
 import 'package:market/core/utils/auth_event_bus.dart';
 import 'package:market/core/utils/auth_helper.dart';
 import 'package:market/features/auth/presentation/widgets/auth_bottom_sheet.dart';
-import 'package:market/features/cart/dependency_injection.dart';
+import 'package:market/features/cart/presentation/cubit/cart_cubit.dart';
 import 'package:market/features/home/presentation/widgets/home_app_bar.dart';
 import '../../domain/entities/favorite_entity.dart';
 import '../cubit/favorites_cubit.dart';
@@ -58,9 +58,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         backgroundColor: context.colors.background,
         appBar: HomeAppBar(
           bottom: TabBar(
-            indicatorColor: context.colors.primary,
+            indicatorColor: context.colors.ratingGrey,
             indicatorWeight: 3,
-            labelColor: context.colors.primary,
+            labelColor: context.colors.ratingGrey,
             unselectedLabelColor: context.colors.textTertiary,
             labelStyle: TextStyle(
               fontFamily: AppTextStyles.fontFamily,
@@ -202,196 +202,176 @@ class _FavoriteCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(AppSpacing.md.r),
-        boxShadow: AppShadows.productCard,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image with remove favorite button
-          Expanded(
-            child: Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(AppSpacing.md.r),
-                  ),
-                  child: CachedNetworkImage(
-                    imageUrl: item.image,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    placeholder: (_, _) =>
-                        Container(color: context.colors.backgroundSecondary),
-                    errorWidget: (_, _, _) => Container(
-                      color: context.colors.backgroundSecondary,
-                      child: const Icon(Icons.image),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => context.push('/product-details/${item.id}'),
+      child: Container(
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          borderRadius: BorderRadius.circular(AppSpacing.md.r),
+          boxShadow: AppShadows.productCard,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image with remove favorite button
+            Expanded(
+              child: Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(AppSpacing.md.r),
                     ),
-                  ),
-                ),
-                // Remove favorite button
-                Positioned(
-                  top: AppSpacing.xs.h,
-                  right: AppSpacing.xs.w,
-                  child: InkWell(
-                    onTap: () {
-                      context.read<FavoritesCubit>().removeFavorite(item.id);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('تمت إزالة المنتج من المفضلة'),
-                          duration: Duration(seconds: 1),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      padding: EdgeInsets.all(4.r),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(color: Colors.black12, blurRadius: 4),
-                        ],
-                      ),
-                      child: Icon(
-                        Icons.favorite,
-                        color: context.colors.heartRed,
-                        size: 18.r,
+                    child: CachedNetworkImage(
+                      imageUrl: item.image,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      placeholder: (_, _) =>
+                          Container(color: context.colors.backgroundSecondary),
+                      errorWidget: (_, _, _) => Container(
+                        color: context.colors.backgroundSecondary,
+                        child: const Icon(Icons.image),
                       ),
                     ),
                   ),
-                ),
-                if (item.discount.isNotEmpty)
+                  // Remove favorite button
                   Positioned(
                     top: AppSpacing.xs.h,
-                    left: AppSpacing.xs.w,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: AppSpacing.sm.w,
-                        vertical: 2.h,
-                      ),
-                      decoration: BoxDecoration(
-                        color: context.colors.discountRed,
-                        borderRadius: BorderRadius.circular(AppSpacing.xs.r),
-                      ),
-                      child: Text(
-                        item.discount,
-                        style: AppTextStyles.discountBadge,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          // Product details
-          Padding(
-            padding: EdgeInsets.all(AppSpacing.sm),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (item.store.isNotEmpty)
-                  Text(
-                    item.store,
-                    style: AppTextStyles.bodySmall.copyWith(
-                      fontSize: 10.5.sp,
-                      color: context.colors.textSecondary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                SizedBox(height: 2.h),
-                Text(
-                  item.name,
-                  style: AppTextStyles.bodySmall.copyWith(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 10.5.sp,
-                    color: context.colors.textPrimary,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                SizedBox(height: AppSpacing.xs.h),
-                Row(
-                  children: [
-                    Text(
-                      '${item.price.toStringAsFixed(0)} ج.م',
-                      style: AppTextStyles.price.copyWith(
-                        fontSize: 14.sp,
-                        fontWeight: AppStyles.semiBold,
-                        color: context.colors.primary,
-                      ),
-                    ),
-                    if (item.oldPrice > item.price) ...[
-                      SizedBox(width: AppSpacing.xs.w),
-                      Expanded(
-                        child: Text(
-                          '${item.oldPrice.toStringAsFixed(0)} ج.م',
-                          style: AppTextStyles.oldPrice.copyWith(
-                            fontSize: 11.sp,
-                            color: context.colors.textTertiary,
+                    right: AppSpacing.xs.w,
+                    child: InkWell(
+                      onTap: () {
+                        context.read<FavoritesCubit>().removeFavorite(item.id);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('تمت إزالة المنتج من المفضلة'),
+                            duration: Duration(seconds: 1),
                           ),
-                          overflow: TextOverflow.ellipsis,
+                        );
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(4.r),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(color: Colors.black12, blurRadius: 4),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.favorite,
+                          color: context.colors.heartRed,
+                          size: 18.r,
                         ),
                       ),
-                    ],
-                  ],
-                ),
-                SizedBox(height: AppSpacing.xs.h),
-                // Add to Cart button
-                SizedBox(
-                  width: double.infinity,
-                  height: 32.h,
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      AuthHelper.ensureAuthenticated(
-                        context,
-                        onAuthenticated: () async {
-                          final cartCubit = CartDI.createCartCubit();
-                          final success = await cartCubit.addToCart(
-                            productId: item.id,
-                            quantity: 1,
-                          );
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  success
-                                      ? 'تمت إضافة "${item.name}" إلى السلة'
-                                      : 'تعذر إضافة المنتج إلى السلة',
-                                ),
-                                backgroundColor: success
-                                    ? context.colors.accentGreen
-                                    : context.colors.accentRed,
-                              ),
-                            );
-                          }
-                        },
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: context.colors.primary,
-                      foregroundColor: context.colors.textOnPrimary,
-                      padding: EdgeInsets.zero,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppSpacing.sm.r),
+                    ),
+                  ),
+                  if (item.discount.isNotEmpty)
+                    Positioned(
+                      top: AppSpacing.xs.h,
+                      left: AppSpacing.xs.w,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: AppSpacing.sm.w,
+                          vertical: 2.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: context.colors.discountRed,
+                          borderRadius: BorderRadius.circular(AppSpacing.xs.r),
+                        ),
+                        child: Text(
+                          item.discount,
+                          style: AppTextStyles.discountBadge,
+                        ),
                       ),
                     ),
-                    icon: Icon(Icons.shopping_cart, size: 14.sp),
-                    label: Text(
-                      'أضف للسلة',
-                      style: TextStyle(
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.bold,
+                ],
+              ),
+            ),
+            // Product details
+            Padding(
+              padding: EdgeInsets.all(AppSpacing.sm),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (item.store.isNotEmpty)
+                    Text(
+                      item.store,
+                      style: AppTextStyles.bodySmall.copyWith(
+                        fontSize: 10.5.sp,
+                        color: context.colors.textSecondary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  SizedBox(height: 2.h),
+                  Text(
+                    item.name,
+                    style: AppTextStyles.bodySmall.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 10.5.sp,
+                      color: context.colors.textPrimary,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: AppSpacing.xs.h),
+                  Row(
+                    children: [
+                      Text(
+                        '${item.price.toStringAsFixed(0)} ج.م',
+                        style: AppTextStyles.price.copyWith(
+                          fontSize: 14.sp,
+                          fontWeight: AppStyles.semiBold,
+                          color: context.colors.primary,
+                        ),
+                      ),
+                      if (item.oldPrice > item.price) ...[
+                        SizedBox(width: AppSpacing.xs.w),
+                        Expanded(
+                          child: Text(
+                            '${item.oldPrice.toStringAsFixed(0)} ج.م',
+                            style: AppTextStyles.oldPrice.copyWith(
+                              fontSize: 11.sp,
+                              color: context.colors.textTertiary,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  SizedBox(height: AppSpacing.xs.h),
+                  // Add to Cart button
+                  SizedBox(
+                    width: double.infinity,
+                    height: 32.h,
+                    child: ElevatedButton.icon(
+                      onPressed: () =>
+                          context.push('/product-details/${item.id}'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: context.colors.primary,
+                        foregroundColor: context.colors.textOnPrimary,
+                        padding: EdgeInsets.zero,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AppSpacing.sm.r),
+                        ),
+                      ),
+                      icon: Icon(Icons.shopping_cart, size: 14.sp),
+                      label: Text(
+                        'أضف للسلة',
+                        style: TextStyle(
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -40,6 +40,9 @@ class LocationState extends Equatable {
     GovernorateEntity? selectedGovernorate,
     CenterEntity? selectedCenter,
     AreaEntity? selectedArea,
+    bool clearSelectedGovernorate = false,
+    bool clearSelectedCenter = false,
+    bool clearSelectedArea = false,
     bool? isLoadingGovernorates,
     bool? isLoadingCenters,
     bool? isLoadingAreas,
@@ -51,9 +54,14 @@ class LocationState extends Equatable {
       governorates: governorates ?? this.governorates,
       centers: centers ?? this.centers,
       areas: areas ?? this.areas,
-      selectedGovernorate: selectedGovernorate ?? this.selectedGovernorate,
-      selectedCenter: selectedCenter ?? this.selectedCenter,
-      selectedArea: selectedArea ?? this.selectedArea,
+      selectedGovernorate: clearSelectedGovernorate
+          ? null
+          : (selectedGovernorate ?? this.selectedGovernorate),
+      selectedCenter: clearSelectedCenter
+          ? null
+          : (selectedCenter ?? this.selectedCenter),
+      selectedArea:
+          clearSelectedArea ? null : (selectedArea ?? this.selectedArea),
       isLoadingGovernorates:
           isLoadingGovernorates ?? this.isLoadingGovernorates,
       isLoadingCenters: isLoadingCenters ?? this.isLoadingCenters,

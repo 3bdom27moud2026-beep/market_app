@@ -165,6 +165,42 @@ class _HomeContent extends StatelessWidget {
     context.push('/product-details/$productId');
   }
 
+  Future<void> _handleAddToCart(
+    BuildContext context,
+    String productId,
+    String title,
+  ) async {
+    await AuthHelper.ensureAuthenticated(
+      context,
+      onAuthenticated: () async {
+        final success = await context.read<CartCubit>().addToCart(
+          productId: productId,
+          quantity: 1,
+        );
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                success
+                    ? 'تمت إضافة "$title" إلى السلة'
+                    : 'تعذر إضافة المنتج إلى السلة',
+              ),
+              backgroundColor: success
+                  ? context.colors.accentGreen
+                  : context.colors.accentRed,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppSpacing.sm),
+              ),
+              margin: const EdgeInsets.all(AppSpacing.lg),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+      },
+    );
+  }
+
   Future<void> _handleToggleFavorite(
     BuildContext context,
     String productId,
@@ -252,7 +288,7 @@ class _HomeContent extends StatelessWidget {
             favoriteProductIds: state.favoriteProductIds,
             onFavoriteTap: (id) => _handleToggleFavorite(context, id),
             onProductTap: (id) => _navigateToProductDetails(context, id),
-            onAddToCart: (id, title) => _navigateToProductDetails(context, id),
+            onAddToCart: (id, title) => _handleAddToCart(context, id, title),
             onViewAllTap: () =>
                 context.push('${AppRoutes.allProducts}?filter=flash_sale'),
           ),
@@ -277,7 +313,7 @@ class _HomeContent extends StatelessWidget {
             favoriteProductIds: state.favoriteProductIds,
             onFavoriteTap: (id) => _handleToggleFavorite(context, id),
             onProductTap: (id) => _navigateToProductDetails(context, id),
-            onAddToCart: (id, title) => _navigateToProductDetails(context, id),
+            onAddToCart: (id, title) => _handleAddToCart(context, id, title),
             onViewAllTap: () =>
                 context.push('${AppRoutes.allProducts}?filter=best_sellers'),
           ),
@@ -365,7 +401,7 @@ class _HomeContent extends StatelessWidget {
             onFavoriteTap: (id) => _handleToggleFavorite(context, id),
             onFilterChanged: (filter) => cubit.changeNewestFilter(filter),
             onProductTap: (id) => _navigateToProductDetails(context, id),
-            onAddToCart: (id, title) => _navigateToProductDetails(context, id),
+            onAddToCart: (id, title) => _handleAddToCart(context, id, title),
             onViewAllTap: () =>
                 context.push('${AppRoutes.allProducts}?filter=newest'),
           ),

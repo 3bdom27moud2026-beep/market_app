@@ -6,6 +6,7 @@ import 'package:market/core/constants/app_assets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:market/core/routes/app_routes.dart';
+import 'package:market/core/utils/navigation_event_bus.dart';
 import 'package:market/features/notifications/presentation/cubit/notifications_cubit.dart';
 import 'package:market/features/profile/presentation/cubit/profile_cubit.dart';
 import 'home_search_bar.dart';
@@ -347,7 +348,21 @@ class _AppBarActions extends StatelessWidget {
 
           // User Profile Avatar Circle
           GestureDetector(
-            onTap: onProfileTap ?? () => context.push(AppRoutes.profile),
+            onTap: () {
+              if (onProfileTap != null) {
+                onProfileTap!();
+              } else {
+                NavigationEventBus.instance.switchTab(2);
+                final currentUri = GoRouterState.of(context).uri.toString();
+                if (currentUri != AppRoutes.home &&
+                    currentUri != AppRoutes.categories &&
+                    currentUri != AppRoutes.profile &&
+                    currentUri != AppRoutes.favorites &&
+                    currentUri != AppRoutes.basket) {
+                  context.go(AppRoutes.profile);
+                }
+              }
+            },
             child: Container(
               width: 36.r,
               height: 36.r,

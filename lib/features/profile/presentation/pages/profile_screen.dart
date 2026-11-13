@@ -147,28 +147,9 @@ class _ProfileLoaded extends StatelessWidget {
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           SizedBox(height: AppSpacing.lg.h),
-
-          // Page Title
-          Align(
-            alignment: Alignment.centerRight,
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg.w),
-              child: Text(
-                'حسابي',
-                style: TextStyle(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.bold,
-                  color: context.colors.textPrimary,
-                ),
-                textAlign: TextAlign.right,
-              ),
-            ),
-          ),
-
-          SizedBox(height: AppSpacing.xl.h),
 
           // User Info Card
           FadeInUp(
@@ -190,21 +171,33 @@ class _ProfileLoaded extends StatelessWidget {
             ),
           ),
 
-          SizedBox(height: AppSpacing.xl.h),
+          SizedBox(height: AppSpacing.md.h),
 
-          // User Card Info / Request Card Banner
+          // User Card Info / Request Card Banner (Image 1 or Image 2)
           FadeInUp(
             duration: const Duration(milliseconds: 600),
             delay: const Duration(milliseconds: 250),
             child: UserCardInfoWidget(card: profile.card),
           ),
 
-          SizedBox(height: AppSpacing.xl.h),
+          SizedBox(height: AppSpacing.md.h),
 
-          // Statistics
+          // Savings Card (Directly above Statistics)
           FadeInUp(
             duration: const Duration(milliseconds: 600),
             delay: const Duration(milliseconds: 300),
+            child: SavingsCard(
+              totalSavings: savings.totalSavings,
+              currency: savings.currency,
+            ),
+          ),
+
+          SizedBox(height: AppSpacing.md.h),
+
+          // Statistics (Favorites, Days Remaining, Orders Count)
+          FadeInUp(
+            duration: const Duration(milliseconds: 600),
+            delay: const Duration(milliseconds: 350),
             child: ProfileStatistics(
               ordersCount: statistics.ordersCount,
               subscriptionDaysRemaining: statistics.subscriptionDaysRemaining,
@@ -219,18 +212,6 @@ class _ProfileLoaded extends StatelessWidget {
                   context.read<ProfileCubit>().refresh();
                 }
               },
-            ),
-          ),
-
-          SizedBox(height: AppSpacing.xl.h),
-
-          // Savings Card
-          FadeInUp(
-            duration: const Duration(milliseconds: 600),
-            delay: const Duration(milliseconds: 400),
-            child: SavingsCard(
-              totalSavings: savings.totalSavings,
-              currency: savings.currency,
             ),
           ),
 
@@ -523,39 +504,49 @@ class _ProfileShimmerLoading extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            // Header placeholder
-            Container(height: 80.h, color: context.colors.surface),
-
-            SizedBox(height: AppSpacing.xl.h),
-
-            // Title placeholder
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg.w),
-              child: Container(
-                height: 32.h,
-                width: 120.w,
-                decoration: BoxDecoration(
-                  color: context.colors.surface,
-                  borderRadius: BorderRadius.circular(AppSpacing.sm.r),
-                ),
-              ),
-            ),
-
-            SizedBox(height: AppSpacing.xl.h),
+            SizedBox(height: AppSpacing.lg.h),
 
             // User card placeholder
             Padding(
               padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg.w),
               child: Container(
-                height: 100.h,
+                height: 76.h,
                 decoration: BoxDecoration(
                   color: context.colors.surface,
-                  borderRadius: BorderRadius.circular(AppSpacing.xl.r),
+                  borderRadius: BorderRadius.circular(20.r),
                 ),
               ),
             ),
 
-            SizedBox(height: AppSpacing.xl.h),
+            SizedBox(height: AppSpacing.md.h),
+
+            // Card / Banner placeholder
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg.w),
+              child: Container(
+                height: 52.h,
+                decoration: BoxDecoration(
+                  color: context.colors.surface,
+                  borderRadius: BorderRadius.circular(28.r),
+                ),
+              ),
+            ),
+
+            SizedBox(height: AppSpacing.md.h),
+
+            // Savings card placeholder
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg.w),
+              child: Container(
+                height: 60.h,
+                decoration: BoxDecoration(
+                  color: context.colors.surface,
+                  borderRadius: BorderRadius.circular(22.r),
+                ),
+              ),
+            ),
+
+            SizedBox(height: AppSpacing.md.h),
 
             // Statistics placeholder
             Padding(
@@ -565,11 +556,11 @@ class _ProfileShimmerLoading extends StatelessWidget {
                   3,
                   (_) => Expanded(
                     child: Container(
-                      height: 80.h,
-                      margin: EdgeInsets.only(left: AppSpacing.sm.w),
+                      height: 76.h,
+                      margin: EdgeInsets.symmetric(horizontal: 4.w),
                       decoration: BoxDecoration(
                         color: context.colors.surface,
-                        borderRadius: BorderRadius.circular(AppSpacing.lg.r),
+                        borderRadius: BorderRadius.circular(18.r),
                       ),
                     ),
                   ),
@@ -578,20 +569,6 @@ class _ProfileShimmerLoading extends StatelessWidget {
             ),
 
             SizedBox(height: AppSpacing.xl.h),
-
-            // Savings card placeholder
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg.w),
-              child: Container(
-                height: 140.h,
-                decoration: BoxDecoration(
-                  color: context.colors.surface,
-                  borderRadius: BorderRadius.circular(AppSpacing.xl.r),
-                ),
-              ),
-            ),
-
-            SizedBox(height: AppSpacing.xxl.h),
 
             // Menu items placeholder
             Padding(

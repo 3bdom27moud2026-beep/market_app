@@ -50,8 +50,8 @@ class LocationCubit extends Cubit<LocationState> {
     emit(
       state.copyWith(
         selectedGovernorate: governorate,
-        selectedCenter: null,
-        selectedArea: null,
+        clearSelectedCenter: true,
+        clearSelectedArea: true,
         centers: const [],
         areas: const [],
         isLoadingCenters: true,
@@ -72,7 +72,7 @@ class LocationCubit extends Cubit<LocationState> {
     emit(
       state.copyWith(
         selectedCenter: center,
-        selectedArea: null,
+        clearSelectedArea: true,
         areas: const [],
         isLoadingAreas: true,
         error: null,

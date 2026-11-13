@@ -1,5 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:market/core/constants/app_strings.dart';
 import 'package:market/core/extensions/context_extensions.dart';
 import 'package:go_router/go_router.dart';
 import 'package:market/core/constants/app_spacing.dart';
@@ -51,7 +52,7 @@ class NewestProductsSection extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Ø£Ø­Ø¯Ø« Ø§Ù„Ù…Ù†ØªØ¬Ø§Øª ÙˆØ§Ù„Ø®Ø¯Ù…Ø§Øª',
+                AppStrings.newestProducts,
                 style: AppTextStyles.sectionTitle.copyWith(fontSize: 16.sp),
               ),
               InkWell(
@@ -63,7 +64,7 @@ class NewestProductsSection extends StatelessWidget {
                 child: Row(
                   children: [
                     Text(
-                      'Ø¹Ø±Ø¶ Ø§Ù„Ù…Ø²ÙŠØ¯',
+                      AppStrings.viewAll,
                       style: AppTextStyles.sectionViewAll.copyWith(
                         fontSize: 12.sp,
                         color: context.colors.primary,
@@ -103,7 +104,8 @@ class NewestProductsSection extends StatelessWidget {
               itemCount: products.length,
               itemBuilder: (context, index) {
                 final product = products[index];
-                final isFav = favoriteProductIds.contains(product.id) ||
+                final isFav =
+                    favoriteProductIds.contains(product.id) ||
                     product.isFavorite;
                 return NewestProductCard(
                   product: product,
@@ -189,25 +191,25 @@ class CustomProductFilter extends StatelessWidget {
       child: Row(
         children: [
           FilterChipWidget(
-            label: 'Ø§Ù„Ø£Ø­Ø¯Ø«',
+            label: 'الاحدث',
             isSelected: selectedFilter == NewestFilter.newest,
             onTap: () => onFilterChanged(NewestFilter.newest),
           ),
           SizedBox(width: AppSpacing.sm.w),
           FilterChipWidget(
-            label: 'Ø§Ù„Ø£Ø¹Ù„Ù‰ Ø®ØµÙ…Ø§Ù‹',
+            label: 'الاعلى خصم',
             isSelected: selectedFilter == NewestFilter.highestDiscount,
             onTap: () => onFilterChanged(NewestFilter.highestDiscount),
           ),
           SizedBox(width: AppSpacing.sm.w),
           FilterChipWidget(
-            label: 'Ø§Ù„Ø£Ù‚Ù„ Ø³Ø¹Ø±Ø§Ù‹',
+            label: 'الاقل سعرا',
             isSelected: selectedFilter == NewestFilter.lowestPrice,
             onTap: () => onFilterChanged(NewestFilter.lowestPrice),
           ),
           SizedBox(width: AppSpacing.sm.w),
           FilterChipWidget(
-            label: 'Ø§Ù„Ø£Ø¹Ù„Ù‰ ØªÙ‚ÙŠÙŠÙ…Ø§Ù‹',
+            label: 'الاعلى تقييما',
             isSelected: selectedFilter == NewestFilter.highestRating,
             onTap: () => onFilterChanged(NewestFilter.highestRating),
           ),

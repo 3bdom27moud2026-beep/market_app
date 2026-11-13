@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -11,6 +12,9 @@ import 'package:market/core/widgets/app_text_field.dart';
 import 'package:market/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:market/features/auth/presentation/cubit/auth_state.dart';
 import 'package:market/features/auth/presentation/widgets/register_dialog.dart';
+import 'package:market/features/discount_card/dependency_injection.dart';
+import 'package:market/features/discount_card/presentation/cubit/discount_card_cubit.dart';
+import 'package:market/features/discount_card/presentation/widgets/subscription_step_widget.dart';
 import 'package:market/features/location/dependency_injection.dart';
 import 'package:market/features/location/domain/entities/area_entity.dart';
 import 'package:market/features/location/domain/entities/center_entity.dart';
@@ -80,6 +84,8 @@ class _UnifiedAuthBottomSheetState extends State<_UnifiedAuthBottomSheet> {
   late final TextEditingController _regPasswordController;
   bool _regPasswordVisible = false;
   bool _requestCard = true; // Enabled by default for card request tab
+  bool _showSubscriptionStep = false;
+  bool _isSubmittingSubscription = false;
 
   @override
   void initState() {
@@ -164,16 +170,126 @@ class _UnifiedAuthBottomSheetState extends State<_UnifiedAuthBottomSheet> {
     }
 
     FocusScope.of(context).unfocus();
+
+    if (_requestCard) {
+      // Transition to subscription plans and prices step
+      setState(() {
+        _showSubscriptionStep = true;
+      });
+    } else {
+      // Direct registration without card
+      _executeRegister(requestCard: false);
+    }
+  }
+
+  void _executeRegister({required bool requestCard}) {
+    final locationState = context.read<LocationCubit>().state;
+    if (locationState.selectedArea == null) return;
+
+    FocusScope.of(context).unfocus();
     context.read<AuthCubit>().register(
       name: _nameController.text.trim(),
-      phone: phone,
+      phone: _regPhoneController.text.trim(),
       password: _regPasswordController.text,
       areaId: locationState.selectedArea!.id,
-      requestCard: _requestCard,
+      requestCard: requestCard,
       referralCode: _referralCodeController.text.trim().isNotEmpty
           ? _referralCodeController.text.trim()
           : null,
     );
+  }
+
+  Future<void> _executeRegisterWithCard({
+    required String planType,
+    required String paymentMethod,
+    required File receiptFile,
+  }) async {
+    final locationState = context.read<LocationCubit>().state;
+    if (locationState.selectedArea == null) return;
+
+    setState(() {
+      _isSubmittingSubscription = true;
+    });
+
+    try {
+      final authCubit = context.read<AuthCubit>();
+      await authCubit.register(
+        name: _nameController.text.trim(),
+        phone: _regPhoneController.text.trim(),
+        password: _regPasswordController.text,
+        areaId: locationState.selectedArea!.id,
+        requestCard: true,
+        referralCode: _referralCodeController.text.trim().isNotEmpty
+            ? _referralCodeController.text.trim()
+            : null,
+      );
+
+      if (!mounted) return;
+
+      if (authCubit.state is AuthSuccess) {
+        // Registered successfully! Now submit the card request
+        DiscountCardCubit cardCubit;
+        try {
+          cardCubit = context.read<DiscountCardCubit>();
+        } catch (_) {
+          cardCubit = DiscountCardDI.createDiscountCardCubit();
+        }
+
+        final cardResult = await cardCubit.submitCardRequest(
+          planType: planType,
+          paymentMethod: paymentMethod,
+          receiptImagePath: receiptFile.path,
+          phone: _regPhoneController.text.trim(),
+        );
+
+        if (!mounted) return;
+
+        cardResult.fold(
+          (error) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('تم إنشاء الحساب، ولكن تعذر إرسال إيصال الكارت: $error'),
+                backgroundColor: context.colors.discountRed,
+              ),
+            );
+          },
+          (result) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    const Icon(Icons.check_circle_rounded, color: Colors.white),
+                    SizedBox(width: 8.w),
+                    const Expanded(
+                      child: Text(
+                        'تم إنشاء حسابك وتقديم طلب كارت التوفير بنجاح!',
+                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+                backgroundColor: context.colors.accentGreen,
+                behavior: SnackBarBehavior.floating,
+                duration: const Duration(seconds: 4),
+              ),
+            );
+          },
+        );
+
+        Navigator.of(context).pop(true);
+      } else if (authCubit.state is AuthError) {
+        // Return to registration form so the user can fix the input (e.g. phone already in use)
+        setState(() {
+          _showSubscriptionStep = false;
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmittingSubscription = false;
+        });
+      }
+    }
   }
 
   @override
@@ -185,7 +301,9 @@ class _UnifiedAuthBottomSheetState extends State<_UnifiedAuthBottomSheet> {
       listener: (context, state) {
         if (state is AuthSuccess) {
           AuthEventBus.instance.notifyLoggedIn(state.user);
-          Navigator.of(context).pop(true);
+          if (!_isSubmittingSubscription) {
+            Navigator.of(context).pop(true);
+          }
         }
       },
       builder: (context, state) {
@@ -220,53 +338,12 @@ class _UnifiedAuthBottomSheetState extends State<_UnifiedAuthBottomSheet> {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: _CloseButton(
-                        onTap: isLoading
+                        onTap: isLoading || _isSubmittingSubscription
                             ? null
                             : () => Navigator.of(context).pop(false),
                       ),
                     ),
                     SizedBox(height: AppSpacing.xs.h),
-
-                    // Logo Icon (Shopping bag in navy blue box)
-                    const _LogoIcon(),
-                    SizedBox(height: AppSpacing.md.h),
-
-                    // Title
-                    Text(
-                      'شوب جايد',
-                      style: AppTextStyles.headingMedium.copyWith(
-                        color: context.colors.primaryDark,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18.sp,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: AppSpacing.xs.h),
-
-                    // Subtitle depending on active tab
-                    Text(
-                      _selectedTab == AuthBottomSheetTab.login
-                          ? 'أهلاً بعودتك! سجّل دخولك للمتابعة'
-                          : 'أدخل بياناتك لإنشاء حساب جديد',
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: context.colors.textTertiary,
-                        fontSize: 10.sp,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: AppSpacing.lg.h),
-
-                    // Segmented Tab Switcher (تسجيل الدخول / طلب كارت)
-                    _AuthSegmentedTabBar(
-                      selectedTab: _selectedTab,
-                      onTabChanged: (tab) {
-                        if (!isLoading && _selectedTab != tab) {
-                          context.read<AuthCubit>().clearError();
-                          setState(() => _selectedTab = tab);
-                        }
-                      },
-                    ),
-                    SizedBox(height: AppSpacing.lg.h),
 
                     // Error banner
                     if (state is AuthError) ...[
@@ -274,11 +351,81 @@ class _UnifiedAuthBottomSheetState extends State<_UnifiedAuthBottomSheet> {
                       SizedBox(height: AppSpacing.md.h),
                     ],
 
-                    // Tab View
-                    if (_selectedTab == AuthBottomSheetTab.login)
-                      _buildLoginForm(context, isLoading)
-                    else
-                      _buildRegisterForm(context, isLoading),
+                    if (_showSubscriptionStep) ...[
+                      SubscriptionStepWidget(
+                        isSubmitting: _isSubmittingSubscription || isLoading,
+                        onBack: () {
+                          setState(() {
+                            _showSubscriptionStep = false;
+                          });
+                        },
+                        onSkipWithoutCard: () {
+                          setState(() {
+                            _showSubscriptionStep = false;
+                            _requestCard = false;
+                          });
+                          _executeRegister(requestCard: false);
+                        },
+                        onConfirm: ({
+                          required String planType,
+                          required String paymentMethod,
+                          required File receiptFile,
+                        }) async {
+                          await _executeRegisterWithCard(
+                            planType: planType,
+                            paymentMethod: paymentMethod,
+                            receiptFile: receiptFile,
+                          );
+                        },
+                      ),
+                    ] else ...[
+                      // Logo Icon (Shopping bag in navy blue box)
+                      const _LogoIcon(),
+                      SizedBox(height: AppSpacing.md.h),
+
+                      // Title
+                      Text(
+                        'شوب جايد',
+                        style: AppTextStyles.headingMedium.copyWith(
+                          color: context.colors.primaryDark,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18.sp,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: AppSpacing.xs.h),
+
+                      // Subtitle depending on active tab
+                      Text(
+                        _selectedTab == AuthBottomSheetTab.login
+                            ? 'أهلاً بعودتك! سجّل دخولك للمتابعة'
+                            : 'أدخل بياناتك لإنشاء حساب جديد',
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: context.colors.textTertiary,
+                          fontSize: 10.sp,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: AppSpacing.lg.h),
+
+                      // Segmented Tab Switcher (تسجيل الدخول / طلب كارت)
+                      _AuthSegmentedTabBar(
+                        selectedTab: _selectedTab,
+                        onTabChanged: (tab) {
+                          if (!isLoading && _selectedTab != tab) {
+                            context.read<AuthCubit>().clearError();
+                            setState(() => _selectedTab = tab);
+                          }
+                        },
+                      ),
+                      SizedBox(height: AppSpacing.lg.h),
+
+                      // Tab View
+                      if (_selectedTab == AuthBottomSheetTab.login)
+                        _buildLoginForm(context, isLoading)
+                      else
+                        _buildRegisterForm(context, isLoading),
+                    ],
                   ],
                 ),
               ),

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -6,8 +7,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:market/core/constants/app_spacing.dart';
 import 'package:market/core/constants/app_text_styles.dart';
 import 'package:market/core/di/dependency_injection.dart';
+import 'package:market/core/utils/auth_event_bus.dart';
 import 'package:market/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:market/features/auth/presentation/cubit/auth_state.dart';
+import 'package:market/features/discount_card/dependency_injection.dart';
+import 'package:market/features/discount_card/presentation/widgets/subscription_step_widget.dart';
 import 'package:market/features/location/dependency_injection.dart';
 import 'package:market/features/location/domain/entities/area_entity.dart';
 import 'package:market/features/location/domain/entities/center_entity.dart';
@@ -43,6 +47,8 @@ class _RegisterDialogState extends State<RegisterDialog> {
 
   bool _isPasswordVisible = false;
   bool _requestCard = false;
+  bool _showSubscriptionStep = false;
+  bool _isSubmittingSubscription = false;
 
   @override
   void initState() {
@@ -105,16 +111,115 @@ class _RegisterDialogState extends State<RegisterDialog> {
           );
           return;
         }
-        cubit.register(
-          name: _nameController.text.trim(),
-          phone: phone,
-          password: _passwordController.text,
-          areaId: locationState.selectedArea!.id,
-          requestCard: _requestCard,
-          referralCode: _referralCodeController.text.trim().isNotEmpty
-              ? _referralCodeController.text.trim()
-              : null,
+        if (_requestCard) {
+          // Transition to subscription plans and prices step
+          setState(() {
+            _showSubscriptionStep = true;
+          });
+        } else {
+          _executeRegister(requestCard: false);
+        }
+      }
+    }
+  }
+
+  void _executeRegister({required bool requestCard}) {
+    final locationState = context.read<LocationCubit>().state;
+    if (locationState.selectedArea == null) return;
+
+    context.read<AuthCubit>().register(
+      name: _nameController.text.trim(),
+      phone: _phoneController.text.trim(),
+      password: _passwordController.text,
+      areaId: locationState.selectedArea!.id,
+      requestCard: requestCard,
+      referralCode: _referralCodeController.text.trim().isNotEmpty
+          ? _referralCodeController.text.trim()
+          : null,
+    );
+  }
+
+  Future<void> _executeRegisterWithCard({
+    required String planType,
+    required String paymentMethod,
+    required File receiptFile,
+  }) async {
+    final locationState = context.read<LocationCubit>().state;
+    if (locationState.selectedArea == null) return;
+
+    setState(() {
+      _isSubmittingSubscription = true;
+    });
+
+    try {
+      final authCubit = context.read<AuthCubit>();
+      await authCubit.register(
+        name: _nameController.text.trim(),
+        phone: _phoneController.text.trim(),
+        password: _passwordController.text,
+        areaId: locationState.selectedArea!.id,
+        requestCard: true,
+        referralCode: _referralCodeController.text.trim().isNotEmpty
+            ? _referralCodeController.text.trim()
+            : null,
+      );
+
+      if (!mounted) return;
+
+      if (authCubit.state is AuthSuccess) {
+        final cardCubit = DiscountCardDI.createDiscountCardCubit();
+        final cardResult = await cardCubit.submitCardRequest(
+          planType: planType,
+          paymentMethod: paymentMethod,
+          receiptImagePath: receiptFile.path,
+          phone: _phoneController.text.trim(),
         );
+
+        if (!mounted) return;
+
+        cardResult.fold(
+          (error) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('تم إنشاء الحساب، ولكن تعذر إرسال إيصال الكارت: $error'),
+                backgroundColor: context.colors.discountRed,
+              ),
+            );
+          },
+          (result) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    const Icon(Icons.check_circle_rounded, color: Colors.white),
+                    SizedBox(width: 8.w),
+                    const Expanded(
+                      child: Text(
+                        'تم إنشاء حسابك وتقديم طلب كارت التوفير بنجاح!',
+                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+                backgroundColor: context.colors.accentGreen,
+                behavior: SnackBarBehavior.floating,
+                duration: const Duration(seconds: 4),
+              ),
+            );
+          },
+        );
+
+        Navigator.of(context).pop(true);
+      } else if (authCubit.state is AuthError) {
+        setState(() {
+          _showSubscriptionStep = false;
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmittingSubscription = false;
+        });
       }
     }
   }
@@ -131,7 +236,10 @@ class _RegisterDialogState extends State<RegisterDialog> {
       child: BlocConsumer<AuthCubit, AuthState>(
         listener: (context, state) {
           if (state is AuthSuccess) {
-            Navigator.of(context).pop(true);
+            AuthEventBus.instance.notifyLoggedIn(state.user);
+            if (!_isSubmittingSubscription) {
+              Navigator.of(context).pop(true);
+            }
           }
         },
         builder: (context, state) {
@@ -146,8 +254,35 @@ class _RegisterDialogState extends State<RegisterDialog> {
             child: SingleChildScrollView(
               child: Padding(
                 padding: EdgeInsets.all(AppSpacing.xl.r),
-                child: Form(
-                  key: _formKey,
+                child: _showSubscriptionStep
+                    ? SubscriptionStepWidget(
+                        isSubmitting: _isSubmittingSubscription || isLoading,
+                        onBack: () {
+                          setState(() {
+                            _showSubscriptionStep = false;
+                          });
+                        },
+                        onSkipWithoutCard: () {
+                          setState(() {
+                            _showSubscriptionStep = false;
+                            _requestCard = false;
+                          });
+                          _executeRegister(requestCard: false);
+                        },
+                        onConfirm: ({
+                          required String planType,
+                          required String paymentMethod,
+                          required File receiptFile,
+                        }) async {
+                          await _executeRegisterWithCard(
+                            planType: planType,
+                            paymentMethod: paymentMethod,
+                            receiptFile: receiptFile,
+                          );
+                        },
+                      )
+                    : Form(
+                        key: _formKey,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,

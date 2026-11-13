@@ -1036,7 +1036,13 @@ class _RequestCardToggle extends StatelessWidget {
           Switch(
             value: value,
             onChanged: enabled ? onChanged : null,
-            activeThumbColor: context.colors.primary,
+            activeThumbColor: context.colors.accentOrange,
+            activeTrackColor: context.colors.primary,
+            trackOutlineColor: WidgetStateProperty.resolveWith(
+              (states) => states.contains(WidgetState.selected)
+                  ? Colors.transparent
+                  : null,
+            ),
           ),
         ],
       ),

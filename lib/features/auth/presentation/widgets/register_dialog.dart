@@ -671,7 +671,13 @@ class _RegisterDialogState extends State<RegisterDialog> {
             onChanged: isLoading
                 ? null
                 : (v) => setState(() => _requestCard = v),
-            activeThumbColor: context.colors.primary,
+            activeThumbColor: context.colors.accentOrange,
+            activeTrackColor: context.colors.primary,
+            trackOutlineColor: WidgetStateProperty.resolveWith(
+              (states) => states.contains(WidgetState.selected)
+                  ? Colors.transparent
+                  : null,
+            ),
           ),
         ],
       ),

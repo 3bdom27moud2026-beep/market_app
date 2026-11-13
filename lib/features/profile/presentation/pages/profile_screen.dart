@@ -50,25 +50,25 @@ class _ProfileContent extends StatefulWidget {
 }
 
 class _ProfileContentState extends State<_ProfileContent> {
-  StreamSubscription<AuthEvent>? _authSubscription;
+  // No local AuthEventBus subscription here — ProfileCubit already handles
+  // loggedIn/loggedOut events internally. The postFrameCallback is also
+  // removed to prevent double API calls on tab switch.
 
   @override
   void initState() {
     super.initState();
-    _authSubscription = AuthEventBus.instance.stream.listen((event) {
-      if (!mounted) return;
-      context.read<ProfileCubit>().loadProfile();
-    });
+    // Trigger a single load only when status is still initial (first open).
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        context.read<ProfileCubit>().refresh();
+      if (!mounted) return;
+      final cubit = context.read<ProfileCubit>();
+      if (cubit.state.loadingStatus == LoadingStatus.initial) {
+        cubit.loadProfile();
       }
     });
   }
 
   @override
   void dispose() {
-    _authSubscription?.cancel();
     super.dispose();
   }
 

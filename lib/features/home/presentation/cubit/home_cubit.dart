@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_initializing_formals
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:market/core/utils/favorites_event_bus.dart';
 import 'package:market/features/favorites/domain/usecases/favorites_usecases.dart';
 import '../../domain/usecases/get_home_data.dart';
 import 'home_state.dart';
@@ -112,7 +113,7 @@ class HomeCubit extends Cubit<HomeState> {
     );
   }
 
-  /// Optimistically toggle a product's favorite status.
+  /// Optimistically toggle a product's favorite status and broadcast event.
   Future<bool?> toggleFavorite(String productId) async {
     final updatedFavorites = Set<String>.from(state.favoriteProductIds);
     final bool wasFavorite = updatedFavorites.contains(productId);
@@ -151,10 +152,20 @@ class HomeCubit extends Cubit<HomeState> {
           if (!isClosed) {
             emit(state.copyWith(favoriteProductIds: synced));
           }
+          // Broadcast so FavoritesCubit refreshes its list
+          FavoritesEventBus.instance.notifyFavoriteChanged(
+            productId: productId,
+            isAdded: isFav,
+          );
           return isFav;
         },
       );
     }
+    // No use-case: broadcast optimistic result
+    FavoritesEventBus.instance.notifyFavoriteChanged(
+      productId: productId,
+      isAdded: !wasFavorite,
+    );
     return !wasFavorite;
   }
 

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:market/core/extensions/context_extensions.dart';
 import 'package:go_router/go_router.dart';
@@ -13,7 +13,7 @@ import 'package:market/features/home/presentation/widgets/newest_product_card.da
 /// Newest Products section with filter chips and a 2-column grid layout.
 ///
 /// When [products] is empty, shows the section header with a
-/// "لا توجد عروض حالياً" empty state message.
+/// "Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¹Ø±ÙˆØ¶ Ø­Ø§Ù„ÙŠØ§Ù‹" empty state message.
 class NewestProductsSection extends StatelessWidget {
   final List<NewestProductEntity> products;
   final NewestFilter selectedFilter;
@@ -51,7 +51,7 @@ class NewestProductsSection extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'أحدث المنتجات والخدمات',
+                'Ø£Ø­Ø¯Ø« Ø§Ù„Ù…Ù†ØªØ¬Ø§Øª ÙˆØ§Ù„Ø®Ø¯Ù…Ø§Øª',
                 style: AppTextStyles.sectionTitle.copyWith(fontSize: 16.sp),
               ),
               InkWell(
@@ -63,7 +63,7 @@ class NewestProductsSection extends StatelessWidget {
                 child: Row(
                   children: [
                     Text(
-                      'عرض المزيد',
+                      'Ø¹Ø±Ø¶ Ø§Ù„Ù…Ø²ÙŠØ¯',
                       style: AppTextStyles.sectionViewAll.copyWith(
                         fontSize: 12.sp,
                         color: context.colors.primary,
@@ -96,7 +96,7 @@ class NewestProductsSection extends StatelessWidget {
               physics: const NeverScrollableScrollPhysics(),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                childAspectRatio: 0.62,
+                childAspectRatio: 0.68,
                 crossAxisSpacing: AppSpacing.md.w,
                 mainAxisSpacing: AppSpacing.md.h,
               ),
@@ -189,25 +189,25 @@ class CustomProductFilter extends StatelessWidget {
       child: Row(
         children: [
           FilterChipWidget(
-            label: 'الأحدث',
+            label: 'Ø§Ù„Ø£Ø­Ø¯Ø«',
             isSelected: selectedFilter == NewestFilter.newest,
             onTap: () => onFilterChanged(NewestFilter.newest),
           ),
           SizedBox(width: AppSpacing.sm.w),
           FilterChipWidget(
-            label: 'الأعلى خصماً',
+            label: 'Ø§Ù„Ø£Ø¹Ù„Ù‰ Ø®ØµÙ…Ø§Ù‹',
             isSelected: selectedFilter == NewestFilter.highestDiscount,
             onTap: () => onFilterChanged(NewestFilter.highestDiscount),
           ),
           SizedBox(width: AppSpacing.sm.w),
           FilterChipWidget(
-            label: 'الأقل سعراً',
+            label: 'Ø§Ù„Ø£Ù‚Ù„ Ø³Ø¹Ø±Ø§Ù‹',
             isSelected: selectedFilter == NewestFilter.lowestPrice,
             onTap: () => onFilterChanged(NewestFilter.lowestPrice),
           ),
           SizedBox(width: AppSpacing.sm.w),
           FilterChipWidget(
-            label: 'الأعلى تقييماً',
+            label: 'Ø§Ù„Ø£Ø¹Ù„Ù‰ ØªÙ‚ÙŠÙŠÙ…Ø§Ù‹',
             isSelected: selectedFilter == NewestFilter.highestRating,
             onTap: () => onFilterChanged(NewestFilter.highestRating),
           ),
@@ -233,7 +233,7 @@ class _EmptyState extends StatelessWidget {
           ),
           SizedBox(height: AppSpacing.sm.h),
           Text(
-            'لا توجد عروض حالياً',
+            'Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¹Ø±ÙˆØ¶ Ø­Ø§Ù„ÙŠØ§Ù‹',
             style: AppTextStyles.bodySmall.copyWith(
               color: context.colors.textTertiary,
               fontSize: 12.sp,

@@ -1,8 +1,6 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:market/core/utils/auth_event_bus.dart';
 import 'package:market/core/utils/cart_event_bus.dart';
 import 'package:market/core/widgets/custom_bottom_nav_bar.dart';
 import 'package:market/features/cart/dependency_injection.dart';
@@ -17,7 +15,6 @@ import 'package:market/features/favorites/presentation/pages/favorites_screen.da
 import 'package:market/features/home/dependency_injection.dart';
 import 'package:market/features/home/presentation/cubit/home_cubit.dart';
 import 'package:market/features/home/presentation/screens/home_screen.dart';
-import 'package:market/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:market/features/profile/presentation/pages/profile_screen.dart';
 import 'package:market/features/promotions/dependency_injection.dart';
 import 'package:market/features/promotions/presentation/cubit/startup_promotion_cubit.dart';
@@ -35,7 +32,6 @@ class MainShell extends StatefulWidget {
 }
 
 class _MainShellState extends State<MainShell> {
-  StreamSubscription<AuthEvent>? _authSubscription;
   late final PageController _pageController;
   int _currentIndex = 0;
 
@@ -44,14 +40,6 @@ class _MainShellState extends State<MainShell> {
     super.initState();
     _currentIndex = widget.navigationShell?.currentIndex ?? 0;
     _pageController = PageController(initialPage: _currentIndex);
-
-    _authSubscription = AuthEventBus.instance.stream.listen((event) {
-      if (!mounted) return;
-      try {
-        context.read<ProfileCubit>().loadProfile();
-      } catch (_) {}
-      setState(() {});
-    });
   }
 
   @override
@@ -74,7 +62,6 @@ class _MainShellState extends State<MainShell> {
   @override
   void dispose() {
     _pageController.dispose();
-    _authSubscription?.cancel();
     super.dispose();
   }
 
@@ -89,12 +76,8 @@ class _MainShellState extends State<MainShell> {
 
     shell?.goBranch(index);
 
-    // Contextual refresh hooks
-    if (index == 2) {
-      try {
-        context.read<ProfileCubit>().refresh();
-      } catch (_) {}
-    } else if (index == 4) {
+    // Only notify cart — profile loads itself when its cubit status is initial
+    if (index == 4) {
       CartEventBus.instance.notifyCartUpdated();
     }
   }

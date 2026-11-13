@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:market/core/di/dependency_injection.dart';
 import 'package:market/core/utils/auth_event_bus.dart';
+import 'package:market/core/utils/favorites_event_bus.dart';
 import 'package:market/features/auth/domain/usecases/check_auth_usecase.dart';
 import '../../domain/entities/favorite_entity.dart';
 import '../../domain/usecases/favorites_usecases.dart';
@@ -13,6 +14,7 @@ class FavoritesCubit extends Cubit<FavoritesState> {
   final GetFavoriteMerchantsUseCase _getFavoriteMerchantsUseCase;
   final ToggleFavoriteUseCase _toggleFavoriteUseCase;
   StreamSubscription<AuthEvent>? _authSubscription;
+  StreamSubscription<FavoriteChangedEvent>? _favEventSubscription;
 
   FavoritesCubit({
     required GetFavoritesUseCase getFavoritesUseCase,
@@ -29,11 +31,23 @@ class FavoritesCubit extends Cubit<FavoritesState> {
         emit(state.copyWith(status: FavoritesStatus.unauthenticated));
       }
     });
+
+    // Listen for favorite toggle events from HomeCubit or any other screen
+    // and reload the favorites list so it stays in sync without restart.
+    _favEventSubscription = FavoritesEventBus.instance.stream.listen((event) {
+      if (isClosed) return;
+      // Only reload if already loaded (don't interrupt loading/error states)
+      if (state.status == FavoritesStatus.loaded ||
+          state.status == FavoritesStatus.initial) {
+        loadFavorites();
+      }
+    });
   }
 
   @override
   Future<void> close() {
     _authSubscription?.cancel();
+    _favEventSubscription?.cancel();
     return super.close();
   }
 

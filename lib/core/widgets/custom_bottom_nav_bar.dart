@@ -1,6 +1,5 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:market/core/constants/app_bottom_nav.dart';
@@ -11,7 +10,6 @@ import 'package:market/core/routes/app_routes.dart';
 import 'package:market/core/utils/cart_event_bus.dart';
 import 'package:market/core/widgets/curved_nav_bar/curved_pill_nav_bar.dart';
 import 'package:market/core/widgets/curved_nav_bar/nav_bar_custom_icons.dart';
-import 'package:market/features/profile/presentation/cubit/profile_cubit.dart';
 
 /// The classic, elegant curved bottom navigation bar with:
 /// - Floating animated circle with dual drop-shadow for clear motion animation.
@@ -342,11 +340,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
     widget.onTabSelected?.call(targetBranch);
 
     if (widget.navigationShell != null) {
-      if (route == AppRoutes.profile) {
-        try {
-          context.read<ProfileCubit>().refresh();
-        } catch (_) {}
-      }
+      // Only trigger cart refresh — profile loads itself via its own cubit
       if (route == AppRoutes.basket) {
         CartEventBus.instance.notifyCartUpdated();
       }
@@ -357,20 +351,10 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
     } else {
       final currentLocation = GoRouterState.of(context).uri.toString();
       if (currentLocation == route) {
-        if (route == AppRoutes.profile) {
-          try {
-            context.read<ProfileCubit>().refresh();
-          } catch (_) {}
-        }
         if (route == AppRoutes.basket) {
           CartEventBus.instance.notifyCartUpdated();
         }
         return;
-      }
-      if (route == AppRoutes.profile) {
-        try {
-          context.read<ProfileCubit>().refresh();
-        } catch (_) {}
       }
       if (route == AppRoutes.basket) {
         CartEventBus.instance.notifyCartUpdated();
@@ -379,7 +363,6 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
     }
   }
 }
-
 /// Precise painter that carves out the curved dip in the bottom nav bar.
 class _CurvedNavPainter extends CustomPainter {
   final double loc;
